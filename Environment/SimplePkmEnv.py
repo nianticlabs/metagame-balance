@@ -262,8 +262,8 @@ class SimplePkmEnv(gym.Env):
         damage = before_pkm.hp - opponent_pkm.hp
         self.debug_message[t_id] = "ATTACK with " + str(move) + " to type " + TYPE_TO_STR[
             opponent_pkm.p_type] + " multiplier=" + str(
-            TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type]) + " causing " + str(damage) + \
-                                   " damage, leaving opponent hp " + str(opponent_pkm.hp) + ''
+            TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type]) + " causing " + str(
+            damage) + " damage, leaving opponent hp " + str(opponent_pkm.hp) + ''
         return damage
 
     def _battle_pkm(self, a, t_id):
