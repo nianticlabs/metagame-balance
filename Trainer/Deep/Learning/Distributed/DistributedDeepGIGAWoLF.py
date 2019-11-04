@@ -22,7 +22,7 @@ class DistributedDeepGIGAWoLF:
             print('player_' + self.name)
             self.pi_t = None
             self.pi_slow_t = None
-            self.q_t = None
+            self.q_t = [0.0] * self.n_actions
             self.pi_t_batch = []
             self.pi_slow_t_batch = []
             self.q_t_batch = []
@@ -43,7 +43,7 @@ class DistributedDeepGIGAWoLF:
                 return int(random() * self.n_actions)
             pi, q = self.sess.run([self.net.policy, self.net.out_q], feed_dict={self.net.in_state: [s]})
             pi, self.q_t = pi[0], q[0]
-            print(' PI ', pi, 'Q', self.q_t)
+            # print(' PI ', pi, 'Q', self.q_t)
             return np.random.choice(self.n_actions, p=pi)
 
         def compute_pi_q(self, s, a, r, t):
@@ -80,8 +80,8 @@ class DistributedDeepGIGAWoLF:
             for a in range(self.n_actions):
                 self.pi_slow_t[a] = z[a]
                 self.pi_t[a] = avg_pi[a] + d_l_rate * (z[a] - avg_pi[a])
-            print(' target PI ', self.pi_t, ' <- ', pi_t[0])
-            print(' target PI slow', self.pi_slow_t, ' <- ', pi_slow_t[0])
+            # print(' target PI ', self.pi_t, ' <- ', pi_t[0])
+            # print(' target PI slow', self.pi_slow_t, ' <- ', pi_slow_t[0])
             self.pi_t_batch += [self.pi_t]
             self.pi_slow_t_batch += [self.pi_slow_t]
 
@@ -134,6 +134,7 @@ class DistributedDeepGIGAWoLF:
             self.n_steps = n_steps
             self.n_players = n_players
             self.sess = None
+            self.decay_threshold = self.n_eps * 0.6
 
         def set_session(self, sess):
             self.sess = sess
@@ -179,6 +180,9 @@ class DistributedDeepGIGAWoLF:
                             return
                         if step % self.n_steps == 0:
                             break
+                    for p in self.player:
+                        p.e_rate = (self.decay_threshold - ep) / self.decay_threshold
+                        print('e_rate', p.e_rate)
 
     @staticmethod
     def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path, hosts,

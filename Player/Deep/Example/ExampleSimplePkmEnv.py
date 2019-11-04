@@ -6,7 +6,7 @@ from Player.HumanAgent import *
 def main():
     env = SimplePkmEnv()
     p0 = HumanAgent(env.action_space.n, '1: Move 1, 2: Move 2, 3: Move 3, 4: Move 4, 5: Switch')
-    p1 = DeepMixedAgent(env.action_space.n, '../../../Model/Deep/DeepGIGAWoLF_SimplePkmEnv')
+    p1 = DeepMixedAgent(env.action_space.n, '../../../Model/Deep/DistributedDeepGIGAWoLF_SimplePkmEnv')
     n_games = 10
     s = env.reset()
     a = [None, None]
