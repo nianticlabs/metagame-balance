@@ -150,7 +150,8 @@ class DistributedDeepGIGAWoLF:
                 while ep < self.n_eps:
                     ep += 1
                     # if self.name == '0':
-                    #     print('EP', ep)
+                    if ep % 10000 == 0:
+                        print('EP', ep)
                     # sample initial game state
                     s1 = self.env.reset()
                     while True:
@@ -176,14 +177,14 @@ class DistributedDeepGIGAWoLF:
                                     p.update_target_network()
                         if self.name == '0':
                             self.sess.run(self.increment)
-                        print('STEP', self.sess.run(self.global_episodes))
+                        # print('STEP', self.sess.run(self.global_episodes))
                         if self.sess.run(self.global_episodes) == self.n_eps * self.n_steps:
                             return
                         if step % self.n_steps == 0:
                             break
                     for p in self.player:
                         p.e_rate = np.maximum((self.decay_threshold - ep) / self.decay_threshold, self.min_e_rate)
-                        print('e_rate', p.e_rate)
+                        # print('e_rate', p.e_rate)
 
     @staticmethod
     def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,

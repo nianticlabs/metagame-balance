@@ -196,8 +196,6 @@ class SimplePkmEnv(gym.Env):
                 SimplePkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
                           get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
-        print(self._state_trainer(0))
-        print(self._state_trainer(1))
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
@@ -303,7 +301,6 @@ def encode(s):
     :param s: game state
     :return: encoded game state in one hot vector
     """
-    print('s', s)
     e = []
     for i in range(0, len(s) - 1):
         if i % 2 == 0:
