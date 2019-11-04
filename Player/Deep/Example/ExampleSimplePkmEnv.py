@@ -19,7 +19,7 @@ def main():
             a[0] = p0.get_action(s[0])
             a[1] = p1.get_action(s[1])
             _, r, t, _ = env.step(tuple(a))
-            env.render()
+            env.render('player')
             ep_reward = [ep_reward[0] + r[0], ep_reward[1] + r[1]]
         print('Results:')
         if ep_reward[0] > ep_reward[1]:

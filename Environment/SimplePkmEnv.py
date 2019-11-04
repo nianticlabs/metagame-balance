@@ -164,7 +164,7 @@ class SimplePkmEnv(gym.Env):
         if can_player2_attack and actions[self.second] != SWITCH_ACTION:
             r[self.second], terminal, _, dmg_dealt2 = self._battle_pkm(actions[self.second], self.second)
         else:
-            self.debug_message[1] = 'can\'t perform any action'
+            self.debug_message[self.second] = 'can\'t perform any action'
 
         r[self.first] -= dmg_dealt2 / HIT_POINTS
         r[self.second] -= dmg_dealt1 / HIT_POINTS
@@ -226,7 +226,8 @@ class SimplePkmEnv(gym.Env):
         print('Party', self.p_pkm[0])
         print('Trainer 1')
         print('Active', self.a_pkm[1])
-        print('Party', self.p_pkm[1])
+        if mode == 'player':
+            print('Party', self.p_pkm[1])
         print()
 
     def change_setting(self, setting):
