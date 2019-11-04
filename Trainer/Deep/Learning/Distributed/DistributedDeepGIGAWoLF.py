@@ -113,7 +113,7 @@ class DistributedDeepGIGAWoLF:
     class Simulation(Thread):
 
         def __init__(self, env, optimizer, g_net, pi_l_rate, y, e_rate, tau, n_eps, n_steps, n_players, g_id,
-                     global_episodes, name='gameplay'):
+                     global_episodes, decay_percentage, name='gameplay'):
             super().__init__()
             self.env = env
             self.pi_l_rate = pi_l_rate
@@ -134,7 +134,7 @@ class DistributedDeepGIGAWoLF:
             self.n_steps = n_steps
             self.n_players = n_players
             self.sess = None
-            self.decay_threshold = self.n_eps * 0.6
+            self.decay_threshold = self.n_eps * decay_percentage
 
         def set_session(self, sess):
             self.sess = sess
@@ -185,8 +185,8 @@ class DistributedDeepGIGAWoLF:
                         print('e_rate', p.e_rate)
 
     @staticmethod
-    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path, hosts,
-              task_index):
+    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,
+              decay_percentage, hosts, task_index):
         cluster = tf.train.ClusterSpec({"dqn": hosts})
         server = tf.train.Server(cluster, job_name="dqn", task_index=task_index)
         tf.reset_default_graph()
@@ -208,7 +208,8 @@ class DistributedDeepGIGAWoLF:
             while g < concurrent_games:
                 game_pool.append(
                     DistributedDeepGIGAWoLF.Simulation(copy.deepcopy(env), optimizer, g_net, pi_l_rate, y, e_rate, tau,
-                                                       n_eps, n_steps, n_players, g, global_episodes, name=str(g)))
+                                                       n_eps, n_steps, n_players, g, global_episodes, decay_percentage,
+                                                       name=str(g)))
                 g += 1
         # tf.summary.FileWriter('./Graph', sess.graph)
         hooks = [tf.train.StopAtStepHook(last_step=50000000)]
