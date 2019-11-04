@@ -113,7 +113,7 @@ class DistributedDeepGIGAWoLF:
     class Simulation(Thread):
 
         def __init__(self, env, optimizer, g_net, pi_l_rate, y, e_rate, tau, n_eps, n_steps, n_players, g_id,
-                     global_episodes, decay_percentage, name='gameplay'):
+                     global_episodes, decay_percentage, min_e_rate, name='gameplay'):
             super().__init__()
             self.env = env
             self.pi_l_rate = pi_l_rate
@@ -135,6 +135,7 @@ class DistributedDeepGIGAWoLF:
             self.n_players = n_players
             self.sess = None
             self.decay_threshold = self.n_eps * decay_percentage
+            self.min_e_rate = min_e_rate
 
         def set_session(self, sess):
             self.sess = sess
@@ -181,12 +182,12 @@ class DistributedDeepGIGAWoLF:
                         if step % self.n_steps == 0:
                             break
                     for p in self.player:
-                        p.e_rate = (self.decay_threshold - ep) / self.decay_threshold
+                        p.e_rate = np.maximum((self.decay_threshold - ep) / self.decay_threshold, self.min_e_rate)
                         print('e_rate', p.e_rate)
 
     @staticmethod
     def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,
-              decay_percentage, hosts, task_index):
+              decay_percentage, min_e_rate, hosts, task_index):
         cluster = tf.train.ClusterSpec({"dqn": hosts})
         server = tf.train.Server(cluster, job_name="dqn", task_index=task_index)
         tf.reset_default_graph()
@@ -209,7 +210,7 @@ class DistributedDeepGIGAWoLF:
                 game_pool.append(
                     DistributedDeepGIGAWoLF.Simulation(copy.deepcopy(env), optimizer, g_net, pi_l_rate, y, e_rate, tau,
                                                        n_eps, n_steps, n_players, g, global_episodes, decay_percentage,
-                                                       name=str(g)))
+                                                       min_e_rate, name=str(g)))
                 g += 1
         # tf.summary.FileWriter('./Graph', sess.graph)
         hooks = [tf.train.StopAtStepHook(last_step=50000000)]

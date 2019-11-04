@@ -9,8 +9,9 @@ TAU = 25  # BATCH_SIZE
 N_EPS = 2000000
 N_STEPS = TAU
 E_RATE = 1.0
+MIN_E_RATE = 0.05
 N_PLAYERS = 2
-DECAY_PERCENTAGE = 0.6
+DECAY_PERCENTAGE = 0.65
 ENV_NAME = 'SimplePkmEnv(SETTING_HALF_DETERMINISTIC)'
 MODEL_PATH = '../../../../Model/Deep/DistributedDeepGIGAWoLF' + '_' + ENV_NAME
 
@@ -24,7 +25,7 @@ def main():
     trainer = DistributedDeepGIGAWoLF()
     print('train', task_index)
     trainer.train(env, G_L_RATE, concurrent_games, PI_L_RATE, Y, TAU, N_EPS, N_STEPS, E_RATE, N_PLAYERS, MODEL_PATH,
-                  DECAY_PERCENTAGE, hosts, task_index)
+                  DECAY_PERCENTAGE, MIN_E_RATE, hosts, task_index)
 
 
 if __name__ == '__main__':
