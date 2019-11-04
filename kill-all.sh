@@ -1,0 +1,1 @@
+kill $(ps aux | grep '[p]ython Trainer' | awk '{print $2}')

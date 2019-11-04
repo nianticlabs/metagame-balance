@@ -189,6 +189,7 @@ class DistributedDeepGIGAWoLF:
     @staticmethod
     def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,
               decay_percentage, min_e_rate, hosts, task_index):
+        tf.logging.set_verbosity(tf.logging.ERROR)
         cluster = tf.train.ClusterSpec({"dqn": hosts})
         server = tf.train.Server(cluster, job_name="dqn", task_index=task_index)
         tf.reset_default_graph()
