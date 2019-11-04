@@ -118,7 +118,7 @@ class SimplePkm:
 
 
 class SimplePkmEnv(gym.Env):
-    def __init__(self, setting=SETTING_RANDOM, debug=False):
+    def __init__(self, setting=SETTING_RANDOM):
         self.numberOfActions = N_MOVES + 1
         self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
         self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
@@ -177,15 +177,15 @@ class SimplePkmEnv(gym.Env):
             self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
         elif self.setting == SETTING_FULL_DETERMINISTIC:
-            self.a_pkm = [SimplePkm(GRASS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
-                          SimplePkm(FIRE, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
-            self.p_pkm = [SimplePkm(WATER, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
-                          SimplePkm(NORMAL, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL, 90)]  # party pokemons
+            self.a_pkm = [SimplePkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
+                          SimplePkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
+            self.p_pkm = [SimplePkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
+                          SimplePkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL, 90)]  # party pokemons
         elif self.setting == SETTING_HALF_DETERMINISTIC:
             type1 = random.randrange(0, N_TYPES - 1)
             type2 = type1 - 2 if (type1 == WATER or type1 == DARK) else type1 + 1
-            self.a_pkm = [SimplePkm(type1, type1, 90, type2, 90, type1, 90, type2, 90),
-                          SimplePkm(type2, type2, 90, type2, 90, type2, 90, type2, 90)]  # active pokemons
+            self.a_pkm = [SimplePkm(type1, HIT_POINTS, type1, 90, type2, 90, type1, 90, type2, 90),
+                          SimplePkm(type2, HIT_POINTS, type2, 90, type2, 90, type2, 90, type2, 90)]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
             type1 = random.randrange(0, N_TYPES - 1)
@@ -196,6 +196,8 @@ class SimplePkmEnv(gym.Env):
                 SimplePkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
                           get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
+        print(self._state_trainer(0))
+        print(self._state_trainer(1))
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
@@ -301,6 +303,7 @@ def encode(s):
     :param s: game state
     :return: encoded game state in one hot vector
     """
+    print('s', s)
     e = []
     for i in range(0, len(s) - 1):
         if i % 2 == 0:
