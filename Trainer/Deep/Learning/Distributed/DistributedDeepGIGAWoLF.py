@@ -4,6 +4,7 @@ import numpy as np
 import copy
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+from random import random
 
 
 class DistributedDeepGIGAWoLF:
@@ -38,6 +39,8 @@ class DistributedDeepGIGAWoLF:
             :return: action
             """
             # choose random action with probability e_rate
+            if random() < self.e_rate:
+                return int(random() * self.n_actions)
             pi, q = self.sess.run([self.net.policy, self.net.out_q], feed_dict={self.net.in_state: [s]})
             pi, self.q_t = pi[0], q[0]
             print(' PI ', pi, 'Q', self.q_t)

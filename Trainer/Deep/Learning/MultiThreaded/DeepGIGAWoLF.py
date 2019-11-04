@@ -5,6 +5,7 @@ import copy
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import os
+from random import random
 
 
 class DeepGIGAWoLF:
@@ -37,6 +38,8 @@ class DeepGIGAWoLF:
             :return: action
             """
             # choose random action with probability e_rate
+            if random() < self.e_rate:
+                return int(random() * self.n_actions)
             pi, q = self.sess.run([self.net.policy, self.net.out_q], feed_dict={self.net.in_state: [s]})
             pi, self.q_t = pi[0], q[0]
             # if self.name == '0_0':
