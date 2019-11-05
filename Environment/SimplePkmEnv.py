@@ -226,7 +226,7 @@ class SimplePkmEnv(gym.Env):
         print('Party', self.p_pkm[0])
         print('Trainer 1')
         print('Active', self.a_pkm[1])
-        if mode == 'player':
+        if mode != 'player':
             print('Party', self.p_pkm[1])
         print()
 
