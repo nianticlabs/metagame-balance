@@ -122,7 +122,7 @@ class DistributedDeepWPL:
             self.n_players = n_players
             self.sess = None
             self.decay_threshold = self.n_eps * decay_percentage
-            self.min_e_rate = min_e_rate
+            self.min_e_rate = min_e_rate[g_id % len(min_e_rate)]
 
         def set_session(self, sess):
             self.sess = sess
@@ -173,8 +173,9 @@ class DistributedDeepWPL:
                         # print('e_rate', p.e_rate)
 
     @staticmethod
-    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, decay_percentage, min_e_rate,
-              n_players, model_path, hosts, task_index):
+    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,
+              decay_percentage, min_e_rate, hosts, task_index):
+        tf.logging.set_verbosity(tf.logging.ERROR)
         cluster = tf.train.ClusterSpec({"dqn": hosts})
         server = tf.train.Server(cluster, job_name="dqn", task_index=task_index)
         tf.reset_default_graph()
@@ -195,9 +196,8 @@ class DistributedDeepWPL:
             g = 0
             while g < concurrent_games:
                 game_pool.append(
-                    DistributedDeepWPL.Simulation(copy.deepcopy(env), optimizer, g_net, pi_l_rate, y, e_rate,
-                                                  min_e_rate,
-                                                  tau, n_eps, n_steps, n_players, g, global_episodes, decay_percentage,
+                    DistributedDeepWPL.Simulation(copy.deepcopy(env), optimizer, g_net, pi_l_rate, y, e_rate, tau,
+                                                  n_eps, n_steps, n_players, g, global_episodes, decay_percentage,
                                                   min_e_rate, name=str(g)))
                 g += 1
         # tf.summary.FileWriter('./Graph', sess.graph)

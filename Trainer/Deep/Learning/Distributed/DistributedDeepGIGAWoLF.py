@@ -135,7 +135,7 @@ class DistributedDeepGIGAWoLF:
             self.n_players = n_players
             self.sess = None
             self.decay_threshold = self.n_eps * decay_percentage
-            self.min_e_rate = min_e_rate
+            self.min_e_rate = min_e_rate[g_id % len(min_e_rate)]
 
         def set_session(self, sess):
             self.sess = sess
@@ -150,7 +150,7 @@ class DistributedDeepGIGAWoLF:
                 while ep < self.n_eps:
                     ep += 1
                     # if self.name == '0':
-                    if ep % 10000 == 0:
+                    if ep % 1000 == 0:
                         print('EP', ep)
                     # sample initial game state
                     s1 = self.env.reset()
@@ -187,8 +187,8 @@ class DistributedDeepGIGAWoLF:
                         # print('e_rate', p.e_rate)
 
     @staticmethod
-    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, decay_percentage, min_e_rate,
-              n_players, model_path, hosts, task_index):
+    def train(env, g_l_rate, concurrent_games, pi_l_rate, y, tau, n_eps, n_steps, e_rate, n_players, model_path,
+              decay_percentage, min_e_rate, hosts, task_index):
         tf.logging.set_verbosity(tf.logging.ERROR)
         cluster = tf.train.ClusterSpec({"dqn": hosts})
         server = tf.train.Server(cluster, job_name="dqn", task_index=task_index)
