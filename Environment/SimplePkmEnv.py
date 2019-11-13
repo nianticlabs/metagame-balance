@@ -118,7 +118,7 @@ class SimplePkm:
 
 
 class SimplePkmEnv(gym.Env):
-    def __init__(self, setting=SETTING_RANDOM):
+    def __init__(self, setting=SETTING_RANDOM, debug=False):
         self.numberOfActions = N_MOVES + 1
         self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
         self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
@@ -128,6 +128,7 @@ class SimplePkmEnv(gym.Env):
         self.first = None
         self.second = None
         # debug
+        self.debug = debug
         self.debug_message = ['', '']
         self.switched = [False, False]
         self.has_fainted = False
@@ -163,7 +164,7 @@ class SimplePkmEnv(gym.Env):
 
         if can_player2_attack and actions[self.second] != SWITCH_ACTION:
             r[self.second], terminal, _, dmg_dealt2 = self._battle_pkm(actions[self.second], self.second)
-        else:
+        elif self.debug:
             self.debug_message[self.second] = 'can\'t perform any action'
 
         r[self.first] -= dmg_dealt2 / HIT_POINTS
@@ -172,7 +173,8 @@ class SimplePkmEnv(gym.Env):
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, terminal, None
 
     def reset(self):
-        self.debug_message = ['', '']
+        if self.debug:
+            self.debug_message = ['', '']
         if self.setting == SETTING_RANDOM:
             self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
@@ -180,12 +182,17 @@ class SimplePkmEnv(gym.Env):
             self.a_pkm = [SimplePkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
                           SimplePkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
             self.p_pkm = [SimplePkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
-                          SimplePkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL, 90)]  # party pokemons
+                          SimplePkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL,
+                                    90)]  # party pokemons
         elif self.setting == SETTING_HALF_DETERMINISTIC:
-            type1 = random.randrange(0, N_TYPES - 1)
-            type2 = type1 - 2 if (type1 == WATER or type1 == DARK) else type1 + 1
-            self.a_pkm = [SimplePkm(type1, HIT_POINTS, type1, 90, type2, 90, type1, 90, type2, 90),
-                          SimplePkm(type2, HIT_POINTS, type2, 90, type2, 90, type2, 90, type2, 90)]  # active pokemons
+            if random.uniform(0, 1) <= 0.2:
+                type1 = random.randrange(0, N_TYPES - 1)
+                type2 = get_super_effective_move(type1)
+                self.a_pkm = [SimplePkm(type1, HIT_POINTS, type1, 90, type2, 90, type1, 90, type2, 90),
+                              SimplePkm(type2, HIT_POINTS, type2, 90, type2, 90, type2, 90, type2,
+                                        90)]  # active pokemons
+            else:
+                self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
             self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
             type1 = random.randrange(0, N_TYPES - 1)
@@ -199,28 +206,29 @@ class SimplePkmEnv(gym.Env):
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
-        if self.debug_message[0] != '' and self.debug_message[1] != '':
-            if self.switched[0]:
-                if self.has_fainted:
-                    print('Trainer 1', self.debug_message[1])
+        if self.debug:
+            if self.debug_message[0] != '' and self.debug_message[1] != '':
+                if self.switched[0]:
+                    if self.has_fainted:
+                        print('Trainer 1', self.debug_message[1])
+                        print('Trainer 0', self.debug_message[0])
+                    else:
+                        print('Trainer 0', self.debug_message[0])
+                        print('Trainer 1', self.debug_message[1])
+                elif self.switched[1]:
+                    if self.has_fainted:
+                        print('Trainer 0', self.debug_message[0])
+                        print('Trainer 1', self.debug_message[1])
+                    else:
+                        print('Trainer 1', self.debug_message[1])
+                        print('Trainer 0', self.debug_message[0])
+                elif self.first == 0:
                     print('Trainer 0', self.debug_message[0])
+                    print('Trainer 1', self.debug_message[1])
                 else:
-                    print('Trainer 0', self.debug_message[0])
-                    print('Trainer 1', self.debug_message[1])
-            elif self.switched[1]:
-                if self.has_fainted:
-                    print('Trainer 0', self.debug_message[0])
-                    print('Trainer 1', self.debug_message[1])
-                else:
                     print('Trainer 1', self.debug_message[1])
                     print('Trainer 0', self.debug_message[0])
-            elif self.first == 0:
-                print('Trainer 0', self.debug_message[0])
-                print('Trainer 1', self.debug_message[1])
-            else:
-                print('Trainer 1', self.debug_message[1])
-                print('Trainer 0', self.debug_message[0])
-        print()
+            print()
         print('Trainer 0')
         print('Active', self.a_pkm[0])
         print('Party', self.p_pkm[0])
@@ -248,9 +256,10 @@ class SimplePkmEnv(gym.Env):
             temp = self.a_pkm[t_id]
             self.a_pkm[t_id] = self.p_pkm[t_id]
             self.p_pkm[t_id] = temp
-            self.debug_message[t_id] = "SWITCH"
+            if self.debug:
+                self.debug_message[t_id] = "SWITCH"
             self.switched[t_id] = True
-        else:
+        elif self.debug:
             self.debug_message[t_id] = "FAILED SWITCH"
 
     def _attack_pkm(self, t_id, m_id):
@@ -261,10 +270,11 @@ class SimplePkmEnv(gym.Env):
         if opponent_pkm.hp <= 0.:
             opponent_pkm.hp = 0.
         damage = before_pkm.hp - opponent_pkm.hp
-        self.debug_message[t_id] = "ATTACK with " + str(move) + " to type " + TYPE_TO_STR[
-            opponent_pkm.p_type] + " multiplier=" + str(
-            TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type]) + " causing " + str(
-            damage) + " damage, leaving opponent hp " + str(opponent_pkm.hp) + ''
+        if self.debug:
+            self.debug_message[t_id] = "ATTACK with " + str(move) + " to type " + TYPE_TO_STR[
+                opponent_pkm.p_type] + " multiplier=" + str(
+                TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type]) + " causing " + str(
+                damage) + " damage, leaving opponent hp " + str(opponent_pkm.hp) + ''
         return damage
 
     def _battle_pkm(self, a, t_id):
@@ -287,7 +297,8 @@ class SimplePkmEnv(gym.Env):
                 terminal = True
             else:
                 self._switch_pkm(opponent)
-                self.debug_message[opponent] += " FAINTED"
+                if self.debug:
+                    self.debug_message[opponent] += " FAINTED"
         return reward, terminal, next_player_can_attack, damage_dealt
 
     @staticmethod

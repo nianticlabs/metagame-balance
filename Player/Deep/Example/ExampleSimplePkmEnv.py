@@ -5,12 +5,12 @@ from Player.RandomAgent import *
 
 
 def main():
-    env = SimplePkmEnv()
+    env = SimplePkmEnv(debug=True)
     # p0 = HumanAgent(env.action_space.n, '1: Move 1, 2: Move 2, 3: Move 3, 4: Move 4, 5: Switch')
     p0 = RandomAgent(env.action_space.n)
     p1 = DeepMixedAgent(env.action_space.n,
                         '../../../Model/Deep/DistributedDeepGIGAWoLF_SimplePkmEnv(SETTING_HALF_DETERMINISTIC)')
-    n_games = 10000
+    n_games = 1000
     s = env.reset()
     a = [None, None]
     t_r = [0, 0]
