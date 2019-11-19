@@ -350,7 +350,8 @@ def get_super_effective_move(t):
     """
     _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
     s = [index for index, value in enumerate(_t) if value == 2]
-    if s is []:
+    if not s:
+        print('Warning: Empty List!')
         return random.randrange(N_TYPES)
     return random.choice(s)
 
@@ -362,7 +363,8 @@ def get_non_very_effective_move(t):
     """
     _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
     s = [index for index, value in enumerate(_t) if value == 1 / 2]
-    if s is []:
+    if not s:
+        print('Warning: Empty List!')
         return random.randrange(N_TYPES)
     return random.choice(s)
 
@@ -374,6 +376,7 @@ def get_normal_effective_move(t):
     """
     _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
     s = [index for index, value in enumerate(_t) if value == 1]
-    if s is []:
+    if not s:
+        print('Warning: Empty List!')
         return random.randrange(N_TYPES)
     return random.choice(s)
