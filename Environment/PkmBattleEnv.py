@@ -2,7 +2,8 @@ import gym
 from gym import spaces
 import random
 import numpy as np
-from copy import deepcopy
+
+# TODO Logs
 
 # type codification
 NORMAL = 0
@@ -163,12 +164,14 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         r = [0., 0.]
         # switch pokemon
-        if actions[0] == SWITCH_ACTION:
-            if not PkmBattleEnv._fainted_pkm(self.p_pkm[0]):
-                self._switch_pkm(0)
-        if actions[1] == SWITCH_ACTION:
-            if not PkmBattleEnv._fainted_pkm(self.p_pkm[1]):
-                self._switch_pkm(1)
+        if actions[0] >= N_MOVES:
+            switch_action = actions[0] - N_MOVES
+            if not PkmBattleEnv._fainted_pkm(self.p_pkm[0][switch_action]):
+                self._switch_pkm(0, switch_action)
+        if actions[1] == N_MOVES:
+            switch_action = actions[1] - N_MOVES
+            if not PkmBattleEnv._fainted_pkm(self.p_pkm[1][switch_action]):
+                self._switch_pkm(1, switch_action)
 
         # pokemon attacks
         if self.speed_stage[0] > self.speed_stage[1]:
@@ -189,10 +192,10 @@ class PkmBattleEnv(gym.Env):
         dmg_dealt1 = 0
         dmg_dealt2 = 0
 
-        if actions[self.first] != SWITCH_ACTION and not self.paralyzed(self.first):
+        if actions[self.first] < N_MOVES and not self.paralyzed(self.first):
             r[self.first], terminal, can_player2_attack, dmg_dealt1 = self._battle_pkm(actions[self.first], self.first)
 
-        if can_player2_attack and actions[self.second] != SWITCH_ACTION and not self.paralyzed(self.second):
+        if can_player2_attack and actions[self.second] < N_MOVES and not self.paralyzed(self.second):  # TODO Confusion
             r[self.second], terminal, _, dmg_dealt2 = self._battle_pkm(actions[self.second], self.second)
         elif self.debug:
             self.debug_message[self.second] = 'can\'t perform any action'
@@ -224,8 +227,8 @@ class PkmBattleEnv(gym.Env):
             self.debug_message = ['', '']
         if self.setting == SETTING_RANDOM:
             self.a_pkm = [Pkm(), Pkm()]  # active pokemons
-            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
-        elif self.setting == SETTING_FULL_DETERMINISTIC:
+            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+        elif self.setting == SETTING_FULL_DETERMINISTIC:  # TODO
             self.a_pkm = [Pkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
                           Pkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
             self.p_pkm = [Pkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
@@ -240,7 +243,7 @@ class PkmBattleEnv(gym.Env):
                                   90)]  # active pokemons
             else:
                 self.a_pkm = [Pkm(), Pkm()]  # active pokemons
-            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
+            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
             type1 = random.randrange(0, N_TYPES - 1)
             type2 = get_super_effective_move(type1)
@@ -249,7 +252,7 @@ class PkmBattleEnv(gym.Env):
                     get_normal_effective_move(type2), 90, type1, 90),
                 Pkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
                     get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
-            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
+            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
@@ -289,25 +292,34 @@ class PkmBattleEnv(gym.Env):
         self.setting = setting
 
     def _state_trainer(self, t_id):
+        opponent = not t_id
         return [self.a_pkm[t_id].p_type, self.a_pkm[t_id].hp,
-                self.p_pkm[t_id].p_type, self.p_pkm[t_id].hp,
-                self.a_pkm[not t_id].p_type, self.a_pkm[not t_id].hp,
+                self.p_pkm[t_id][0].p_type, self.p_pkm[t_id][0].hp,
+                self.p_pkm[t_id][1].p_type, self.p_pkm[t_id][1].hp,
+                self.p_pkm[t_id][2].p_type, self.p_pkm[t_id][2].hp,
+                self.p_pkm[t_id][3].p_type, self.p_pkm[t_id][3].hp,
+                self.p_pkm[t_id][4].p_type, self.p_pkm[t_id][4].hp,
+                self.a_pkm[opponent].p_type, self.a_pkm[opponent].hp,
                 self.a_pkm[t_id].moves[0].type, self.a_pkm[t_id].moves[0].power,
                 self.a_pkm[t_id].moves[1].type, self.a_pkm[t_id].moves[1].power,
                 self.a_pkm[t_id].moves[2].type, self.a_pkm[t_id].moves[2].power,
                 self.a_pkm[t_id].moves[3].type, self.a_pkm[t_id].moves[3].power,
-                self.p_pkm[not t_id].hp]
+                self.p_pkm[opponent][0].hp,
+                self.p_pkm[opponent][1].hp,
+                self.p_pkm[opponent][2].hp,
+                self.p_pkm[opponent][3].hp,
+                self.p_pkm[opponent][4].hp]
 
-    def _switch_pkm(self, t_id):
-        if self.p_pkm[t_id].hp != 0:
+    def _switch_pkm(self, t_id, s_pos):
+        if self.p_pkm[t_id][s_pos].hp != 0:
             self.attack_stage[t_id] = 0
             self.defense_stage[t_id] = 0
             self.speed_stage[t_id] = 0
             self.seeds[t_id] = 0
             self.confused[t_id] = 0
             temp = self.a_pkm[t_id]
-            self.a_pkm[t_id] = self.p_pkm[t_id]
-            self.p_pkm[t_id] = temp
+            self.a_pkm[t_id] = self.p_pkm[t_id][s_pos]
+            self.p_pkm[t_id][s_pos] = temp
             if self.debug:
                 self.debug_message[t_id] = "SWITCH"
             self.switched[t_id] = True
@@ -370,7 +382,7 @@ class PkmBattleEnv(gym.Env):
             weather = 1.5 if (move.type == WATER and self.weather == RAIN) or (
                     move.type == FIRE and self.weather == SUNNY) else .5 if (move.type == WATER
                                                                              and self.weather == SUNNY) or (
-                                                                                        move.type == FIRE and self.weather == RAIN) else .0
+                                                                                    move.type == FIRE and self.weather == RAIN) else .0
             stage = self.attack_stage[t_id] - self.defense_stage[opponent]
             stage = (stage + 2.) / 2 if stage >= 0. else 2. / (stage + 2.)
             opponent_pkm.hp -= TYPE_CHART_MULTIPLIER[move.type][
@@ -401,10 +413,12 @@ class PkmBattleEnv(gym.Env):
             self.has_fainted = True
             reward += 1
             next_player_can_attack = False
-            if self._fainted_pkm(self.p_pkm[opponent]):
+            if self._fainted_pkm(self.p_pkm[opponent][0] and self.p_pkm[opponent][1] and self.p_pkm[opponent][2] and
+                                 self.p_pkm[opponent][3] and self.p_pkm[opponent][4]):
                 terminal = True
             else:
-                self._switch_pkm(opponent)
+                self._switch_pkm(opponent, -1)  # TODO Random switch
+                # TODO Spikes move
                 if self.debug:
                     self.debug_message[opponent] += " FAINTED"
         return reward, terminal, next_player_can_attack, damage_dealt
@@ -413,7 +427,7 @@ class PkmBattleEnv(gym.Env):
     def _fainted_pkm(pkm):
         return pkm.hp == 0
 
-    def _apply_field_effects(self, t_id):
+    def _apply_field_effects(self, t_id):  # TODO
         pkm = self.a_pkm[t_id]
         opponent_pkm = self.a_pkm[not t_id]
         damage = 0.
@@ -439,7 +453,7 @@ class PkmBattleEnv(gym.Env):
             return False
 
 
-def encode(s):
+def encode(s):  # TODO
     """
     Encode Game state.
     :param s: game state
@@ -457,7 +471,7 @@ def encode(s):
     return e
 
 
-def decode(e):
+def decode(e):  # TODO
     """
     Decode game state.
     :param e: encoded game state in one hot vector
