@@ -59,10 +59,11 @@ POWER_MAX = 100.
 
 # number moves
 N_MOVES = 4
-SWITCH_ACTION = N_MOVES
+N_SWITCHES = 5
 
 # hit Points
 HIT_POINTS = POWER_MAX + POWER_MIN + 150.
+STATE_DAMAGE = HIT_POINTS / 8.
 
 # settings
 SETTING_RANDOM = 0
@@ -70,8 +71,25 @@ SETTING_FULL_DETERMINISTIC = 1
 SETTING_HALF_DETERMINISTIC = 2
 SETTING_FAIR_IN_ADVANTAGE = 3
 
+# weather
+CLEAR = 0
+SUNNY = 1
+RAIN = 2
+SANDSTORM = 3
+HAIL = 4
 
-class SimpleMove:
+WEATHER_TO_STR = {CLEAR: "CLEAR", SUNNY: "SUNNY", RAIN: "RAIN", SANDSTORM: "SANDSTORM", HAIL: "HAIL"}
+
+# status
+NONE = 0
+PARALYZED = 1
+POISONED = 2
+CONFUSED = 3
+
+STATUS_TO_STR = {NONE: "", PARALYZED: "PARALYZED", POISONED: "POISONED", CONFUSED: "CONFUSED"}
+
+
+class Move:
     def __init__(self, move_type=None, move_power=None, my_type=None):
         if move_type is None:
             if my_type is None:
@@ -88,45 +106,52 @@ class SimpleMove:
             self.power = random.randrange(POWER_MIN, POWER_MAX) * 1.
         else:
             self.power = move_power
-        # STAB
-        if my_type == move_type:
-            move_power *= 1.5
 
     def __str__(self):
         return "Move(" + TYPE_TO_STR[self.type] + ", " + str(self.power) + ")"
 
 
-class SimplePkm:
+class Pkm:
     def __init__(self, p_type=None, hp=HIT_POINTS,
                  type0=None, type0power=None, type1=None, type1power=None,
                  type2=None, type2power=None, type3=None, type3power=None):
         self.hp = hp
+        self.status = NONE
         if p_type is None:
             self.p_type = random.randrange(0, N_TYPES)
-            self.moves = [SimpleMove(my_type=self.p_type) for i in range(N_MOVES - 1)] + [
-                SimpleMove(move_type=self.p_type)]
+            self.moves = [Move(my_type=self.p_type) for _ in range(N_MOVES - 1)] + [
+                Move(move_type=self.p_type)]
         else:
             self.p_type = p_type
-            self.moves = [SimpleMove(move_type=type0, move_power=type0power),
-                          SimpleMove(move_type=type1, move_power=type1power),
-                          SimpleMove(move_type=type2, move_power=type2power),
-                          SimpleMove(move_type=type3, move_power=type3power)]
+            self.moves = [Move(move_type=type0, move_power=type0power),
+                          Move(move_type=type1, move_power=type1power),
+                          Move(move_type=type2, move_power=type2power),
+                          Move(move_type=type3, move_power=type3power)]
 
     def __str__(self):
-        return 'Pokemon(' + TYPE_TO_STR[self.p_type] + ', HP ' + str(self.hp) + ', ' + str(self.moves[0]) + ', ' + str(
-            self.moves[1]) + ', ' + str(self.moves[2]) + ', ' + str(self.moves[3]) + ')'
+        return 'Pokemon(' + TYPE_TO_STR[self.p_type] + ', HP ' + str(self.hp) + ', Status ' + STATUS_TO_STR[
+            self.status] + ', ' + str(self.moves[0]) + ', ' + str(self.moves[1]) + ', ' + str(
+            self.moves[2]) + ', ' + str(self.moves[3]) + ')'
 
 
-class SimplePkmEnv(gym.Env):
+class PkmBattleEnv(gym.Env):
     def __init__(self, setting=SETTING_RANDOM, debug=False):
         self.numberOfActions = N_MOVES + 1
-        self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
-        self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
+        self.a_pkm = [Pkm(), Pkm()]  # active pokemons
+        self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         self.setting = setting
-        self.action_space = spaces.Discrete(N_MOVES + 1)
+        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
         self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
         self.first = None
         self.second = None
+        self.weather = CLEAR
+        self.attack_stage = [0., 0.]
+        self.defense_stage = [0., 0.]
+        self.speed_stage = [0, 0]
+        self.spikes = [0, 0]
+        self.seeds = [0, 0]
+        self.confused = [0, 0]
+        self.n_turns_no_clear = 0
         # debug
         self.debug = debug
         self.debug_message = ['', '']
@@ -139,16 +164,21 @@ class SimplePkmEnv(gym.Env):
         r = [0., 0.]
         # switch pokemon
         if actions[0] == SWITCH_ACTION:
-            if not SimplePkmEnv._fainted_pkm(self.p_pkm[0]):
+            if not PkmBattleEnv._fainted_pkm(self.p_pkm[0]):
                 self._switch_pkm(0)
         if actions[1] == SWITCH_ACTION:
-            if not SimplePkmEnv._fainted_pkm(self.p_pkm[1]):
+            if not PkmBattleEnv._fainted_pkm(self.p_pkm[1]):
                 self._switch_pkm(1)
 
         # pokemon attacks
-        order = [0, 1]
-        # random attack order
-        np.random.shuffle(order)
+        if self.speed_stage[0] > self.speed_stage[1]:
+            order = [0, 1]
+        elif self.speed_stage[0] < self.speed_stage[1]:
+            order = [1, 0]
+        else:
+            # random attack order
+            order = [0, 1]
+            np.random.shuffle(order)
         self.first = order[0]
         self.second = order[1]
 
@@ -159,50 +189,67 @@ class SimplePkmEnv(gym.Env):
         dmg_dealt1 = 0
         dmg_dealt2 = 0
 
-        if actions[self.first] != SWITCH_ACTION:
+        if actions[self.first] != SWITCH_ACTION and not self.paralyzed(self.first):
             r[self.first], terminal, can_player2_attack, dmg_dealt1 = self._battle_pkm(actions[self.first], self.first)
 
-        if can_player2_attack and actions[self.second] != SWITCH_ACTION:
+        if can_player2_attack and actions[self.second] != SWITCH_ACTION and not self.paralyzed(self.second):
             r[self.second], terminal, _, dmg_dealt2 = self._battle_pkm(actions[self.second], self.second)
         elif self.debug:
             self.debug_message[self.second] = 'can\'t perform any action'
 
+        self._apply_field_effects(self.first)
+        self._apply_field_effects(self.second)
+
         r[self.first] -= dmg_dealt2 / HIT_POINTS
         r[self.second] -= dmg_dealt1 / HIT_POINTS
+
+        if self.weather != CLEAR:
+            self.n_turns_no_clear += 1
+            if self.n_turns_no_clear > 5:
+                self.weather = CLEAR
+                self.n_turns_no_clear = 0
 
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, terminal, None
 
     def reset(self):
+        self.weather = CLEAR
+        self.attack_stage = [0., 0.]
+        self.defense_stage = [0., 0.]
+        self.speed_stage = [0, 0]
+        self.spikes = [0, 0]
+        self.seeds = [0, 0]
+        self.confused = [0, 0]
+        self.n_turns_no_clear = 0
         if self.debug:
             self.debug_message = ['', '']
         if self.setting == SETTING_RANDOM:
-            self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
-            self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
+            self.a_pkm = [Pkm(), Pkm()]  # active pokemons
+            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
         elif self.setting == SETTING_FULL_DETERMINISTIC:
-            self.a_pkm = [SimplePkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
-                          SimplePkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
-            self.p_pkm = [SimplePkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
-                          SimplePkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL,
-                                    90)]  # party pokemons
+            self.a_pkm = [Pkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
+                          Pkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
+            self.p_pkm = [Pkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
+                          Pkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL,
+                              90)]  # party pokemons
         elif self.setting == SETTING_HALF_DETERMINISTIC:
             if random.uniform(0, 1) <= 0.2:
                 type1 = random.randrange(0, N_TYPES - 1)
                 type2 = get_super_effective_move(type1)
-                self.a_pkm = [SimplePkm(type1, HIT_POINTS, type1, 90, type2, 90, type1, 90, type2, 90),
-                              SimplePkm(type2, HIT_POINTS, type2, 90, type2, 90, type2, 90, type2,
-                                        90)]  # active pokemons
+                self.a_pkm = [Pkm(type1, HIT_POINTS, type1, 90, type2, 90, type1, 90, type2, 90),
+                              Pkm(type2, HIT_POINTS, type2, 90, type2, 90, type2, 90, type2,
+                                  90)]  # active pokemons
             else:
-                self.a_pkm = [SimplePkm(), SimplePkm()]  # active pokemons
-            self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
+                self.a_pkm = [Pkm(), Pkm()]  # active pokemons
+            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
             type1 = random.randrange(0, N_TYPES - 1)
             type2 = get_super_effective_move(type1)
             self.a_pkm = [
-                SimplePkm(type1, get_non_very_effective_move(type2), 90, get_non_very_effective_move(type2), 90,
-                          get_normal_effective_move(type2), 90, type1, 90),
-                SimplePkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
-                          get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
-            self.p_pkm = [SimplePkm(), SimplePkm()]  # party pokemons
+                Pkm(type1, get_non_very_effective_move(type2), 90, get_non_very_effective_move(type2), 90,
+                    get_normal_effective_move(type2), 90, type1, 90),
+                Pkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
+                    get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
+            self.p_pkm = [Pkm(), Pkm()]  # party pokemons
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
@@ -253,6 +300,11 @@ class SimplePkmEnv(gym.Env):
 
     def _switch_pkm(self, t_id):
         if self.p_pkm[t_id].hp != 0:
+            self.attack_stage[t_id] = 0
+            self.defense_stage[t_id] = 0
+            self.speed_stage[t_id] = 0
+            self.seeds[t_id] = 0
+            self.confused[t_id] = 0
             temp = self.a_pkm[t_id]
             self.a_pkm[t_id] = self.p_pkm[t_id]
             self.p_pkm[t_id] = temp
@@ -264,12 +316,68 @@ class SimplePkmEnv(gym.Env):
 
     def _attack_pkm(self, t_id, m_id):
         move = self.a_pkm[t_id].moves[m_id]
+        pkm = self.a_pkm[t_id]
+        opponent = not t_id
         opponent_pkm = self.a_pkm[not t_id]
-        before_pkm = deepcopy(opponent_pkm)
-        opponent_pkm.hp -= TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type] * move.power
+        before_op_pkm_hp = opponent_pkm.hp
+        if move.power == 0. and move.type != DRAGON and move.type != GHOST:
+            # weather moves
+            if move.type == FIRE:  # SUNNY DAY (FIRE)
+                self.weather = SUNNY
+            elif move.type == WATER:  # RAIN DANCE (WATER)
+                self.weather = RAIN
+            elif move.type == ICE:  # HAIL (ICE)
+                self.weather = HAIL
+            elif move.type == ROCK:  # SANDSTORM (ROCK)
+                self.weather = SANDSTORM
+            # status moves
+            elif move.type == ELECTRIC:  # THUNDER WAVE (ELECTRIC)
+                if opponent_pkm.p_type != ELECTRIC:
+                    opponent_pkm.status = PARALYZED
+            elif move.type == POISON:  # POISON (POISON)
+                if opponent_pkm.p_type != POISON and opponent_pkm.p_type != STEEL:
+                    opponent_pkm.status = POISONED
+            # other moves
+            elif move.type == FAIRY:  # SWEET KISS (FAIRY)
+                self.confused[not t_id] = True
+            elif move.type == GRASS:
+                if opponent_pkm.p_type != GRASS:  # LEECH SEED (GRASS)
+                    self.seeds[not t_id] = True
+            elif move.type == GROUND:  # SPIKES (GROUND)
+                self.spikes[not t_id] = True
+            elif move.type == DARK or move.type == FIGHT:  # NASTY PLOT (DARK) or BULK UP (FIGHT)
+                self.attack_stage[t_id] += 1
+            elif move.type == PSYCHIC or move.type == STEEL:  # CALM MIND (PSYCHIC) or IRON DEFENSE (STEEL)
+                self.defense_stage[t_id] += 1
+            elif move.type == BUG:  # STRING SHOT (BUG)
+                self.speed_stage[not t_id] -= 1
+            elif move.type == FLYING or move.type == NORMAL:  # ROOST (FLYING) or RECOVER (NORMAL)
+                before_hp = pkm.hp
+                pkm.hp += HIT_POINTS / 2.
+                if pkm.hp > HIT_POINTS:
+                    pkm.hp = HIT_POINTS
+                return before_hp - pkm.hp
+            return 0.  # damage
+        # battle move
+        if move.power == 0. and move.type == DRAGON:  # DRAGON RAGE (DRAGON)
+            if opponent_pkm.p_type != FAIRY:
+                opponent_pkm.hp -= 40
+        elif move.power == 0. and move.type == GHOST:  # NIGHT SHADE (GHOST)
+            if opponent_pkm.p_type != NORMAL:
+                opponent_pkm.hp -= 40
+        else:
+            stab = 1.5 if move.type == pkm.p_type else 1.
+            weather = 1.5 if (move.type == WATER and self.weather == RAIN) or (
+                    move.type == FIRE and self.weather == SUNNY) else .5 if (move.type == WATER
+                                                                             and self.weather == SUNNY) or (
+                                                                                        move.type == FIRE and self.weather == RAIN) else .0
+            stage = self.attack_stage[t_id] - self.defense_stage[opponent]
+            stage = (stage + 2.) / 2 if stage >= 0. else 2. / (stage + 2.)
+            opponent_pkm.hp -= TYPE_CHART_MULTIPLIER[move.type][
+                                   opponent_pkm.p_type] * stab * weather * stage * move.power
         if opponent_pkm.hp <= 0.:
             opponent_pkm.hp = 0.
-        damage = before_pkm.hp - opponent_pkm.hp
+        damage = before_op_pkm_hp - opponent_pkm.hp
         if self.debug:
             self.debug_message[t_id] = "ATTACK with " + str(move) + " to type " + TYPE_TO_STR[
                 opponent_pkm.p_type] + " multiplier=" + str(
@@ -304,6 +412,31 @@ class SimplePkmEnv(gym.Env):
     @staticmethod
     def _fainted_pkm(pkm):
         return pkm.hp == 0
+
+    def _apply_field_effects(self, t_id):
+        pkm = self.a_pkm[t_id]
+        opponent_pkm = self.a_pkm[not t_id]
+        damage = 0.
+        recovery = 0.
+        if self.weather == SANDSTORM and (pkm.p_type != ROCK and pkm.p_type != GROUND and pkm.p_type != STEEL):
+            damage = STATE_DAMAGE
+        elif self.weather == HAIL and (pkm.p_type != ICE):
+            damage = STATE_DAMAGE
+        elif self.seeds[t_id]:
+            damage = STATE_DAMAGE
+        damage_dealt =
+        reward1 = damage_dealt / HIT_POINTS
+        if self.seeds[t_id]:
+            opponent_pkm.hp += damage_dealt
+            opponent_pkm.hp = max(opponent_pkm.hp, HIT_POINTS)
+        reward2 = recovery
+        return reward1, reward2
+
+    def paralyzed(self, t_id):
+        if self.a_pkm[t_id].status == PARALYZED:
+            return random.uniform(0, 1) <= 0.25
+        else:
+            return False
 
 
 def encode(s):
