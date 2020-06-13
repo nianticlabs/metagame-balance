@@ -123,6 +123,7 @@ class Pkm:
                  type2=None, type2power=None, type3=None, type3power=None):
         self.hp = hp
         self.status = NONE
+        self.n_turn_asleep = 0
         if p_type is None:
             self.p_type = random.randrange(0, N_TYPES)
             self.moves = [Move(my_type=self.p_type) for _ in range(N_MOVES - 1)] + [
@@ -148,8 +149,6 @@ class PkmBattleEnv(gym.Env):
         self.setting = setting
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
         self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
-        self.first = None
-        self.second = None
         self.weather = CLEAR
         self.attack_stage = [0., 0.]
         self.defense_stage = [0., 0.]
@@ -159,62 +158,73 @@ class PkmBattleEnv(gym.Env):
         self.confused = [0, 0]
         self.n_turns_no_clear = 0
         self.n_turns_confused = [0, 0]
-        # debug
-        self.debug = debug
-        self.debug_message = ['', '']
         self.switched = [False, False]
-        self.has_fainted = False
 
     def step(self, actions):  # TODO finish battle logic
 
-        # Reset battle variables
-        self.has_fainted = False
-        self.switched = [False, False]
+        # Reset variables
         r = [0., 0.]
+        t = [False, False]
 
-        # switch pokemons
+        # switch pkm
         self._process_switch_pkms(actions)
 
-        # get switch triggered damage
-        dmg_1, dmg_2 = self._get_switch_damage()
+        # set trainer attack order
+        first, second = self._get_attack_order()
+        first_pkm = self.a_pkm[first]
+        second_pkm = self.a_pkm[first]
+
+        # get entry hazard damage
+        dmg_2_first = self._get_entry_hazard_damage(first)
+        dmg_2_second = self._get_entry_hazard_damage(second)
+
+        r[first] = (dmg_2_second - dmg_2_first) / HIT_POINTS
+        r[second] = (dmg_2_first - dmg_2_second) / HIT_POINTS
+
+        first_can_attack = fainted_pkm(first_pkm)
+        second_can_attack = fainted_pkm(second_pkm)
 
         # process all pre battle effects
         self._process_pre_battle_effects()
 
-        # pokemon attacks
-        self.first, self.second = self._get_attack_order()
+        # confusion state damage
+        dmg_2_first = self._get_pre_combat_damage(first) if first_can_attack else 0.
+        dmg_2_second = self._get_pre_combat_damage(second) if second_can_attack else 0.
 
-        t = False
-        can_player2_attack = True
+        r[first] += (dmg_2_second - dmg_2_first) / HIT_POINTS
+        r[second] += (dmg_2_first - dmg_2_second) / HIT_POINTS
 
-        # first attack
-        dmg_dealt1 = 0.
-        dmg_dealt2 = 0.
+        # battle
+        first_can_attack = fainted_pkm(first_pkm) and self._check_paralyzed(first) and self._check_asleep(first)
+        dmg_2_second, hp_2_first = self._perform_pkm_attack(first, actions[first]) if first_can_attack else 0., 0.
 
-        dmg_confusion_first = self._check_confused(self.first)
+        second_can_attack = fainted_pkm(second_pkm) and self._check_paralyzed(second) and self._check_asleep(second)
+        dmg_2_first, hp_2_second = self._perform_pkm_attack(first, actions[first]) if second_can_attack else 0., 0.
 
-        if actions[self.first] < N_MOVES and not self._check_paralyzed(self.first) and dmg_confusion_first == 0:
-            r[self.first], t, can_player2_attack, dmg_dealt1, rcvr_1 = self._perform_pkm_attack(self.first, actions[self.first])
+        r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / HIT_POINTS + fainted_pkm(second_pkm)
+        r[second] += (dmg_2_first + hp_2_second - dmg_2_second) / HIT_POINTS + fainted_pkm(first_pkm)
 
-        dmg_confusion_second = self._check_confused(self.second)
+        # get post battle effects damage
+        dmg_2_first = self._get_post_battle_damage(first) if first_can_attack else 0.
+        dmg_2_second = self._get_post_battle_damage(second) if second_can_attack else 0.
 
-        if can_player2_attack and actions[self.second] < N_MOVES and not self._check_paralyzed(
-                self.second) and dmg_confusion_second == 0:
-            r[self.second], t, _, dmg_dealt2, rcvr_2 = self._perform_pkm_attack(self.second, actions[self.second])
-        elif self.debug:
-            self.debug_message[self.second] = 'can\'t perform any action'
-
-        r[self.first] -= dmg_dealt2 / HIT_POINTS
-        r[self.second] -= dmg_dealt1 / HIT_POINTS
+        r[first] = (dmg_2_second - dmg_2_first) / HIT_POINTS
+        r[second] = (dmg_2_first - dmg_2_second) / HIT_POINTS
 
         # process all post battle effects
         self._process_post_battle_effects()
 
-        # get post battle effects damage
-        dmg_0 = self._get_post_battle_damage(0)
-        dmg_1 = self._get_post_battle_damage(1)
+        # switch fainted pkm
 
-        return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, t, None
+
+        # check if battle ended
+        t[first] = self._fainted_team(first)
+        t[second] = self._fainted_team(second)
+
+        r[first] += t[first]
+        r[second] += t[second]
+
+        return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, t[first] or t[second], None
 
     def _process_switch_pkms(self, actions):
         """
@@ -232,20 +242,24 @@ class PkmBattleEnv(gym.Env):
             if not fainted_pkm(self.p_pkm[1][switch_action]):
                 self._switch_pkm(1, switch_action)
 
-    def _get_switch_damage(self):
+    def _get_entry_hazard_damage(self, t_id):
         """
-        Get triggered damage to be dealt to switched pkm.
+        Get triggered damage to be dealt to a switched pkm.
 
+        :param: t_id: owner trainer
         :return: damage to first pkm, damage to second pkm
         """
-        dmg_taken = [0., 0.]
+        damage = 0.
 
         # Spikes damage
-        for i in range(N_TRAINERS):
-            if self.spikes[i] and self.a_pkm[i].p_type != FLYING and self.switched[i]:
-                dmg_taken[i] = STATE_DAMAGE
+        if self.spikes[t_id] and self.a_pkm[t_id].p_type != FLYING and self.switched[t_id]:
+            pkm = self.a_pkm[t_id]
+            before_hp = pkm.hp
+            pkm.hp -= STATE_DAMAGE
+            pkm.hp = 0. if pkm.hp < 0. else pkm.hp
+            damage = before_hp - pkm.hp
 
-        return dmg_taken[0], dmg_taken[1]
+        return damage
 
     def _process_pre_battle_effects(self):
         """
@@ -255,12 +269,21 @@ class PkmBattleEnv(gym.Env):
         # for all trainers
         for i in range(N_TRAINERS):
 
+            pkm = self.a_pkm[i]
+
             # check if active pkm should be no more confused
             if self.confused[i]:
                 self.n_turns_confused[i] += 1
                 if random.uniform(0, 1) <= 0.5 or self.n_turns_confused[i] == 4:
                     self.confused[i] = False
                     self.n_turns_confused[i] = 0
+
+            # check if active pkm should be no more asleep
+            if self._check_asleep(pkm):
+                pkm.n_turns_asleep += 1
+                if random.uniform(0, 1) <= 0.5 or pkm.n_turns_asleep == 4:
+                    pkm.status = NONE
+                    pkm.n_turns_asleep = 0
 
     def _process_post_battle_effects(self):
         """
@@ -323,8 +346,7 @@ class PkmBattleEnv(gym.Env):
         self.seeds = [0, 0]
         self.confused = [0, 0]
         self.n_turns_no_clear = 0
-        if self.debug:
-            self.debug_message = ['', '']
+        self.switched = [False, False]
 
         # Random Setting
         if self.setting == SETTING_RANDOM:
@@ -363,6 +385,7 @@ class PkmBattleEnv(gym.Env):
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
+        """
         if self.debug:
             if self.debug_message[0] != '' and self.debug_message[1] != '':
                 if self.switched[0]:
@@ -394,6 +417,8 @@ class PkmBattleEnv(gym.Env):
         if mode != 'player':
             print('Party', self.p_pkm[1])
         print()
+        """
+        pass
 
     def change_setting(self, setting):
         self.setting = setting
@@ -454,11 +479,7 @@ class PkmBattleEnv(gym.Env):
             self.seeds[t_id] = 0
             self.confused[t_id] = 0
 
-            if self.debug:
-                self.debug_message[t_id] = "SWITCH"
             self.switched[t_id] = True
-        elif self.debug:
-            self.debug_message[t_id] = "FAILED SWITCH"
 
     def _get_attack_dmg_rcvr(self, t_id, m_id):
         """
@@ -541,46 +562,30 @@ class PkmBattleEnv(gym.Env):
         :param m_id: attack
         :return: reward, terminal, and whether target survived and can attack
         """
-        opponent = not t_id
-        terminal = False
-        next_player_can_attack = True
+        damage, recover = 0., 0.
 
-        pkm = self.a_pkm[t_id]
-        opp_pkm = self.a_pkm[opponent]
-        before_hp = pkm.hp
-        before_opp_hp = opp_pkm.hp
+        if m_id < N_MOVES:
+            opponent = not t_id
 
-        # get damage and recover values from attack
-        damage_2_deal, health_2_recover = self._get_attack_dmg_rcvr(t_id, m_id)
+            pkm = self.a_pkm[t_id]
+            opp_pkm = self.a_pkm[opponent]
+            before_hp = pkm.hp
+            before_opp_hp = opp_pkm.hp
 
-        # perform recover
-        pkm.hp += health_2_recover
-        pkm.hp = HIT_POINTS if pkm.hp > HIT_POINTS else pkm.hp
-        recover = before_hp - pkm.hp
+            # get damage and recover values from attack
+            damage_2_deal, health_2_recover = self._get_attack_dmg_rcvr(t_id, m_id)
 
-        # perform damage
-        opp_pkm.hp -= damage_2_deal
-        pkm.hp = 0. if pkm.hp < 0. else opp_pkm.hp
-        damage = before_opp_hp - opp_pkm.hp
+            # perform recover
+            pkm.hp += health_2_recover
+            pkm.hp = HIT_POINTS if pkm.hp > HIT_POINTS else pkm.hp
+            recover = before_hp - pkm.hp
 
-        # compute base reward
-        reward = (damage + recover) / HIT_POINTS
+            # perform damage
+            opp_pkm.hp -= damage_2_deal
+            opp_pkm.hp = 0. if opp_pkm.hp < 0. else opp_pkm.hp
+            damage = before_opp_hp - opp_pkm.hp
 
-        # check if opponent pkm has fainted
-        if fainted_pkm(self.a_pkm[opponent]):
-            self.has_fainted = True
-            reward += 1.
-            next_player_can_attack = False
-
-            # check if opponent team has fainted
-            if self._fainted_team(opponent):
-                terminal = True
-            else:
-                self._switch_pkm(opponent, -1)
-                if self.debug:
-                    self.debug_message[opponent] += " FAINTED"
-
-        return reward, terminal, next_player_can_attack, damage, recover
+        return damage, recover
 
     def _get_not_fainted_pkms(self, t_id):
         """
@@ -638,6 +643,9 @@ class PkmBattleEnv(gym.Env):
             if not fainted_pkm(self.p_pkm[t_id][i]):
                 return False
         return True
+
+    def _get_pre_combat_damage(self, first):
+        pass
 
 
 def fainted_pkm(pkm):
