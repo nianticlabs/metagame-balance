@@ -3,7 +3,7 @@ from gym import spaces
 import random
 import numpy as np
 
-# TODO Logs and configs
+# TODO remake logs
 
 # type codification
 NORMAL = 0
@@ -165,7 +165,7 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         self.has_fainted = False
 
-    def step(self, actions):
+    def step(self, actions):  # TODO finish battle logic
 
         # Reset battle variables
         self.has_fainted = False
@@ -191,16 +191,16 @@ class PkmBattleEnv(gym.Env):
         dmg_dealt1 = 0.
         dmg_dealt2 = 0.
 
-        dmg_confusion_first = self._check_confused(self.first)  # TODO apply confusion damage
+        dmg_confusion_first = self._check_confused(self.first)
 
         if actions[self.first] < N_MOVES and not self._check_paralyzed(self.first) and dmg_confusion_first == 0:
-            r[self.first], t, can_player2_attack, dmg_dealt1 = self._perform_pkm_attack(self.first, actions[self.first])
+            r[self.first], t, can_player2_attack, dmg_dealt1, rcvr_1 = self._perform_pkm_attack(self.first, actions[self.first])
 
         dmg_confusion_second = self._check_confused(self.second)
 
         if can_player2_attack and actions[self.second] < N_MOVES and not self._check_paralyzed(
                 self.second) and dmg_confusion_second == 0:
-            r[self.second], t, _, dmg_dealt2 = self._perform_pkm_attack(self.second, actions[self.second])
+            r[self.second], t, _, dmg_dealt2, rcvr_2 = self._perform_pkm_attack(self.second, actions[self.second])
         elif self.debug:
             self.debug_message[self.second] = 'can\'t perform any action'
 
@@ -515,10 +515,10 @@ class PkmBattleEnv(gym.Env):
             # battle move
             if move.power == 0. and move.type == DRAGON:  # DRAGON RAGE (DRAGON)
                 if opponent_pkm.p_type != FAIRY:
-                    damage = 40
+                    damage = 40.
             elif move.power == 0. and move.type == GHOST:  # NIGHT SHADE (GHOST)
                 if opponent_pkm.p_type != NORMAL:
-                    damage = 40
+                    damage = 40.
             else:
                 stab = 1.5 if move.type == pkm.p_type else 1.
                 if (move.type == WATER and self.weather == RAIN) or (move.type == FIRE and self.weather == SUNNY):
@@ -537,8 +537,8 @@ class PkmBattleEnv(gym.Env):
         """
         Perform a pkm attack
 
-        :param a: attack
         :param t_id: trainer id
+        :param m_id: attack
         :return: reward, terminal, and whether target survived and can attack
         """
         opponent = not t_id
