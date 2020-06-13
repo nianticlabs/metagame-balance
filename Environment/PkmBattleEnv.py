@@ -181,8 +181,8 @@ class PkmBattleEnv(gym.Env):
         r[first] = (dmg_2_second - dmg_2_first) / HIT_POINTS
         r[second] = (dmg_2_first - dmg_2_second) / HIT_POINTS
 
-        first_can_attack = fainted_pkm(first_pkm)
-        second_can_attack = fainted_pkm(second_pkm)
+        first_can_attack = not fainted_pkm(first_pkm)
+        second_can_attack = not fainted_pkm(second_pkm)
 
         # process all pre battle effects
         self._process_pre_battle_effects()
@@ -191,14 +191,17 @@ class PkmBattleEnv(gym.Env):
         dmg_2_first = self._get_pre_combat_damage(first) if first_can_attack else 0.
         dmg_2_second = self._get_pre_combat_damage(second) if second_can_attack else 0.
 
+        confusion_damage_2_first = dmg_2_first > 0.
+        confusion_damage_2_second = dmg_2_second > 0.
+
         r[first] += (dmg_2_second - dmg_2_first) / HIT_POINTS
         r[second] += (dmg_2_first - dmg_2_second) / HIT_POINTS
 
         # battle
-        first_can_attack = fainted_pkm(first_pkm) and self._check_paralyzed(first) and self._check_asleep(first)
+        first_can_attack = not fainted_pkm(first_pkm) and not self._paralyzed(first) and not self._asleep(first) and not confusion_damage_2_first
         dmg_2_second, hp_2_first = self._perform_pkm_attack(first, actions[first]) if first_can_attack else 0., 0.
 
-        second_can_attack = fainted_pkm(second_pkm) and self._check_paralyzed(second) and self._check_asleep(second)
+        second_can_attack = not fainted_pkm(second_pkm) and not self._paralyzed(second) and not self._asleep(second) and not confusion_damage_2_second
         dmg_2_first, hp_2_second = self._perform_pkm_attack(first, actions[first]) if second_can_attack else 0., 0.
 
         r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / HIT_POINTS + fainted_pkm(second_pkm)
@@ -218,8 +221,8 @@ class PkmBattleEnv(gym.Env):
 
 
         # check if battle ended
-        t[first] = self._fainted_team(first)
-        t[second] = self._fainted_team(second)
+        t[first] = fainted_pkm(first_pkm) and self._fainted_team(first)
+        t[second] = fainted_pkm(second_pkm) and self._fainted_team(second)
 
         r[first] += t[first]
         r[second] += t[second]
@@ -279,7 +282,7 @@ class PkmBattleEnv(gym.Env):
                     self.n_turns_confused[i] = 0
 
             # check if active pkm should be no more asleep
-            if self._check_asleep(pkm):
+            if self._asleep(pkm):
                 pkm.n_turns_asleep += 1
                 if random.uniform(0, 1) <= 0.5 or pkm.n_turns_asleep == 4:
                     pkm.status = NONE
@@ -306,18 +309,21 @@ class PkmBattleEnv(gym.Env):
         :return: damage to pkm
         """
         pkm = self.a_pkm[t_id]
-        damage = 0.
+        state_damage = 0.
 
         if self.weather == SANDSTORM and (pkm.p_type != ROCK and pkm.p_type != GROUND and pkm.p_type != STEEL):
-            damage += STATE_DAMAGE
+            state_damage += STATE_DAMAGE
         elif self.weather == HAIL and (pkm.p_type != ICE):
-            damage += STATE_DAMAGE
-
-        if damage >= pkm.hp:
-            return damage
+            state_damage += STATE_DAMAGE
 
         if pkm.status == POISONED:
-            damage += STATE_DAMAGE
+            state_damage += STATE_DAMAGE
+
+        before_hp = pkm.hp
+        pkm.hp -= state_damage
+        pkm.hp = 0. if pkm.hp < 0. else pkm.hp
+        damage = before_hp - pkm.hp
+
         return damage
 
     def _get_attack_order(self):
@@ -385,39 +391,6 @@ class PkmBattleEnv(gym.Env):
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
-        """
-        if self.debug:
-            if self.debug_message[0] != '' and self.debug_message[1] != '':
-                if self.switched[0]:
-                    if self.has_fainted:
-                        print('Trainer 1', self.debug_message[1])
-                        print('Trainer 0', self.debug_message[0])
-                    else:
-                        print('Trainer 0', self.debug_message[0])
-                        print('Trainer 1', self.debug_message[1])
-                elif self.switched[1]:
-                    if self.has_fainted:
-                        print('Trainer 0', self.debug_message[0])
-                        print('Trainer 1', self.debug_message[1])
-                    else:
-                        print('Trainer 1', self.debug_message[1])
-                        print('Trainer 0', self.debug_message[0])
-                elif self.first == 0:
-                    print('Trainer 0', self.debug_message[0])
-                    print('Trainer 1', self.debug_message[1])
-                else:
-                    print('Trainer 1', self.debug_message[1])
-                    print('Trainer 0', self.debug_message[0])
-            print()
-        print('Trainer 0')
-        print('Active', self.a_pkm[0])
-        print('Party', self.p_pkm[0])
-        print('Trainer 1')
-        print('Active', self.a_pkm[1])
-        if mode != 'player':
-            print('Party', self.p_pkm[1])
-        print()
-        """
         pass
 
     def change_setting(self, setting):
@@ -599,7 +572,7 @@ class PkmBattleEnv(gym.Env):
                 not_fainted_pkm.append(i)
         return not_fainted_pkm
 
-    def _check_paralyzed(self, t_id):
+    def _paralyzed(self, t_id):
         """
         Check if trainer t_id active pkm is paralyzed this turn and cannot move.
 
@@ -611,19 +584,7 @@ class PkmBattleEnv(gym.Env):
         else:
             return False
 
-    def _check_confused(self, t_id):
-        """
-        Check if trainer t_id active pkm is confused this turn and cannot move and take damage.
-
-        :param t_id: trainer
-        :return: 0. if not confused or damage to take if confused
-        """
-        if self.confused[t_id] and random.uniform(0, 1) <= 0.33:
-            return 40.
-        else:
-            return 0.
-
-    def _check_asleep(self, t_id):
+    def _asleep(self, t_id):
         """
         Check if trainer t_id active pkm is asleep this turn and cannot move.
 
@@ -644,8 +605,17 @@ class PkmBattleEnv(gym.Env):
                 return False
         return True
 
-    def _get_pre_combat_damage(self, first):
-        pass
+    def _get_pre_combat_damage(self, t_id):
+        """
+        Check if trainer t_id active pkm is confused this turn and cannot move and take damage.
+
+        :param t_id: trainer
+        :return: 0. if not confused or damage to take if confused
+        """
+        if self.confused[t_id] and random.uniform(0, 1) <= 0.33:
+            return 40.
+        else:
+            return 0.
 
 
 def fainted_pkm(pkm):
