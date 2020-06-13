@@ -3,7 +3,7 @@ from gym import spaces
 import random
 import numpy as np
 
-# TODO Logs
+# TODO Logs and configs
 
 # type codification
 NORMAL = 0
@@ -54,6 +54,10 @@ TYPE_CHART_MULTIPLIER = [
     [1., .5, 1., 1., 1., 1., 2., .5, 1., 1., 1., 1., 1., 1., 2., 2., .5, 1.]  # FAIRY
 ]
 
+# trainers
+N_TRAINERS = 2
+N_PARTY = 5
+
 # move power range
 POWER_MIN = 50.
 POWER_MAX = 100.
@@ -86,8 +90,9 @@ NONE = 0
 PARALYZED = 1
 POISONED = 2
 CONFUSED = 3
+SLEEP = 4
 
-STATUS_TO_STR = {NONE: "", PARALYZED: "PARALYZED", POISONED: "POISONED", CONFUSED: "CONFUSED"}
+STATUS_TO_STR = {NONE: "", PARALYZED: "PARALYZED", POISONED: "POISONED", CONFUSED: "CONFUSED", SLEEP: "SLEEP"}
 
 
 class Move:
@@ -153,6 +158,7 @@ class PkmBattleEnv(gym.Env):
         self.seeds = [0, 0]
         self.confused = [0, 0]
         self.n_turns_no_clear = 0
+        self.n_turns_confused = [0, 0]
         # debug
         self.debug = debug
         self.debug_message = ['', '']
@@ -160,20 +166,144 @@ class PkmBattleEnv(gym.Env):
         self.has_fainted = False
 
     def step(self, actions):
+
+        # Reset battle variables
         self.has_fainted = False
         self.switched = [False, False]
         r = [0., 0.]
-        # switch pokemon
+
+        # switch pokemons
+        self._process_switch_pkms(actions)
+
+        # get switch triggered damage
+        dmg_1, dmg_2 = self._get_switch_damage()
+
+        # process all pre battle effects
+        self._process_pre_battle_effects()
+
+        # pokemon attacks
+        self.first, self.second = self._get_attack_order()
+
+        t = False
+        can_player2_attack = True
+
+        # first attack
+        dmg_dealt1 = 0.
+        dmg_dealt2 = 0.
+
+        dmg_confusion_first = self._check_confused(self.first)  # TODO apply confusion damage
+
+        if actions[self.first] < N_MOVES and not self._check_paralyzed(self.first) and dmg_confusion_first == 0:
+            r[self.first], t, can_player2_attack, dmg_dealt1 = self._perform_pkm_attack(self.first, actions[self.first])
+
+        dmg_confusion_second = self._check_confused(self.second)
+
+        if can_player2_attack and actions[self.second] < N_MOVES and not self._check_paralyzed(
+                self.second) and dmg_confusion_second == 0:
+            r[self.second], t, _, dmg_dealt2 = self._perform_pkm_attack(self.second, actions[self.second])
+        elif self.debug:
+            self.debug_message[self.second] = 'can\'t perform any action'
+
+        r[self.first] -= dmg_dealt2 / HIT_POINTS
+        r[self.second] -= dmg_dealt1 / HIT_POINTS
+
+        # process all post battle effects
+        self._process_post_battle_effects()
+
+        # get post battle effects damage
+        dmg_0 = self._get_post_battle_damage(0)
+        dmg_1 = self._get_post_battle_damage(1)
+
+        return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, t, None
+
+    def _process_switch_pkms(self, actions):
+        """
+        Switch pokemons if players choosen to do so
+
+        :param actions: players actions
+        :return:
+        """
         if actions[0] >= N_MOVES:
             switch_action = actions[0] - N_MOVES
-            if not PkmBattleEnv._fainted_pkm(self.p_pkm[0][switch_action]):
+            if not fainted_pkm(self.p_pkm[0][switch_action]):
                 self._switch_pkm(0, switch_action)
         if actions[1] == N_MOVES:
             switch_action = actions[1] - N_MOVES
-            if not PkmBattleEnv._fainted_pkm(self.p_pkm[1][switch_action]):
+            if not fainted_pkm(self.p_pkm[1][switch_action]):
                 self._switch_pkm(1, switch_action)
 
-        # pokemon attacks
+    def _get_switch_damage(self):
+        """
+        Get triggered damage to be dealt to switched pkm.
+
+        :return: damage to first pkm, damage to second pkm
+        """
+        dmg_taken = [0., 0.]
+
+        # Spikes damage
+        for i in range(N_TRAINERS):
+            if self.spikes[i] and self.a_pkm[i].p_type != FLYING and self.switched[i]:
+                dmg_taken[i] = STATE_DAMAGE
+
+        return dmg_taken[0], dmg_taken[1]
+
+    def _process_pre_battle_effects(self):
+        """
+        Process all pre battle effects.
+
+        """
+        # for all trainers
+        for i in range(N_TRAINERS):
+
+            # check if active pkm should be no more confused
+            if self.confused[i]:
+                self.n_turns_confused[i] += 1
+                if random.uniform(0, 1) <= 0.5 or self.n_turns_confused[i] == 4:
+                    self.confused[i] = False
+                    self.n_turns_confused[i] = 0
+
+    def _process_post_battle_effects(self):
+        """
+        Process all post battle effects.
+
+        """
+        if self.weather != CLEAR:
+            self.n_turns_no_clear += 1
+
+            # clear weather if appropriated
+            if self.n_turns_no_clear > 5:
+                self.weather = CLEAR
+                self.n_turns_no_clear = 0
+
+    def _get_post_battle_damage(self, t_id):
+        """
+        Get triggered damage to be dealt to switched pkm.
+
+        :param: t_id: owner trainer
+        :return: damage to pkm
+        """
+        pkm = self.a_pkm[t_id]
+        damage = 0.
+
+        if self.weather == SANDSTORM and (pkm.p_type != ROCK and pkm.p_type != GROUND and pkm.p_type != STEEL):
+            damage += STATE_DAMAGE
+        elif self.weather == HAIL and (pkm.p_type != ICE):
+            damage += STATE_DAMAGE
+
+        if damage >= pkm.hp:
+            return damage
+
+        if pkm.status == POISONED:
+            damage += STATE_DAMAGE
+        return damage
+
+    def _get_attack_order(self):
+        """
+        Get attack order for this turn.
+        Priority is given to the pkm with highest speed_stage. Otherwise random.
+
+        :return: tuple with first and second trainer to perform attack
+        """
         if self.speed_stage[0] > self.speed_stage[1]:
             order = [0, 1]
         elif self.speed_stage[0] < self.speed_stage[1]:
@@ -182,37 +312,7 @@ class PkmBattleEnv(gym.Env):
             # random attack order
             order = [0, 1]
             np.random.shuffle(order)
-        self.first = order[0]
-        self.second = order[1]
-
-        terminal = False
-        can_player2_attack = True
-
-        # first attack
-        dmg_dealt1 = 0
-        dmg_dealt2 = 0
-
-        if actions[self.first] < N_MOVES and not self.paralyzed(self.first):
-            r[self.first], terminal, can_player2_attack, dmg_dealt1 = self._battle_pkm(actions[self.first], self.first)
-
-        if can_player2_attack and actions[self.second] < N_MOVES and not self.paralyzed(self.second):  # TODO Confusion
-            r[self.second], terminal, _, dmg_dealt2 = self._battle_pkm(actions[self.second], self.second)
-        elif self.debug:
-            self.debug_message[self.second] = 'can\'t perform any action'
-
-        self._apply_field_effects(self.first)
-        self._apply_field_effects(self.second)
-
-        r[self.first] -= dmg_dealt2 / HIT_POINTS
-        r[self.second] -= dmg_dealt1 / HIT_POINTS
-
-        if self.weather != CLEAR:
-            self.n_turns_no_clear += 1
-            if self.n_turns_no_clear > 5:
-                self.weather = CLEAR
-                self.n_turns_no_clear = 0
-
-        return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, terminal, None
+        return order[0], order[1]
 
     def reset(self):
         self.weather = CLEAR
@@ -225,6 +325,8 @@ class PkmBattleEnv(gym.Env):
         self.n_turns_no_clear = 0
         if self.debug:
             self.debug_message = ['', '']
+
+        # Random Setting
         if self.setting == SETTING_RANDOM:
             self.a_pkm = [Pkm(), Pkm()]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
@@ -234,6 +336,8 @@ class PkmBattleEnv(gym.Env):
             self.p_pkm = [Pkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
                           Pkm(NORMAL, HIT_POINTS, NORMAL, 90, NORMAL, 90, NORMAL, 90, NORMAL,
                               90)]  # party pokemons
+
+        # Half Deterministic Setting
         elif self.setting == SETTING_HALF_DETERMINISTIC:
             if random.uniform(0, 1) <= 0.2:
                 type1 = random.randrange(0, N_TYPES - 1)
@@ -244,15 +348,18 @@ class PkmBattleEnv(gym.Env):
             else:
                 self.a_pkm = [Pkm(), Pkm()]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+
+        # Fair in Advantage Setting
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
             type1 = random.randrange(0, N_TYPES - 1)
             type2 = get_super_effective_move(type1)
             self.a_pkm = [
                 Pkm(type1, get_non_very_effective_move(type2), 90, get_non_very_effective_move(type2), 90,
-                    get_normal_effective_move(type2), 90, type1, 90),
+                    get_effective_move(type2), 90, type1, 90),
                 Pkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
-                    get_normal_effective_move(type1), 90, type2, 90)]  # active pokemons
+                    get_effective_move(type1), 90, type2, 90)]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
     def render(self, mode='human'):
@@ -291,47 +398,84 @@ class PkmBattleEnv(gym.Env):
     def change_setting(self, setting):
         self.setting = setting
 
-    def _state_trainer(self, t_id):
+    def _state_trainer(self, t_id):  # TODO
         opponent = not t_id
-        return [self.a_pkm[t_id].p_type, self.a_pkm[t_id].hp,
-                self.p_pkm[t_id][0].p_type, self.p_pkm[t_id][0].hp,
-                self.p_pkm[t_id][1].p_type, self.p_pkm[t_id][1].hp,
-                self.p_pkm[t_id][2].p_type, self.p_pkm[t_id][2].hp,
-                self.p_pkm[t_id][3].p_type, self.p_pkm[t_id][3].hp,
-                self.p_pkm[t_id][4].p_type, self.p_pkm[t_id][4].hp,
-                self.a_pkm[opponent].p_type, self.a_pkm[opponent].hp,
-                self.a_pkm[t_id].moves[0].type, self.a_pkm[t_id].moves[0].power,
-                self.a_pkm[t_id].moves[1].type, self.a_pkm[t_id].moves[1].power,
-                self.a_pkm[t_id].moves[2].type, self.a_pkm[t_id].moves[2].power,
-                self.a_pkm[t_id].moves[3].type, self.a_pkm[t_id].moves[3].power,
-                self.p_pkm[opponent][0].hp,
-                self.p_pkm[opponent][1].hp,
-                self.p_pkm[opponent][2].hp,
-                self.p_pkm[opponent][3].hp,
-                self.p_pkm[opponent][4].hp]
+        return [
+            # active pkm
+            self.a_pkm[t_id].p_type, self.a_pkm[t_id].hp,
+            # active pkm moves
+            self.a_pkm[t_id].moves[0].type, self.a_pkm[t_id].moves[0].power,
+            self.a_pkm[t_id].moves[1].type, self.a_pkm[t_id].moves[1].power,
+            self.a_pkm[t_id].moves[2].type, self.a_pkm[t_id].moves[2].power,
+            self.a_pkm[t_id].moves[3].type, self.a_pkm[t_id].moves[3].power,
+            # party pkm moves
+            self.p_pkm[t_id][0].p_type, self.p_pkm[t_id][0].hp,
+            self.p_pkm[t_id][1].p_type, self.p_pkm[t_id][1].hp,
+            self.p_pkm[t_id][2].p_type, self.p_pkm[t_id][2].hp,
+            self.p_pkm[t_id][3].p_type, self.p_pkm[t_id][3].hp,
+            self.p_pkm[t_id][4].p_type, self.p_pkm[t_id][4].hp,
+            # opponent active pkm
+            self.a_pkm[opponent].p_type, self.a_pkm[opponent].hp,
+            # opponent party pkm
+            self.p_pkm[opponent][0].p_type, self.p_pkm[opponent][0].hp,
+            self.p_pkm[opponent][1].p_type, self.p_pkm[opponent][1].hp,
+            self.p_pkm[opponent][2].p_type, self.p_pkm[opponent][2].hp,
+            self.p_pkm[opponent][3].p_type, self.p_pkm[opponent][3].hp,
+            self.p_pkm[opponent][4].p_type, self.p_pkm[opponent][4].hp]
 
     def _switch_pkm(self, t_id, s_pos):
-        if self.p_pkm[t_id][s_pos].hp != 0:
+        """
+        Switch active pkm of trainer id with party pkm on s_pos.
+        Random party pkm if s_pos = -1
+
+        :param t_id: trainer id
+        :param s_pos: to be switch pokemon party position
+        """
+        # identify fainted pkm
+        not_fainted_pkm = self._get_not_fainted_pkms(t_id)
+        all_fainted = not not_fainted_pkm
+
+        if not all_fainted:
+
+            # select random party pkm to switch if needed
+            if s_pos == -1 or self.p_pkm[t_id][s_pos].hp != 0:
+                np.random.shuffle(not_fainted_pkm)
+                s_pos = not_fainted_pkm[0]
+
+            # switch party and bench pkm
+            temp = self.a_pkm[t_id]
+            self.a_pkm[t_id] = self.p_pkm[t_id][s_pos]
+            self.p_pkm[t_id][s_pos] = temp
+
+            # clear switch states
             self.attack_stage[t_id] = 0
             self.defense_stage[t_id] = 0
             self.speed_stage[t_id] = 0
             self.seeds[t_id] = 0
             self.confused[t_id] = 0
-            temp = self.a_pkm[t_id]
-            self.a_pkm[t_id] = self.p_pkm[t_id][s_pos]
-            self.p_pkm[t_id][s_pos] = temp
+
             if self.debug:
                 self.debug_message[t_id] = "SWITCH"
             self.switched[t_id] = True
         elif self.debug:
             self.debug_message[t_id] = "FAILED SWITCH"
 
-    def _attack_pkm(self, t_id, m_id):
+    def _get_attack_dmg_rcvr(self, t_id, m_id):
+        """
+        Get damage and recover done by an attack m_id of active pkm of trainer t_id
+
+        :param t_id: trainer of the active pkm
+        :param m_id: move of the active pkm
+        :return: damage, recover
+        """
+
         move = self.a_pkm[t_id].moves[m_id]
         pkm = self.a_pkm[t_id]
         opponent = not t_id
         opponent_pkm = self.a_pkm[not t_id]
-        before_op_pkm_hp = opponent_pkm.hp
+        damage = 0.
+        recover = 0.
+
         if move.power == 0. and move.type != DRAGON and move.type != GHOST:
             # weather moves
             if move.type == FIRE:  # SUNNY DAY (FIRE)
@@ -342,19 +486,20 @@ class PkmBattleEnv(gym.Env):
                 self.weather = HAIL
             elif move.type == ROCK:  # SANDSTORM (ROCK)
                 self.weather = SANDSTORM
+
             # status moves
             elif move.type == ELECTRIC:  # THUNDER WAVE (ELECTRIC)
-                if opponent_pkm.p_type != ELECTRIC:
+                if opponent_pkm.p_type != ELECTRIC and opponent_pkm.p_type != GROUND:
                     opponent_pkm.status = PARALYZED
             elif move.type == POISON:  # POISON (POISON)
                 if opponent_pkm.p_type != POISON and opponent_pkm.p_type != STEEL:
                     opponent_pkm.status = POISONED
+            elif move.type == GRASS:  # SPORE (GRASS)
+                opponent_pkm.status = SLEEP
+
             # other moves
             elif move.type == FAIRY:  # SWEET KISS (FAIRY)
                 self.confused[not t_id] = True
-            elif move.type == GRASS:
-                if opponent_pkm.p_type != GRASS:  # LEECH SEED (GRASS)
-                    self.seeds[not t_id] = True
             elif move.type == GROUND:  # SPIKES (GROUND)
                 self.spikes[not t_id] = True
             elif move.type == DARK or move.type == FIGHT:  # NASTY PLOT (DARK) or BULK UP (FIGHT)
@@ -364,41 +509,33 @@ class PkmBattleEnv(gym.Env):
             elif move.type == BUG:  # STRING SHOT (BUG)
                 self.speed_stage[not t_id] -= 1
             elif move.type == FLYING or move.type == NORMAL:  # ROOST (FLYING) or RECOVER (NORMAL)
-                before_hp = pkm.hp
-                pkm.hp += HIT_POINTS / 2.
-                if pkm.hp > HIT_POINTS:
-                    pkm.hp = HIT_POINTS
-                return before_hp - pkm.hp
-            return 0.  # damage
-        # battle move
-        if move.power == 0. and move.type == DRAGON:  # DRAGON RAGE (DRAGON)
-            if opponent_pkm.p_type != FAIRY:
-                opponent_pkm.hp -= 40
-        elif move.power == 0. and move.type == GHOST:  # NIGHT SHADE (GHOST)
-            if opponent_pkm.p_type != NORMAL:
-                opponent_pkm.hp -= 40
-        else:
-            stab = 1.5 if move.type == pkm.p_type else 1.
-            weather = 1.5 if (move.type == WATER and self.weather == RAIN) or (
-                    move.type == FIRE and self.weather == SUNNY) else .5 if (move.type == WATER
-                                                                             and self.weather == SUNNY) or (
-                                                                                    move.type == FIRE and self.weather == RAIN) else .0
-            stage = self.attack_stage[t_id] - self.defense_stage[opponent]
-            stage = (stage + 2.) / 2 if stage >= 0. else 2. / (stage + 2.)
-            opponent_pkm.hp -= TYPE_CHART_MULTIPLIER[move.type][
-                                   opponent_pkm.p_type] * stab * weather * stage * move.power
-        if opponent_pkm.hp <= 0.:
-            opponent_pkm.hp = 0.
-        damage = before_op_pkm_hp - opponent_pkm.hp
-        if self.debug:
-            self.debug_message[t_id] = "ATTACK with " + str(move) + " to type " + TYPE_TO_STR[
-                opponent_pkm.p_type] + " multiplier=" + str(
-                TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type]) + " causing " + str(
-                damage) + " damage, leaving opponent hp " + str(opponent_pkm.hp) + ''
-        return damage
+                recover = HIT_POINTS / 2.
 
-    def _battle_pkm(self, a, t_id):
+        else:
+            # battle move
+            if move.power == 0. and move.type == DRAGON:  # DRAGON RAGE (DRAGON)
+                if opponent_pkm.p_type != FAIRY:
+                    damage = 40
+            elif move.power == 0. and move.type == GHOST:  # NIGHT SHADE (GHOST)
+                if opponent_pkm.p_type != NORMAL:
+                    damage = 40
+            else:
+                stab = 1.5 if move.type == pkm.p_type else 1.
+                if (move.type == WATER and self.weather == RAIN) or (move.type == FIRE and self.weather == SUNNY):
+                    weather = 1.5
+                elif (move.type == WATER and self.weather == SUNNY) or (move.type == FIRE and self.weather == RAIN):
+                    weather = .5
+                else:
+                    weather = 1.
+                stage_level = self.attack_stage[t_id] - self.defense_stage[opponent]
+                stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (stage_level + 2.)
+                damage = TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type] * stab * weather * stage * move.power
+
+        return damage, recover
+
+    def _perform_pkm_attack(self, t_id, m_id):
         """
+        Perform a pkm attack
 
         :param a: attack
         :param t_id: trainer id
@@ -407,55 +544,116 @@ class PkmBattleEnv(gym.Env):
         opponent = not t_id
         terminal = False
         next_player_can_attack = True
-        damage_dealt = self._attack_pkm(t_id, a)
-        reward = damage_dealt / HIT_POINTS
-        if self._fainted_pkm(self.a_pkm[opponent]):
+
+        pkm = self.a_pkm[t_id]
+        opp_pkm = self.a_pkm[opponent]
+        before_hp = pkm.hp
+        before_opp_hp = opp_pkm.hp
+
+        # get damage and recover values from attack
+        damage_2_deal, health_2_recover = self._get_attack_dmg_rcvr(t_id, m_id)
+
+        # perform recover
+        pkm.hp += health_2_recover
+        pkm.hp = HIT_POINTS if pkm.hp > HIT_POINTS else pkm.hp
+        recover = before_hp - pkm.hp
+
+        # perform damage
+        opp_pkm.hp -= damage_2_deal
+        pkm.hp = 0. if pkm.hp < 0. else opp_pkm.hp
+        damage = before_opp_hp - opp_pkm.hp
+
+        # compute base reward
+        reward = (damage + recover) / HIT_POINTS
+
+        # check if opponent pkm has fainted
+        if fainted_pkm(self.a_pkm[opponent]):
             self.has_fainted = True
-            reward += 1
+            reward += 1.
             next_player_can_attack = False
-            if self._fainted_pkm(self.p_pkm[opponent][0] and self.p_pkm[opponent][1] and self.p_pkm[opponent][2] and
-                                 self.p_pkm[opponent][3] and self.p_pkm[opponent][4]):
+
+            # check if opponent team has fainted
+            if self._fainted_team(opponent):
                 terminal = True
             else:
-                self._switch_pkm(opponent, -1)  # TODO Random switch
-                # TODO Spikes move
+                self._switch_pkm(opponent, -1)
                 if self.debug:
                     self.debug_message[opponent] += " FAINTED"
-        return reward, terminal, next_player_can_attack, damage_dealt
 
-    @staticmethod
-    def _fainted_pkm(pkm):
-        return pkm.hp == 0
+        return reward, terminal, next_player_can_attack, damage, recover
 
-    def _apply_field_effects(self, t_id):  # TODO
-        pkm = self.a_pkm[t_id]
-        opponent_pkm = self.a_pkm[not t_id]
-        damage = 0.
-        recovery = 0.
-        if self.weather == SANDSTORM and (pkm.p_type != ROCK and pkm.p_type != GROUND and pkm.p_type != STEEL):
-            damage = STATE_DAMAGE
-        elif self.weather == HAIL and (pkm.p_type != ICE):
-            damage = STATE_DAMAGE
-        elif self.seeds[t_id]:
-            damage = STATE_DAMAGE
-        damage_dealt =
-        reward1 = damage_dealt / HIT_POINTS
-        if self.seeds[t_id]:
-            opponent_pkm.hp += damage_dealt
-            opponent_pkm.hp = max(opponent_pkm.hp, HIT_POINTS)
-        reward2 = recovery
-        return reward1, reward2
+    def _get_not_fainted_pkms(self, t_id):
+        """
+        Return a list of position of not fainted pkm in trainer t_id party.
 
-    def paralyzed(self, t_id):
+        :param t_id: trainer
+        """
+        not_fainted_pkm = []
+        for i, p in enumerate(self.p_pkm[t_id]):
+            if fainted_pkm(p):
+                not_fainted_pkm.append(i)
+        return not_fainted_pkm
+
+    def _check_paralyzed(self, t_id):
+        """
+        Check if trainer t_id active pkm is paralyzed this turn and cannot move.
+
+        :param t_id: trainer
+        :return: true if pkm is paralyzed and cannot move
+        """
         if self.a_pkm[t_id].status == PARALYZED:
-            return random.uniform(0, 1) <= 0.25
+            return np.random.uniform(0, 1) <= 0.25
         else:
             return False
+
+    def _check_confused(self, t_id):
+        """
+        Check if trainer t_id active pkm is confused this turn and cannot move and take damage.
+
+        :param t_id: trainer
+        :return: 0. if not confused or damage to take if confused
+        """
+        if self.confused[t_id] and random.uniform(0, 1) <= 0.33:
+            return 40.
+        else:
+            return 0.
+
+    def _check_asleep(self, t_id):
+        """
+        Check if trainer t_id active pkm is asleep this turn and cannot move.
+
+        :param t_id: trainer
+        :return: true if pkm is asleep and cannot move
+        """
+        return self.a_pkm[t_id].status == SLEEP
+
+    def _fainted_team(self, t_id):
+        """
+        Check if trainer t_id team is fainted
+
+        :param t_id: trainer team to check
+        :return: True if entire team is fainted
+        """
+        for i in range(N_PARTY):
+            if not fainted_pkm(self.p_pkm[t_id][i]):
+                return False
+        return True
+
+
+def fainted_pkm(pkm):
+    """
+    Check if pkm is fainted (hp == 0)
+
+    :param pkm: pkm to check
+    :return: True if pkm is fainted
+    """
+    return pkm.hp == 0
 
 
 def encode(s):  # TODO
     """
     Encode Game state.
+
     :param s: game state
     :return: encoded game state in one hot vector
     """
@@ -474,6 +672,7 @@ def encode(s):  # TODO
 def decode(e):  # TODO
     """
     Decode game state.
+
     :param e: encoded game state in one hot vector
     :return: game state
     """
@@ -492,6 +691,8 @@ def decode(e):  # TODO
 
 def get_super_effective_move(t):
     """
+    Get a super effective move relative to type t.
+
     :param t: pokemon type
     :return: a random type that is super effective against pokemon type t
     """
@@ -505,6 +706,8 @@ def get_super_effective_move(t):
 
 def get_non_very_effective_move(t):
     """
+    Get a non very effective move relative to type t.
+
     :param t: pokemon type
     :return: a random type that is not very effective against pokemon type t
     """
@@ -516,8 +719,10 @@ def get_non_very_effective_move(t):
     return random.choice(s)
 
 
-def get_normal_effective_move(t):
+def get_effective_move(t):
     """
+    Get a effective move relative to type t.
+
     :param t: pokemon type
     :return: a random type that is not very effective against pokemon type t
     """
