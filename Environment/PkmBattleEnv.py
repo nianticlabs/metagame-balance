@@ -218,7 +218,7 @@ class PkmBattleEnv(gym.Env):
         self._process_post_battle_effects()
 
         # switch fainted pkm
-
+        
 
         # check if battle ended
         t[first] = fainted_pkm(first_pkm) and self._fainted_team(first)
@@ -579,10 +579,7 @@ class PkmBattleEnv(gym.Env):
         :param t_id: trainer
         :return: true if pkm is paralyzed and cannot move
         """
-        if self.a_pkm[t_id].status == PARALYZED:
-            return np.random.uniform(0, 1) <= 0.25
-        else:
-            return False
+        return self.a_pkm[t_id].status == PARALYZED and np.random.uniform(0, 1) <= 0.25
 
     def _asleep(self, t_id):
         """
@@ -612,10 +609,7 @@ class PkmBattleEnv(gym.Env):
         :param t_id: trainer
         :return: 0. if not confused or damage to take if confused
         """
-        if self.confused[t_id] and random.uniform(0, 1) <= 0.33:
-            return 40.
-        else:
-            return 0.
+        return STATE_DAMAGE if self.confused[t_id] and random.uniform(0, 1) <= 0.33 else 0.
 
 
 def fainted_pkm(pkm):
