@@ -2,6 +2,7 @@ import gym
 from gym import spaces
 import random
 import numpy as np
+from typing import List, Tuple
 
 # TODO remake logs
 
@@ -211,25 +212,28 @@ class PkmBattleEnv(gym.Env):
         dmg_2_first = self._get_post_battle_damage(first) if first_can_attack else 0.
         dmg_2_second = self._get_post_battle_damage(second) if second_can_attack else 0.
 
-        r[first] = (dmg_2_second - dmg_2_first) / HIT_POINTS
-        r[second] = (dmg_2_first - dmg_2_second) / HIT_POINTS
+        r[first] += (dmg_2_second - dmg_2_first) / HIT_POINTS
+        r[second] += (dmg_2_first - dmg_2_second) / HIT_POINTS
 
         # process all post battle effects
         self._process_post_battle_effects()
 
         # switch fainted pkm
-        
+        dmg_2_first, dmg_2_second = self._switch_fainted_pkm()
+
+        r[first] += (dmg_2_second - dmg_2_first) / HIT_POINTS
+        r[second] += (dmg_2_first - dmg_2_second) / HIT_POINTS
 
         # check if battle ended
-        t[first] = fainted_pkm(first_pkm) and self._fainted_team(first)
-        t[second] = fainted_pkm(second_pkm) and self._fainted_team(second)
+        t[first] = self._fainted_team(first)
+        t[second] = self._fainted_team(second)
 
         r[first] += t[first]
         r[second] += t[second]
 
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))], r, t[first] or t[second], None
 
-    def _process_switch_pkms(self, actions):
+    def _process_switch_pkms(self, actions: List[int]):
         """
         Switch pokemons if players choosen to do so
 
@@ -245,7 +249,7 @@ class PkmBattleEnv(gym.Env):
             if not fainted_pkm(self.p_pkm[1][switch_action]):
                 self._switch_pkm(1, switch_action)
 
-    def _get_entry_hazard_damage(self, t_id):
+    def _get_entry_hazard_damage(self, t_id: int) -> float:
         """
         Get triggered damage to be dealt to a switched pkm.
 
@@ -301,7 +305,7 @@ class PkmBattleEnv(gym.Env):
                 self.weather = CLEAR
                 self.n_turns_no_clear = 0
 
-    def _get_post_battle_damage(self, t_id):
+    def _get_post_battle_damage(self, t_id: int) -> float:
         """
         Get triggered damage to be dealt to switched pkm.
 
@@ -326,7 +330,7 @@ class PkmBattleEnv(gym.Env):
 
         return damage
 
-    def _get_attack_order(self):
+    def _get_attack_order(self) -> Tuple[int, int]:
         """
         Get attack order for this turn.
         Priority is given to the pkm with highest speed_stage. Otherwise random.
@@ -393,10 +397,10 @@ class PkmBattleEnv(gym.Env):
     def render(self, mode='human'):
         pass
 
-    def change_setting(self, setting):
+    def change_setting(self, setting: int):
         self.setting = setting
 
-    def _state_trainer(self, t_id):  # TODO
+    def _state_trainer(self, t_id: int):  # TODO
         opponent = not t_id
         return [
             # active pkm
@@ -421,7 +425,7 @@ class PkmBattleEnv(gym.Env):
             self.p_pkm[opponent][3].p_type, self.p_pkm[opponent][3].hp,
             self.p_pkm[opponent][4].p_type, self.p_pkm[opponent][4].hp]
 
-    def _switch_pkm(self, t_id, s_pos):
+    def _switch_pkm(self, t_id: int, s_pos: int):
         """
         Switch active pkm of trainer id with party pkm on s_pos.
         Random party pkm if s_pos = -1
@@ -454,7 +458,7 @@ class PkmBattleEnv(gym.Env):
 
             self.switched[t_id] = True
 
-    def _get_attack_dmg_rcvr(self, t_id, m_id):
+    def _get_attack_dmg_rcvr(self, t_id: int, m_id: int) -> Tuple[float, float]:
         """
         Get damage and recover done by an attack m_id of active pkm of trainer t_id
 
@@ -527,7 +531,7 @@ class PkmBattleEnv(gym.Env):
 
         return damage, recover
 
-    def _perform_pkm_attack(self, t_id, m_id):
+    def _perform_pkm_attack(self, t_id: int, m_id: int) -> Tuple[float, float]:
         """
         Perform a pkm attack
 
@@ -560,7 +564,7 @@ class PkmBattleEnv(gym.Env):
 
         return damage, recover
 
-    def _get_not_fainted_pkms(self, t_id):
+    def _get_not_fainted_pkms(self, t_id: int) -> List[int]:
         """
         Return a list of position of not fainted pkm in trainer t_id party.
 
@@ -572,7 +576,7 @@ class PkmBattleEnv(gym.Env):
                 not_fainted_pkm.append(i)
         return not_fainted_pkm
 
-    def _paralyzed(self, t_id):
+    def _paralyzed(self, t_id: int) -> bool:
         """
         Check if trainer t_id active pkm is paralyzed this turn and cannot move.
 
@@ -581,7 +585,7 @@ class PkmBattleEnv(gym.Env):
         """
         return self.a_pkm[t_id].status == PARALYZED and np.random.uniform(0, 1) <= 0.25
 
-    def _asleep(self, t_id):
+    def _asleep(self, t_id: int) -> bool:
         """
         Check if trainer t_id active pkm is asleep this turn and cannot move.
 
@@ -590,7 +594,7 @@ class PkmBattleEnv(gym.Env):
         """
         return self.a_pkm[t_id].status == SLEEP
 
-    def _fainted_team(self, t_id):
+    def _fainted_team(self, t_id: int) -> bool:
         """
         Check if trainer t_id team is fainted
 
@@ -600,9 +604,9 @@ class PkmBattleEnv(gym.Env):
         for i in range(N_PARTY):
             if not fainted_pkm(self.p_pkm[t_id][i]):
                 return False
-        return True
+        return fainted_pkm(self.a_pkm[t_id])
 
-    def _get_pre_combat_damage(self, t_id):
+    def _get_pre_combat_damage(self, t_id: int) -> float:
         """
         Check if trainer t_id active pkm is confused this turn and cannot move and take damage.
 
@@ -611,8 +615,28 @@ class PkmBattleEnv(gym.Env):
         """
         return STATE_DAMAGE if self.confused[t_id] and random.uniform(0, 1) <= 0.33 else 0.
 
+    def _switch_fainted_pkm(self) -> Tuple[float, float]:
+        """
 
-def fainted_pkm(pkm):
+        :return:
+        """
+        damage0, damage1 = 0., 0.
+        self.switched = [False, False]
+        if fainted_pkm(self.a_pkm[0]):
+            self._switch_pkm(0, -1)
+        if fainted_pkm(self.a_pkm[1]):
+            self._switch_pkm(1, -1)
+        if not fainted_pkm(self.a_pkm[0]):
+            damage0 = self._get_entry_hazard_damage(0)
+        if not fainted_pkm(self.a_pkm[1]):
+            damage1 = self._get_entry_hazard_damage(1)
+        d0, d1 = 0., 0.
+        if fainted_pkm(self.a_pkm[0]) or fainted_pkm(self.a_pkm[1]) and (not self._fainted_team(0) and not self._fainted_team(1)):
+            d0, d1 = self._switch_fainted_pkm()
+        return damage0 + d0, damage1 + d1
+
+
+def fainted_pkm(pkm: Pkm) -> bool:
     """
     Check if pkm is fainted (hp == 0)
 
@@ -661,7 +685,7 @@ def decode(e):  # TODO
     return s
 
 
-def get_super_effective_move(t):
+def get_super_effective_move(t: int)  -> int:
     """
     Get a super effective move relative to type t.
 
@@ -676,7 +700,7 @@ def get_super_effective_move(t):
     return random.choice(s)
 
 
-def get_non_very_effective_move(t):
+def get_non_very_effective_move(t: int)  -> int:
     """
     Get a non very effective move relative to type t.
 
@@ -691,7 +715,7 @@ def get_non_very_effective_move(t):
     return random.choice(s)
 
 
-def get_effective_move(t):
+def get_effective_move(t: int) -> int:
     """
     Get a effective move relative to type t.
 
