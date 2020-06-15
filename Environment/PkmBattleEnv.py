@@ -300,7 +300,7 @@ class PkmBattleEnv(gym.Env):
                     self.confused[i] = False
                     self.n_turns_confused[i] = 0
                     if self.debug:
-                        self.log += ' Trainer %s\'s %s is no longer confused' % (i, str(pkm))
+                        self.log += ' Trainer %s\'s %s is no longer confused\n' % (i, str(pkm))
 
             # check if active pkm should be no more asleep
             if self._asleep(i):
@@ -309,7 +309,7 @@ class PkmBattleEnv(gym.Env):
                     pkm.status = NONE
                     pkm.n_turns_asleep = 0
                     if self.debug:
-                        self.log += ' Trainer %s\'s %s is no longer asleep' % (i, str(pkm))
+                        self.log += ' Trainer %s\'s %s is no longer asleep\n' % (i, str(pkm))
 
     def _process_post_battle_effects(self):
         """
@@ -323,6 +323,8 @@ class PkmBattleEnv(gym.Env):
             if self.n_turns_no_clear > 5:
                 self.weather = CLEAR
                 self.n_turns_no_clear = 0
+                if self.debug:
+                    self.log += 'The weather is clear\n'
 
     def _get_post_battle_damage(self, t_id: int) -> float:
         """
@@ -424,6 +426,14 @@ class PkmBattleEnv(gym.Env):
                 Pkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
                     get_effective_move(type1), 90, type2, 90)]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+
+        if self.debug:
+            self.log += 'Trainer 0\nActive pokemon: %s\n Party pokemon: %s, %s, %s, %s, %s\n' % (
+                str(self.a_pkm[0]), str(self.p_pkm[0][0]), str(self.p_pkm[0][1]), str(self.p_pkm[0][2]),
+                str(self.p_pkm[0][3]), str(self.p_pkm[0][4]))
+            self.log += 'Trainer 1\nActive pokemon: %s\n Party pokemon: %s, %s, %s, %s, %s\n' % (
+                str(self.a_pkm[1]), str(self.p_pkm[1][0]), str(self.p_pkm[1][1]), str(self.p_pkm[1][2]),
+                str(self.p_pkm[1][3]), str(self.p_pkm[1][4]))
 
         return [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
 
