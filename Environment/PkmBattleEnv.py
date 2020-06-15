@@ -68,6 +68,8 @@ N_SWITCHES = 5
 # hit Points
 HIT_POINTS = POWER_MAX + POWER_MIN + 150.
 STATE_DAMAGE = HIT_POINTS / 8.
+SPIKES_2 = HIT_POINTS / 6.
+SPIKES_3 = HIT_POINTS / 4.
 
 # settings
 SETTING_RANDOM = 0
@@ -132,6 +134,7 @@ class Pkm:
         self.hp = hp
         self.status = NONE
         self.n_turn_asleep = 0
+        self.n_turns_asleep = 0
         if p_type is None:
             self.p_type = random.randrange(0, N_TYPES)
             self.moves = [Move(pkm_type=self.p_type) for _ in range(N_MOVES - 1)] + [
@@ -170,7 +173,6 @@ class PkmBattleEnv(gym.Env):
         self.defense_stage = [0., 0.]
         self.speed_stage = [0, 0]
         self.spikes = [0, 0]
-        self.seeds = [0, 0]
         self.confused = [0, 0]
         self.n_turns_no_clear = 0
         self.n_turns_confused = [0, 0]
@@ -290,14 +292,16 @@ class PkmBattleEnv(gym.Env):
         :return: damage to first pkm, damage to second pkm
         """
         damage = 0.
+        spikes = self.spikes[t_id]
 
         # Spikes damage
         if self.spikes[t_id] and self.a_pkm[t_id].p_type != FLYING and self.switched[t_id]:
             pkm = self.a_pkm[t_id]
             before_hp = pkm.hp
-            pkm.hp -= STATE_DAMAGE
+            pkm.hp -= STATE_DAMAGE if spikes <= 1 else SPIKES_2 if spikes == 2 else SPIKES_3
             pkm.hp = 0. if pkm.hp < 0. else pkm.hp
             damage = before_hp - pkm.hp
+            self.switched[t_id] = False
             if self.debug and damage > 0.:
                 self.log += 'ENTRY HAZARD DAMAGE: %s takes %s entry hazard damage from spikes, hp reduces from %s to ' \
                             '%s\n' % (str(pkm), damage, before_hp, pkm.hp)
@@ -409,14 +413,13 @@ class PkmBattleEnv(gym.Env):
         self.defense_stage = [0, 0]
         self.speed_stage = [0, 0]
         self.spikes = [0, 0]
-        self.seeds = [0, 0]
         self.confused = [0, 0]
         self.n_turns_no_clear = 0
         self.switched = [False, False]
 
         # Random Setting
         if self.setting == SETTING_RANDOM:
-            self.a_pkm = [Pkm(p_type=ICE, type0=ICE, type0power=0.), Pkm(type0=ELECTRIC, type0power=0.)]  # active pokemons
+            self.a_pkm = [Pkm(p_type=GRASS, type0=GRASS, type0power=0.), Pkm(type0=ELECTRIC, type0power=0.)]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         elif self.setting == SETTING_FULL_DETERMINISTIC:  # TODO
             self.a_pkm = [Pkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
@@ -503,7 +506,7 @@ class PkmBattleEnv(gym.Env):
             self.defense_stage[t_id], self.defense_stage[opponent],
             self.speed_stage[t_id], self.speed_stage[opponent],
             self.spikes[t_id], self.spikes[opponent],
-            self.seeds[t_id], self.seeds[opponent],
+            pkm.n_turns_asleep, opponent_pkm.n_turns_asleep,
             self.confused[t_id], self.confused[opponent]
         ]
 
@@ -541,7 +544,6 @@ class PkmBattleEnv(gym.Env):
                 self.attack_stage[t_id] = 0
                 self.defense_stage[t_id] = 0
                 self.speed_stage[t_id] = 0
-                self.seeds[t_id] = 0
                 self.confused[t_id] = 0
 
                 self.switched[t_id] = True
@@ -590,56 +592,60 @@ class PkmBattleEnv(gym.Env):
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses thunder wave\n' % (t_id, str(pkm))
                 if opponent_pkm.p_type != ELECTRIC and opponent_pkm.p_type != GROUND:
-                    opponent_pkm.status = PARALYZED
-                    if self.debug:
-                        self.log += 'STATUS: %s was paralyzed\n' % (str(opponent_pkm))
+                    if opponent_pkm.status != PARALYZED:
+                        opponent_pkm.status = PARALYZED
+                        if self.debug:
+                            self.log += 'STATUS: %s was paralyzed\n' % (str(opponent_pkm))
 
             elif move.type == POISON:  # POISON (POISON)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses poison\n' % (t_id, str(pkm))
                 if opponent_pkm.p_type != POISON and opponent_pkm.p_type != STEEL:
-                    opponent_pkm.status = POISONED
-                    if self.debug:
-                        self.log += 'STATUS: %s was poisoned\n' % (str(opponent_pkm))
+                    if not opponent_pkm.status != POISONED:
+                        opponent_pkm.status = POISONED
+                        if self.debug:
+                            self.log += 'STATUS: %s was poisoned\n' % (str(opponent_pkm))
             elif move.type == GRASS:  # SPORE (GRASS)
                 if self.debug:
-                    self.log += 'MOVE: Trainer %s with %s uses spore\n' % t_id, str(pkm)
-                opponent_pkm.status = SLEEP
-                if self.debug:
-                    self.log += 'STATUS: %s fell asleep\n' % (str(opponent_pkm))
+                    self.log += 'MOVE: Trainer %s with %s uses spore\n' % (t_id, str(pkm))
+                if opponent_pkm.status != SLEEP:
+                    opponent_pkm.status = SLEEP
+                    if self.debug:
+                        self.log += 'STATUS: %s fell asleep\n' % (str(opponent_pkm))
 
             # other moves
             elif move.type == FAIRY:  # SWEET KISS (FAIRY)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses sweet kiss\n' % (t_id, str(pkm))
-                self.confused[not t_id] = True
-                if self.debug:
-                    self.log += 'STATUS: %s is confused\n' % t_id, str(opponent_pkm)
+                if not self.confused[not t_id]:
+                    self.confused[not t_id] = True
+                    if self.debug:
+                        self.log += 'STATUS: %s is confused\n' % t_id, str(opponent_pkm)
             elif move.type == GROUND:  # SPIKES (GROUND)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses spikes\n' % (t_id, str(pkm))
-                self.spikes[not t_id] = True
+                self.spikes[not t_id] += 1
             elif move.type == DARK or move.type == FIGHT:  # NASTY PLOT (DARK) or BULK UP (FIGHT)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses nasty plot/bulk up\n' % (t_id, str(pkm))
                 if self.attack_stage[t_id] < 5:
                     self.attack_stage[t_id] += 1
                     if self.debug:
-                        self.log += '%s attack increased\n' % (str(pkm))
+                        self.log += 'STAGE: %s attack increased\n' % (str(pkm))
             elif move.type == PSYCHIC or move.type == STEEL:  # CALM MIND (PSYCHIC) or IRON DEFENSE (STEEL)
                 if self.debug:
-                    self.log += 'MOVE: Trainer %s with %s uses calm mind/iron defense\n' % t_id, str(pkm)
+                    self.log += 'MOVE: Trainer %s with %s uses calm mind/iron defense\n' % (t_id, str(pkm))
                 if self.defense_stage[t_id] < 5:
                     self.defense_stage[t_id] += 1
                     if self.debug:
-                        self.log += '%s defense increased\n' % (str(pkm))
+                        self.log += 'STAGE: %s defense increased\n' % (str(pkm))
             elif move.type == BUG:  # STRING SHOT (BUG)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses string shot\n' % (t_id, str(pkm))
                 if self.speed_stage[t_id] > -5:
                     self.speed_stage[opponent] -= 1
                     if self.debug:
-                        self.log += 'MOVE: %s speed decreases\n' % (str(opponent_pkm))
+                        self.log += 'STAGE: %s speed decreases\n' % (str(opponent_pkm))
             elif move.type == FLYING or move.type == NORMAL:  # ROOST (FLYING) or RECOVER (NORMAL)
                 recover = HIT_POINTS / 2.
                 if self.debug:
@@ -668,7 +674,7 @@ class PkmBattleEnv(gym.Env):
                 else:
                     weather = 1.
                 stage_level = self.attack_stage[t_id] - self.defense_stage[opponent]
-                stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (stage_level + 2.)
+                stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
                 damage = TYPE_CHART_MULTIPLIER[move.type][opponent_pkm.p_type] * stab * weather * stage * move.power
 
         return damage, recover
@@ -696,7 +702,7 @@ class PkmBattleEnv(gym.Env):
             # perform recover
             pkm.hp += health_2_recover
             pkm.hp = HIT_POINTS if pkm.hp > HIT_POINTS else pkm.hp
-            recover = before_hp - pkm.hp
+            recover = pkm.hp - before_hp
             if self.debug and recover > 0.:
                 self.log += 'RECOVER: recovers %s\n' % recover
 
