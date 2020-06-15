@@ -93,17 +93,25 @@ SLEEP = 4
 
 STATUS_TO_STR = {NONE: "NONE", PARALYZED: "PARALYZED", POISONED: "POISONED", CONFUSED: "CONFUSED", SLEEP: "SLEEP"}
 
+# special moves
+
+TYPE_TO_SPECIAL_MOVE = {NORMAL: "RECOVER", FIRE: "SUNNY DAY", WATER: "RAIN DANCE", ELECTRIC: "THUNDER WAVE",
+                        GRASS: "SPORE", ICE: "HAIL", FIGHT: "BULK UP", POISON: "POISON", GROUND: "SPIKES",
+                        FLYING: "ROOST", PSYCHIC: "CALM MIND", BUG: "STRING SHOT", ROCK: "SANDSTORM",
+                        GHOST: "NIGHT SHADE", DRAGON: "DRAGON RAGE", DARK: "NASTY PLOT", STEEL: "IRON DEFENSE",
+                        FAIRY: "SWEET KISS"}
+
 
 class Move:
-    def __init__(self, move_type=None, move_power=None, my_type=None):
+    def __init__(self, move_type=None, move_power=None, pkm_type=None):
         if move_type is None:
-            if my_type is None:
+            if pkm_type is None:
                 self.type = random.randrange(0, N_TYPES)
             else:
                 self.type = random.randrange(0, N_TYPES)
                 # Don't pick attacks that are super effective against self or that self is super effective against
-                while (TYPE_CHART_MULTIPLIER[self.type][my_type] > 1 or
-                       TYPE_CHART_MULTIPLIER[my_type][self.type] > 1):
+                while (TYPE_CHART_MULTIPLIER[self.type][pkm_type] > 1 or
+                       TYPE_CHART_MULTIPLIER[pkm_type][self.type] > 1):
                     self.type = random.randrange(0, N_TYPES)
         else:
             self.type = move_type
@@ -113,7 +121,8 @@ class Move:
             self.power = move_power
 
     def __str__(self):
-        return "Move(" + TYPE_TO_STR[self.type] + ", " + str(self.power) + ")"
+        return "Move(" + TYPE_TO_STR[self.type] + ", " + str(self.power) + ")" if self.power != 0. else \
+            TYPE_TO_SPECIAL_MOVE[self.type]
 
 
 class Pkm:
@@ -125,7 +134,7 @@ class Pkm:
         self.n_turn_asleep = 0
         if p_type is None:
             self.p_type = random.randrange(0, N_TYPES)
-            self.moves = [Move(my_type=self.p_type) for _ in range(N_MOVES - 1)] + [
+            self.moves = [Move(pkm_type=self.p_type) for _ in range(N_MOVES - 1)] + [
                 Move(move_type=self.p_type)]
         else:
             self.p_type = p_type
@@ -133,6 +142,14 @@ class Pkm:
                           Move(move_type=type1, move_power=type1power),
                           Move(move_type=type2, move_power=type2power),
                           Move(move_type=type3, move_power=type3power)]
+
+    def is_fainted(self) -> bool:
+        """
+        Check if pkm is fainted (hp == 0)
+
+        :return: True if pkm is fainted
+        """
+        return self.hp == 0
 
     def __str__(self):
         return 'Pokemon(' + TYPE_TO_STR[self.p_type] + ', HP ' + str(self.hp) + ', Status ' + STATUS_TO_STR[
@@ -186,7 +203,7 @@ class PkmBattleEnv(gym.Env):
         r[first] = (dmg_2_second - dmg_2_first) / HIT_POINTS
         r[second] = (dmg_2_first - dmg_2_second) / HIT_POINTS
 
-        active_not_fainted = not (is_fainted(first_pkm) or is_fainted(second_pkm))
+        active_not_fainted = not (first_pkm.is_fainted() or second_pkm.is_fainted())
 
         # process all pre battle effects
         self._process_pre_battle_effects()
@@ -201,21 +218,21 @@ class PkmBattleEnv(gym.Env):
         r[first] += (dmg_2_second - dmg_2_first) / HIT_POINTS
         r[second] += (dmg_2_first - dmg_2_second) / HIT_POINTS
 
-        active_not_fainted = not (is_fainted(first_pkm) or is_fainted(second_pkm))
+        active_not_fainted = not (first_pkm.is_fainted() or second_pkm.is_fainted())
 
         # battle
         first_can_attack = active_not_fainted and not self._paralyzed(first) and not self._asleep(
             first) and not confusion_damage_2_first
         dmg_2_second, hp_2_first = self._perform_pkm_attack(first, actions[first]) if first_can_attack else (0., 0.)
 
-        active_not_fainted = not (is_fainted(first_pkm) or is_fainted(second_pkm))
+        active_not_fainted = not (first_pkm.is_fainted() or second_pkm.is_fainted())
 
         second_can_attack = active_not_fainted and not self._paralyzed(second) and not self._asleep(
             second) and not confusion_damage_2_second
         dmg_2_first, hp_2_second = self._perform_pkm_attack(second, actions[second]) if second_can_attack else (0., 0.)
 
-        r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / HIT_POINTS + float(is_fainted(second_pkm))
-        r[second] += (dmg_2_first + hp_2_second - dmg_2_second) / HIT_POINTS + float(is_fainted(first_pkm))
+        r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / HIT_POINTS + float(second_pkm.is_fainted())
+        r[second] += (dmg_2_first + hp_2_second - dmg_2_second) / HIT_POINTS + float(first_pkm.is_fainted())
 
         # get post battle effects damage
         dmg_2_first = self._get_post_battle_damage(first) if first_can_attack else 0.
@@ -258,11 +275,11 @@ class PkmBattleEnv(gym.Env):
         """
         if actions[0] >= N_MOVES:
             switch_action = actions[0] - N_MOVES
-            if not is_fainted(self.p_pkm[0][switch_action]):
+            if not self.p_pkm[0][switch_action].is_fainted():
                 self._switch_pkm(0, switch_action)
         if actions[1] == N_MOVES:
             switch_action = actions[1] - N_MOVES
-            if not is_fainted(self.p_pkm[1][switch_action]):
+            if not self.p_pkm[1][switch_action].is_fainted():
                 self._switch_pkm(1, switch_action)
 
     def _get_entry_hazard_damage(self, t_id: int) -> float:
@@ -328,7 +345,7 @@ class PkmBattleEnv(gym.Env):
                 self.weather = CLEAR
                 self.n_turns_no_clear = 0
                 if self.debug:
-                    self.log += 'The weather is clear\n'
+                    self.log += 'STATE: The weather is clear\n'
 
     def _get_post_battle_damage(self, t_id: int) -> float:
         """
@@ -351,7 +368,7 @@ class PkmBattleEnv(gym.Env):
         damage = before_hp - pkm.hp
 
         if self.debug and state_damage > 0.:
-            self.log += 'STATE DAMAGE: %s takes %s weather damage from sandstorm, hp reduces from %s to %s\n' % (
+            self.log += 'STATE DAMAGE: %s takes %s weather damage from sandstorm/hail hp reduces from %s to %s\n' % (
                 str(pkm), damage, before_hp, pkm.hp)
 
         if pkm.status == POISONED:
@@ -399,7 +416,7 @@ class PkmBattleEnv(gym.Env):
 
         # Random Setting
         if self.setting == SETTING_RANDOM:
-            self.a_pkm = [Pkm(), Pkm()]  # active pokemons
+            self.a_pkm = [Pkm(p_type=ICE, type0=ICE, type0power=0.), Pkm(type0=ELECTRIC, type0power=0.)]  # active pokemons
             self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         elif self.setting == SETTING_FULL_DETERMINISTIC:  # TODO
             self.a_pkm = [Pkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
@@ -501,7 +518,7 @@ class PkmBattleEnv(gym.Env):
         # identify fainted pkm
         not_fainted_pkm = self._get_not_fainted_pkms(t_id)
         all_party_fainted = not not_fainted_pkm
-        all_fainted = all_party_fainted and is_fainted(self.a_pkm[t_id])
+        all_fainted = all_party_fainted and self.a_pkm[t_id].is_fainted()
 
         if not all_fainted:
 
@@ -517,7 +534,8 @@ class PkmBattleEnv(gym.Env):
                 self.p_pkm[t_id][s_pos] = active
 
                 if self.debug:
-                    self.log += 'SWITCH: Trainer %s switches %s with %s in party\n' % (t_id, str(active), str(self.a_pkm[t_id]))
+                    self.log += 'SWITCH: Trainer %s switches %s with %s in party\n' % (
+                        t_id, str(active), str(self.a_pkm[t_id]))
 
                 # clear switch states
                 self.attack_stage[t_id] = 0
@@ -546,22 +564,22 @@ class PkmBattleEnv(gym.Env):
 
         if move.power == 0. and move.type != DRAGON and move.type != GHOST:
             # weather moves
-            if move.type == FIRE:  # SUNNY DAY (FIRE)
+            if move.type == FIRE and self.weather != SUNNY:  # SUNNY DAY (FIRE)
                 self.weather = SUNNY
                 self.n_turns_no_clear = 0
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses sunny day\n' % (t_id, str(pkm))
-            elif move.type == WATER:  # RAIN DANCE (WATER)
+            elif move.type == WATER and self.weather != RAIN:  # RAIN DANCE (WATER)
                 self.weather = RAIN
                 self.n_turns_no_clear = 0
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses rain dance\n' % (t_id, str(pkm))
-            elif move.type == ICE:  # HAIL (ICE)
+            elif move.type == ICE and self.weather != HAIL:  # HAIL (ICE)
                 self.weather = HAIL
                 self.n_turns_no_clear = 0
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses hail\n' % (t_id, str(pkm))
-            elif move.type == ROCK:  # SANDSTORM (ROCK)
+            elif move.type == ROCK and self.weather != SANDSTORM:  # SANDSTORM (ROCK)
                 self.weather = SANDSTORM
                 self.n_turns_no_clear = 0
                 if self.debug:
@@ -574,7 +592,7 @@ class PkmBattleEnv(gym.Env):
                 if opponent_pkm.p_type != ELECTRIC and opponent_pkm.p_type != GROUND:
                     opponent_pkm.status = PARALYZED
                     if self.debug:
-                        self.log += '%s was paralyzed\n' % (str(opponent_pkm))
+                        self.log += 'STATUS: %s was paralyzed\n' % (str(opponent_pkm))
 
             elif move.type == POISON:  # POISON (POISON)
                 if self.debug:
@@ -582,13 +600,13 @@ class PkmBattleEnv(gym.Env):
                 if opponent_pkm.p_type != POISON and opponent_pkm.p_type != STEEL:
                     opponent_pkm.status = POISONED
                     if self.debug:
-                        self.log += '%s was poisoned\n' % (str(opponent_pkm))
+                        self.log += 'STATUS: %s was poisoned\n' % (str(opponent_pkm))
             elif move.type == GRASS:  # SPORE (GRASS)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses spore\n' % t_id, str(pkm)
                 opponent_pkm.status = SLEEP
                 if self.debug:
-                    self.log += '%s fell asleep\n' % (str(opponent_pkm))
+                    self.log += 'STATUS: %s fell asleep\n' % (str(opponent_pkm))
 
             # other moves
             elif move.type == FAIRY:  # SWEET KISS (FAIRY)
@@ -596,7 +614,7 @@ class PkmBattleEnv(gym.Env):
                     self.log += 'MOVE: Trainer %s with %s uses sweet kiss\n' % (t_id, str(pkm))
                 self.confused[not t_id] = True
                 if self.debug:
-                    self.log += '%s is confused\n' % t_id, str(opponent_pkm)
+                    self.log += 'STATUS: %s is confused\n' % t_id, str(opponent_pkm)
             elif move.type == GROUND:  # SPIKES (GROUND)
                 if self.debug:
                     self.log += 'MOVE: Trainer %s with %s uses spikes\n' % (t_id, str(pkm))
@@ -700,7 +718,7 @@ class PkmBattleEnv(gym.Env):
         """
         not_fainted_pkm = []
         for i, p in enumerate(self.p_pkm[t_id]):
-            if not is_fainted(p):
+            if not p.is_fainted():
                 not_fainted_pkm.append(i)
         return not_fainted_pkm
 
@@ -730,9 +748,9 @@ class PkmBattleEnv(gym.Env):
         :return: True if entire team is fainted
         """
         for i in range(N_PARTY):
-            if not is_fainted(self.p_pkm[t_id][i]):
+            if not self.p_pkm[t_id][i].is_fainted():
                 return False
-        return is_fainted(self.a_pkm[t_id])
+        return self.a_pkm[t_id].is_fainted()
 
     def _get_pre_combat_damage(self, t_id: int) -> float:
         """
@@ -750,33 +768,23 @@ class PkmBattleEnv(gym.Env):
         """
         damage0, damage1 = 0., 0.
         self.switched = [False, False]
-        if is_fainted(self.a_pkm[0]):
+        if self.a_pkm[0].is_fainted():
             if self.debug:
                 self.log += 'FAINTED: %s\n' % (str(self.a_pkm[0]))
             self._switch_pkm(0, -1)
-        if is_fainted(self.a_pkm[1]):
+        if self.a_pkm[1].is_fainted():
             if self.debug:
                 self.log += 'FAINTED: %s\n' % (str(self.a_pkm[1]))
             self._switch_pkm(1, -1)
-        if not is_fainted(self.a_pkm[0]):
+        if not self.a_pkm[0].is_fainted():
             damage0 = self._get_entry_hazard_damage(0)
-        if not is_fainted(self.a_pkm[1]):
+        if not self.a_pkm[1].is_fainted():
             damage1 = self._get_entry_hazard_damage(1)
         d0, d1 = 0., 0.
-        if (is_fainted(self.a_pkm[0]) or is_fainted(self.a_pkm[1])) and (
+        if (self.a_pkm[0].is_fainted() or self.a_pkm[1].is_fainted()) and (
                 not self._fainted_team(0) and not self._fainted_team(1)):
             d0, d1 = self._switch_fainted_pkm()
         return damage0 + d0, damage1 + d1
-
-
-def is_fainted(pkm: Pkm) -> bool:
-    """
-    Check if pkm is fainted (hp == 0)
-
-    :param pkm: pkm to check
-    :return: True if pkm is fainted
-    """
-    return pkm.hp == 0
 
 
 def encode(s):  # TODO
