@@ -93,6 +93,8 @@ POISONED = 2
 CONFUSED = 3
 SLEEP = 4
 
+N_STATUS = 5
+
 STATUS_TO_STR = {NONE: "NONE", PARALYZED: "PARALYZED", POISONED: "POISONED", CONFUSED: "CONFUSED", SLEEP: "SLEEP"}
 
 # special moves
@@ -166,11 +168,9 @@ class PkmBattleEnv(gym.Env):
         self.a_pkm = [Pkm(), Pkm()]  # active pokemons
         self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
         self.setting = setting
-        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
-        # self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
         self.weather = CLEAR
-        self.attack_stage = [0., 0.]
-        self.defense_stage = [0., 0.]
+        self.attack_stage = [0, 0]
+        self.defense_stage = [0, 0]
         self.speed_stage = [0, 0]
         self.spikes = [0, 0]
         self.confused = [0, 0]
@@ -180,6 +180,8 @@ class PkmBattleEnv(gym.Env):
         self.debug = debug
         self.log = ''
         self.turn = 0
+        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
+        self.observation_space = spaces.Discrete(len(self._state_trainer(0)))
 
     def step(self, actions):
 
@@ -259,8 +261,7 @@ class PkmBattleEnv(gym.Env):
         r[first] += float(t[first])
         r[second] += float(t[second])
 
-        # [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
-        return None, r, t[first] or t[second], None
+        return [self._state_trainer(0), self._state_trainer(1)], r, t[first] or t[second], None
 
     def enable_debug(self):
         self.debug = True
@@ -459,7 +460,7 @@ class PkmBattleEnv(gym.Env):
                 str(self.a_pkm[1]), str(self.p_pkm[1][0]), str(self.p_pkm[1][1]), str(self.p_pkm[1][2]),
                 str(self.p_pkm[1][3]), str(self.p_pkm[1][4]))
 
-        return None  # [encode(self._state_trainer(0)), encode(self._state_trainer(1))]
+        return [self._state_trainer(0), self._state_trainer(1)]
 
     def render(self, mode='human'):
         print(self.log)
@@ -495,12 +496,6 @@ class PkmBattleEnv(gym.Env):
             moves[1].type, moves[1].power,
             moves[2].type, moves[2].power,
             moves[3].type, moves[3].power,
-            # opponent party pkm
-            # self.p_pkm[opponent][0].p_type, self.p_pkm[opponent][0].hp,
-            # self.p_pkm[opponent][1].p_type, self.p_pkm[opponent][1].hp,
-            # self.p_pkm[opponent][2].p_type, self.p_pkm[opponent][2].hp,
-            # self.p_pkm[opponent][3].p_type, self.p_pkm[opponent][3].hp,
-            # self.p_pkm[opponent][4].p_type, self.p_pkm[opponent][4].hp,
             # field effects
             self.attack_stage[t_id], self.attack_stage[opponent],
             self.defense_stage[t_id], self.defense_stage[opponent],
@@ -793,7 +788,13 @@ class PkmBattleEnv(gym.Env):
         return damage0 + d0, damage1 + d1
 
 
-def encode(s):  # TODO
+def one_hot(p, n):
+    b = [0] * n
+    b[p] = 1
+    return b
+
+
+def encode(s):
     """
     Encode Game state.
 
@@ -801,14 +802,31 @@ def encode(s):  # TODO
     :return: encoded game state in one hot vector
     """
     e = []
-    for i in range(0, len(s) - 1):
-        if i % 2 == 0:
-            b = [0] * N_TYPES
-            b[s[i]] = 1
-            e += b
-        else:
+    # active pkm
+    # opponent active pkm
+    # party pkm
+    for i in range(0, 21):
+        if (i + 1) % 3 == 0:
+            e += one_hot(s[i], N_STATUS)
+        if ((i + 2) % 3) == 0:
             e += [(s[i] / HIT_POINTS)]
-    e += [(s[-1] / HIT_POINTS)]
+        else:
+            e += one_hot(s[i], N_TYPES)
+    # active pkm moves
+    for i in range(21, 29):
+        if i % 2 == 0:
+            e += [(s[i] / HIT_POINTS)]
+        else:
+            e += one_hot(s[i], N_TYPES)
+    # field effects
+    for i in range(29, 34):
+        e += one_hot(s[i], N_TYPES)
+    e += one_hot(s[34], 2)
+    e += one_hot(s[35], 2)
+    e += one_hot(s[36], 5)
+    e += one_hot(s[37], 5)
+    e += one_hot(s[38], 2)
+    e += one_hot(s[39], 2)
     return e
 
 
