@@ -802,9 +802,6 @@ def encode(s):
     :return: encoded game state in one hot vector
     """
     e = []
-    # active pkm
-    # opponent active pkm
-    # party pkm
     for i in range(0, 21):
         if (i + 1) % 3 == 0:
             e += one_hot(s[i], N_STATUS)
@@ -812,42 +809,20 @@ def encode(s):
             e += [(s[i] / HIT_POINTS)]
         else:
             e += one_hot(s[i], N_TYPES)
-    # active pkm moves
     for i in range(21, 29):
         if i % 2 == 0:
             e += [(s[i] / HIT_POINTS)]
         else:
             e += one_hot(s[i], N_TYPES)
-    # field effects
-    for i in range(29, 34):
+    for i in range(29, 35):
         e += one_hot(s[i], N_TYPES)
-    e += one_hot(s[34], 2)
     e += one_hot(s[35], 2)
-    e += one_hot(s[36], 5)
+    e += one_hot(s[36], 2)
     e += one_hot(s[37], 5)
-    e += one_hot(s[38], 2)
+    e += one_hot(s[38], 5)
     e += one_hot(s[39], 2)
+    e += one_hot(s[40], 2)
     return e
-
-
-def decode(e):  # TODO
-    """
-    Decode game state.
-
-    :param e: encoded game state in one hot vector
-    :return: game state
-    """
-    s = []
-    index_e = 0
-    for i in range(0, 7):
-        for j in range(index_e, index_e + N_TYPES):
-            if e[j] == 1:
-                s.append(j % (N_TYPES + 1))
-        index_e += N_TYPES
-        s.append(e[index_e] * HIT_POINTS)
-        index_e += 1
-    s.append(e[index_e] * HIT_POINTS)
-    return s
 
 
 def get_super_effective_move(t: int) -> int:
