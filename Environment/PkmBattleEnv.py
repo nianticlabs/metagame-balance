@@ -130,11 +130,11 @@ class Move:
 
 
 class Pkm:
-    def __init__(self, p_type=None, hp=HIT_POINTS,
+    def __init__(self, p_type=None, hp=HIT_POINTS, status=NONE,
                  type0=None, type0power=None, type1=None, type1power=None,
                  type2=None, type2power=None, type3=None, type3power=None):
         self.hp = hp
-        self.status = NONE
+        self.status = status
         self.n_turn_asleep = 0
         self.n_turns_asleep = 0
         if p_type is None:
@@ -502,7 +502,8 @@ class PkmBattleEnv(gym.Env):
             self.speed_stage[t_id], self.speed_stage[opponent],
             self.spikes[t_id], self.spikes[opponent],
             pkm.n_turns_asleep, opponent_pkm.n_turns_asleep,
-            self.confused[t_id], self.confused[opponent]
+            self.confused[t_id], self.confused[opponent],
+            self.weather
         ]
 
     def _switch_pkm(self, t_id: int, s_pos: int):
@@ -822,6 +823,7 @@ def encode(s):
     e += one_hot(s[38], 5)
     e += one_hot(s[39], 2)
     e += one_hot(s[40], 2)
+    e += one_hot(s[41], 5)
     return e
 
 

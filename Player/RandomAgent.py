@@ -1,18 +1,16 @@
+from Environment.PkmBattleEnv import N_MOVES, N_SWITCHES
 from Trainer.Tabular.Abstract.Agent import *
 import numpy as np
+
+SWITCH_PROBABILITY = .15
 
 
 class RandomAgent(Agent):
 
-    def __init__(self, n_actions):
-        self.n_actions = n_actions
-        self.pi = [1/self.n_actions] * self.n_actions
-
-    def check_state(self, s):
-        pass
-
-    def update(self, s0, s1, a, r, t):
-        pass
+    def __init__(self, switch_probability=SWITCH_PROBABILITY):
+        super().__init__()
+        self.n_actions = N_MOVES + N_SWITCHES
+        self.pi = ([(1. - switch_probability) / N_MOVES] * N_MOVES) + ([switch_probability / N_SWITCHES] * N_SWITCHES)
 
     def get_action(self, s):
         """

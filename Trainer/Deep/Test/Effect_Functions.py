@@ -1,4 +1,4 @@
-from Environment.SimplePkmEnv import *
+from Environment.PkmBattleEnv import *
 from random import randrange
 
 
@@ -9,7 +9,7 @@ def main():
     print()
     for i in range(100):
         t = randrange(18)
-        print(TYPE_TO_STR[get_normal_effective_move(t)], 'type is effective against type', TYPE_TO_STR[t])
+        print(TYPE_TO_STR[get_effective_move(t)], 'type is effective against type', TYPE_TO_STR[t])
     print()
     for i in range(100):
         t = randrange(18)
