@@ -163,10 +163,9 @@ class Pkm:
 
 
 class PkmBattleEnv(gym.Env):
-    def __init__(self, setting=SETTING_RANDOM, debug=False):
-        self.numberOfActions = N_MOVES + 1
+    def __init__(self, setting=SETTING_RANDOM, party_size=N_SWITCHES, debug=False):
         self.a_pkm = [Pkm(), Pkm()]  # active pokemons
-        self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+        self.p_pkm = [[Pkm() for _ in range(party_size)], [Pkm() for _ in range(party_size)]]  # party pokemons
         self.setting = setting
         self.weather = CLEAR
         self.attack_stage = [0, 0]
@@ -181,7 +180,11 @@ class PkmBattleEnv(gym.Env):
         self.log = ''
         self.turn = 0
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
-        self.observation_space = spaces.Discrete(len(self._state_trainer(0)))
+        self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
+        self.party_size = party_size
+
+    def get_party_size(self):
+        return self.party_size
 
     def step(self, actions):
 
@@ -421,8 +424,8 @@ class PkmBattleEnv(gym.Env):
         # Random Setting
         if self.setting == SETTING_RANDOM:
             self.a_pkm = [Pkm(p_type=GRASS, type0=GRASS, type0power=0.), Pkm(type0=ELECTRIC, type0power=0.)]  # active pokemons
-            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
-        elif self.setting == SETTING_FULL_DETERMINISTIC:  # TODO
+            self.p_pkm = [[Pkm() for _ in range(self.party_size)], [Pkm() for _ in range(self.party_size)]]  # party pokemons
+        elif self.setting == SETTING_FULL_DETERMINISTIC:
             self.a_pkm = [Pkm(GRASS, HIT_POINTS, GRASS, 90, FIRE, 90, GRASS, 90, FIRE, 90),
                           Pkm(FIRE, HIT_POINTS, FIRE, 90, FIRE, 90, FIRE, 90, FIRE, 90)]  # active pokemons
             self.p_pkm = [Pkm(WATER, HIT_POINTS, FIGHT, 90, NORMAL, 90, NORMAL, 90, WATER, 90),
@@ -439,7 +442,7 @@ class PkmBattleEnv(gym.Env):
                                   90)]  # active pokemons
             else:
                 self.a_pkm = [Pkm(), Pkm()]  # active pokemons
-            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+            self.p_pkm = [[Pkm() for _ in range(self.party_size)], [Pkm() for _ in range(self.party_size)]]  # party pokemons
 
         # Fair in Advantage Setting
         elif self.setting == SETTING_FAIR_IN_ADVANTAGE:
@@ -450,7 +453,7 @@ class PkmBattleEnv(gym.Env):
                     get_effective_move(type2), 90, type1, 90),
                 Pkm(type2, get_super_effective_move(type1), 90, get_non_very_effective_move(type1), 90,
                     get_effective_move(type1), 90, type2, 90)]  # active pokemons
-            self.p_pkm = [[Pkm(), Pkm(), Pkm(), Pkm(), Pkm()], [Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]]  # party pokemons
+            self.p_pkm = [[Pkm()] * self.party_size, [Pkm()] * self.party_size]  # party pokemons
 
         if self.debug:
             self.log += 'TRAINER 0\nActive pokemon: %s\nParty pokemon: %s, %s, %s, %s, %s\n' % (
