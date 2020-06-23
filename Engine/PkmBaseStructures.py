@@ -2,7 +2,6 @@ import random
 from enum import IntEnum
 import numpy as np
 
-from Engine.PkmBattleEngine import PkmBattleEnv
 from Engine.PkmConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER
 from typing import List, Tuple
 
@@ -88,7 +87,7 @@ class PkmMove:
         self.type = move_type
         self.name = name
 
-    def effect(self, view: PkmBattleEnv.PkmMoveView):
+    def effect(self, view):
         pass
 
     @staticmethod
@@ -192,7 +191,6 @@ class PkmTeam:
     def __init__(self, team: List[Pkm] = None):
         if team is None:
             team = [Pkm()]
-        assert len(team) > 1
         self.active: Pkm = team.pop()
         self.party: List[Pkm] = team
         self.stage: List[int] = [0] * N_STATS
@@ -268,6 +266,7 @@ class PkmTeam:
         return self.active, self.party[pos]
 
     def __str__(self):
-        return 'Active pokemon: %s\nParty pokemon: %s, %s, %s, %s, %s\n' % (
-            str(self.active), str(self.party[0]), str(self.party[1]), str(self.party[2]), str(self.party[3]),
-            str(self.party[4]))
+        party = ''
+        for i in range(0, len(self.party)):
+            party += str(self.party[i]) + ' '
+        return 'Active pokemon: %s\nParty pokemon: %s\n' % (str(self.active), party)

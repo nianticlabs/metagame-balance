@@ -10,7 +10,7 @@ from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, S
     TYPE_CHART_MULTIPLIER
 
 
-class PkmBattleEnv(gym.Env):
+class PkmBattleEngine(gym.Env):
     def __init__(self, teams: [PkmTeam] = None, debug: bool = False):
 
         # random active pokemon
@@ -23,8 +23,9 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         self.turn = 0
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
-        self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
+        #self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
         self.move_view = self.__create_pkm_move_view()
+        self.trainer_view = [self.__create_trainer_view(0), self.__create_trainer_view(1)]
         self.debug = debug
         self.log = ''
 
@@ -106,7 +107,21 @@ class PkmBattleEnv(gym.Env):
         r[first] += float(t[first])
         r[second] += float(t[second])
 
-        return [self._state_trainer(0), self._state_trainer(1)], r, t[first] or t[second], None
+        return self.trainer_view, r, t[first] or t[second], None
+
+    def reset(self):
+        self.weather = WeatherCondition.CLEAR
+        self.n_turns_no_clear = 0
+        self.switched = [False, False]
+
+        if self.debug:
+            self.log += 'TRAINER 0\n' + str(self.teams[0])
+            self.log += '\nTRAINER 1\n' + str(self.teams[1])
+
+        return self.trainer_view
+
+    def render(self, mode='human'):
+        print(self.log)
 
     def __process_switch_pkms(self, actions: List[int]):
         """
@@ -251,71 +266,55 @@ class PkmBattleEnv(gym.Env):
 
         return order[0], order[1]
 
-    def reset(self):
-        self.weather = WeatherCondition.CLEAR
-        self.n_turns_no_clear = 0
-        self.switched = [False, False]
+    class TrainerView:
 
-        if self.debug:
-            self.log += 'TRAINER 0' + str(self.teams[0])
-            self.log += 'TRAINER 1' + str(self.teams[1])
+        def __init__(self, engine, t_id: int = 0):
+            self.engine = engine
+            self.team: PkmTeam = engine.teams[t_id]
+            self.opponent: PkmTeam = engine.teams[not t_id]
 
-        return [self._state_trainer(0), self._state_trainer(1)]
+        def get_active(self) -> Tuple[PkmType, float, PkmStatus, bool]:
+            return self.team.active.type, self.team.active.hp, self.team.active.status, self.team.confused
 
-    def render(self, mode='human'):
-        print(self.log)
+        def get_opponent(self) -> Tuple[PkmType, float, PkmStatus, bool]:
+            return self.opponent.active.type, self.opponent.active.hp, self.opponent.active.status, self.opponent.confused
 
-    def _state_trainer(self, t_id: int):
-        """
-        Get trainer view of the battle.
+        def get_party(self, pos: int = 0) -> Tuple[PkmType, float, PkmStatus]:
+            pkm = self.team.party[pos]
+            return pkm.type, pkm.hp, pkm.status
 
-        :param t_id: trainer
-        :return: observation state of the trainer
-        """
-        opponent = not t_id
-        pkm = self.a_pkm[t_id]
-        opponent_pkm = self.a_pkm[opponent]
-        moves = pkm.moves
-        party = self.p_pkm[t_id]
-        return [
-            # active pkm
-            pkm.type, pkm.hp, pkm.status,
-            # opponent active pkm
-            opponent_pkm.type, opponent_pkm.hp, opponent_pkm.status,
-            # party pkm
-            party[0].type, party[0].hp, party[0].status,
-            party[1].type, party[1].hp, party[1].status,
-            party[2].type, party[2].hp, party[2].status,
-            party[3].type, party[3].hp, party[3].status,
-            party[4].type, party[4].hp, party[4].status,
-            # active pkm moves
-            moves[0].type, moves[0].power,
-            moves[1].type, moves[1].power,
-            moves[2].type, moves[2].power,
-            moves[3].type, moves[3].power,
-            # field effects
-            self.attack_stage[t_id], self.attack_stage[opponent],
-            self.defense_stage[t_id], self.defense_stage[opponent],
-            self.speed_stage[t_id], self.speed_stage[opponent],
-            self.spikes[t_id], self.spikes[opponent],
-            pkm.n_turns_asleep, opponent_pkm.n_turns_asleep,
-            self.confused[t_id], self.confused[opponent],
-            self.weather
-        ]
+        def get_n_party(self) -> int:
+            return len(self.team.party)
+
+        def get_active_move(self, pos: int = 0) -> Tuple[float, PkmType, str]:
+            move = self.team.active.moves[pos]
+            return move.power, move.type, move.name
+
+        def get_stage(self, stat: PkmStat = PkmStat.ATTACK) -> int:
+            return self.team.stage[stat]
+
+        def get_entry_hazard(self, stat: PkmEntryHazard = PkmEntryHazard.SPIKES) -> int:
+            return self.team.stage[stat]
+
+        def get_weather(self) -> WeatherCondition:
+            return self.engine.weather
+
+    def __create_trainer_view(self, t_id: int = 0) -> TrainerView:
+        return PkmBattleEngine.TrainerView(self, t_id)
 
     class PkmMoveView:
 
         def __init__(self, engine):
-            self.engine = engine
+            self.__engine = engine
             self.damage: float = 0.
             self.recover: float = 0.
-            self.teams: List[PkmTeam] = []
-            self.active: List[Pkm] = []
+            self._teams: List[PkmTeam] = []
+            self._active: List[Pkm] = []
 
         def set_weather(self, weather: WeatherCondition):
-            if weather != self.engine.weather:
-                self.engine.weather = weather
-                self.engine.n_turns_no_clear = 0
+            if weather != self.__engine.weather:
+                self.__engine.weather = weather
+                self.__engine.n_turns_no_clear = 0
 
         def set_fixed_damage(self, damage: float):
             self.damage = damage
@@ -324,55 +323,55 @@ class PkmBattleEnv(gym.Env):
             self.recover = recover
 
         def set_status(self, status: PkmStatus, p_id: int = 1, t_id: int = 1):
-            pkm = self.active[p_id]
-            team = self.teams[t_id]
+            pkm = self._active[p_id]
+            team = self._teams[t_id]
             if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
-                if self.engine.debug:
-                    self.engine.log += 'STATUS: %s was paralyzed\n' % (str(pkm))
+                if self.__engine.debug:
+                    self.__engine.log += 'STATUS: %s was paralyzed\n' % (str(pkm))
             elif status == PkmStatus.POISONED and pkm.type != PkmType.POISON and pkm.type != PkmType.STEEL and pkm.status != PkmStatus.POISONED:
                 pkm.status = PkmStatus.POISONED
-                if self.engine.debug:
-                    self.engine.log += 'STATUS: %s was poisoned\n' % (str(pkm))
+                if self.__engine.debug:
+                    self.__engine.log += 'STATUS: %s was poisoned\n' % (str(pkm))
             elif pkm.status != PkmStatus.SLEEP:
                 pkm.status = PkmStatus.SLEEP
                 pkm.n_turns_asleep = 0
-                if self.engine.debug:
-                    self.engine.log += 'STATUS: %s is now asleep\n' % (str(pkm))
+                if self.__engine.debug:
+                    self.__engine.log += 'STATUS: %s is now asleep\n' % (str(pkm))
             elif not team.confused:
                 team.confused = True
-                if self.engine.debug:
-                    self.engine.log += 'STATUS: %s is now confused\n' % (str(pkm))
+                if self.__engine.debug:
+                    self.__engine.log += 'STATUS: %s is now confused\n' % (str(pkm))
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             assert delta_stage != 0
-            team = self.teams[t_id]
+            team = self._teams[t_id]
             if -5 < team.stage[stat] < 5:
                 team.stage += delta_stage
-                if self.engine.debug:
-                    self.engine.log += 'STAGE: %s %s %s\n' % (
+                if self.__engine.debug:
+                    self.__engine.log += 'STAGE: %s %s %s\n' % (
                         str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
 
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
-            team = self.teams[t_id]
+            team = self._teams[t_id]
             team.entry_hazard[hazard] += 1
             if team.entry_hazard[hazard] > 3:
                 team.entry_hazard[hazard] = 3
-            elif self.engine.debug:
-                self.engine.log += 'ENTRY HAZARD: Trainer %s gets spikes\n' % (str(t_id))
+            elif self.__engine.debug:
+                self.__engine.log += 'ENTRY HAZARD: Trainer %s gets spikes\n' % (str(t_id))
 
-    def get_fixed_damage(self) -> float:
+    def __get_fixed_damage(self) -> float:
         damage = self.move_view.damage
-        self.move_view.damage = 0.
+        self.move_view.__damage = 0.
         return damage
 
-    def get_recover(self) -> float:
+    def __get_recover(self) -> float:
         recover = self.move_view.recover
-        self.move_view.recover = 0.
+        self.move_view.__recover = 0.
         return recover
 
     def __create_pkm_move_view(self):
-        return PkmBattleEnv.PkmMoveView(self)
+        return PkmBattleEngine.PkmMoveView(self)
 
     def __get_attack_dmg_rcvr(self, t_id: int, m_id: int) -> Tuple[float, float]:
         """
@@ -394,15 +393,15 @@ class PkmBattleEnv(gym.Env):
         if self.debug:
             self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move.name))
 
-        self.move_view.teams = [team, opp_team]
+        self.move_view._teams = [team, opp_team]
         self.move_view.pkm = [pkm, opp_pkm]
         move.effect(self.move_view)
 
         # set recover
-        recover = self.get_recover()
+        recover = self.__get_recover()
 
         # calculate damage
-        fixed_damage = self.get_fixed_damage()
+        fixed_damage = self.__get_fixed_damage()
         if fixed_damage > 0. and TYPE_CHART_MULTIPLIER[move.type][opp_pkm.type] > 0.:
             damage = fixed_damage
         else:
