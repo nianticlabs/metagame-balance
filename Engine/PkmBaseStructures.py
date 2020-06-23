@@ -1,7 +1,9 @@
 import random
 from enum import IntEnum
 import numpy as np
-from Engine.PkmConstants import HIT_POINTS, TYPE_CHART_MULTIPLIER
+
+from Engine.PkmBattleEngine import PkmBattleEnv
+from Engine.PkmConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER
 from typing import List, Tuple
 
 
@@ -39,6 +41,9 @@ class WeatherCondition(IntEnum):
     HAIL = 4
 
 
+N_WEATHER = len(list(map(int, WeatherCondition)))
+
+
 # Pokemon battle status
 class PkmStatus(IntEnum):
     NONE = 0
@@ -63,17 +68,16 @@ class PkmStat(IntEnum):
 N_STATS = len(list(map(int, PkmStat)))
 
 
-# special moves
-TYPE_TO_SPECIAL_MOVE = {PkmType.NORMAL: "RECOVER", PkmType.FIRE: "SUNNY DAY", PkmType.WATER: "RAIN DANCE",
-                        PkmType.ELECTRIC: "THUNDER WAVE", PkmType.GRASS: "SPORE", PkmType.ICE: "HAIL",
-                        PkmType.FIGHT: "BULK UP", PkmType.POISON: "POISON", PkmType.GROUND: "SPIKES",
-                        PkmType.FLYING: "ROOST", PkmType.PSYCHIC: "CALM MIND", PkmType.BUG: "STRING SHOT",
-                        PkmType.ROCK: "SANDSTORM", PkmType.GHOST: "NIGHT SHADE", PkmType.DRAGON: "DRAGON RAGE",
-                        PkmType.DARK: "NASTY PLOT", PkmType.STEEL: "IRON DEFENSE", PkmType.FAIRY: "SWEET KISS"}
+# Pokemon battle stats
+class PkmEntryHazard(IntEnum):
+    SPIKES = 0
+
+
+N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))
 
 
 class PkmMove:
-    def __init__(self, power=90., move_type: PkmType = PkmType.NORMAL):
+    def __init__(self, power=90., move_type: PkmType = PkmType.NORMAL, name: str = ""):
         """
         Pokemon move data structure. Special moves have power = 0.
 
@@ -82,6 +86,10 @@ class PkmMove:
         """
         self.power = power
         self.type = move_type
+        self.name = name
+
+    def effect(self, view: PkmBattleEnv.PkmMoveView):
+        pass
 
     @staticmethod
     def super_effective_move(t: PkmType) -> PkmType:
@@ -127,16 +135,16 @@ class PkmMove:
         return random.choice(s)
 
     def __str__(self):
-        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ")" if self.power != 0. else \
-            TYPE_TO_SPECIAL_MOVE[self.type]
+        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ")" if self.power != 0. else self.name
 
 
 class Pkm:
-    def __init__(self, p_type: PkmType = PkmType.NORMAL, hp: float = HIT_POINTS, status: PkmStatus = PkmStatus.NONE,
-                 move0: PkmMove = PkmMove(), move1: PkmMove = PkmMove(), move2: PkmMove = PkmMove(),
-                 move3: PkmMove = PkmMove()):
+    def __init__(self, p_type: PkmType = PkmType.NORMAL, max_hp: float = MAX_HIT_POINTS,
+                 status: PkmStatus = PkmStatus.NONE, move0: PkmMove = PkmMove(), move1: PkmMove = PkmMove(),
+                 move2: PkmMove = PkmMove(), move3: PkmMove = PkmMove()):
         self.type: PkmType = p_type
-        self.hp: float = hp
+        self.max_hp: float = max_hp
+        self.hp: float = max_hp
         self.status: PkmStatus = status
         self.n_turns_asleep: int = 0
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
@@ -189,6 +197,8 @@ class PkmTeam:
         self.party: List[Pkm] = team
         self.stage: List[int] = [0] * N_STATS
         self.confused: bool = False
+        self.n_turns_confused: int = 0
+        self.entry_hazard: List[int] = [0] * N_ENTRY_HAZARD
 
     def size(self) -> int:
         """
@@ -209,23 +219,6 @@ class PkmTeam:
                 return False
         return self.active.fainted()
 
-    def change_stage(self, stat: PkmStat = PkmStat.ATTACK, value: int = 0):
-        """
-        Increase or decrease pkm stat stage.
-
-        :param stat: stat to be affected
-        :param value: value to increase or decrease
-        """
-        self.stage[stat] += value
-
-    def set_active_confused(self, confused: bool = True):
-        """
-        Set the active pokemon state.
-
-        :param confused: true to set confusion, false otherwise
-        """
-        self.confused = confused
-
     def get_not_fainted(self) -> List[int]:
         """
         Return a list of positions of not fainted pkm in party.
@@ -237,7 +230,7 @@ class PkmTeam:
                 not_fainted.append(i)
         return not_fainted
 
-    def _switch_pkm(self, pos: int) -> Tuple[Pkm, Pkm]:
+    def switch(self, pos: int) -> Tuple[Pkm, Pkm]:
         """
         Switch active pkm with party pkm on pos.
         Random party pkm if s_pos = -1
@@ -273,3 +266,8 @@ class PkmTeam:
                 self.confused = False
 
         return self.active, self.party[pos]
+
+    def __str__(self):
+        return 'Active pokemon: %s\nParty pokemon: %s, %s, %s, %s, %s\n' % (
+            str(self.active), str(self.party[0]), str(self.party[1]), str(self.party[2]), str(self.party[3]),
+            str(self.party[4]))
