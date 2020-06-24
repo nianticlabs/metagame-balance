@@ -4,8 +4,9 @@ import random
 import numpy as np
 from typing import List, Tuple
 
-from Engine.Competition.DeepEncoding import encode
-from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, Pkm
+from Engine.Competition.DeepEncoding import one_hot
+from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, Pkm, \
+    N_TYPES, N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER
 from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
     TYPE_CHART_MULTIPLIER
 
@@ -22,12 +23,12 @@ class PkmBattleEngine(gym.Env):
         self.n_turns_no_clear: int = 0
         self.switched = [False, False]
         self.turn = 0
-        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
-        #self.observation_space = spaces.Discrete(len(encode(self._state_trainer(0))))
         self.move_view = self.__create_pkm_move_view()
         self.trainer_view = [self.__create_trainer_view(0), self.__create_trainer_view(1)]
         self.debug = debug
         self.log = ''
+        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
+        self.observation_space = spaces.Discrete(len(self.trainer_view[0].encode()))
 
     def step(self, actions):
 
@@ -107,7 +108,7 @@ class PkmBattleEngine(gym.Env):
         r[first] += float(t[first])
         r[second] += float(t[second])
 
-        return self.trainer_view, r, t[first] or t[second], None
+        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, t[0] or t[1], self.trainer_view
 
     def reset(self):
         self.weather = WeatherCondition.CLEAR
@@ -118,7 +119,7 @@ class PkmBattleEngine(gym.Env):
             self.log += 'TRAINER 0\n' + str(self.teams[0])
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
-        return self.trainer_view
+        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()]
 
     def render(self, mode='human'):
         print(self.log)
@@ -271,13 +272,13 @@ class PkmBattleEngine(gym.Env):
         def __init__(self, engine, t_id: int = 0):
             self.engine = engine
             self.team: PkmTeam = engine.teams[t_id]
-            self.opponent: PkmTeam = engine.teams[not t_id]
+            self.opp: PkmTeam = engine.teams[not t_id]
 
         def get_active(self) -> Tuple[PkmType, float, PkmStatus, bool]:
             return self.team.active.type, self.team.active.hp, self.team.active.status, self.team.confused
 
         def get_opponent(self) -> Tuple[PkmType, float, PkmStatus, bool]:
-            return self.opponent.active.type, self.opponent.active.hp, self.opponent.active.status, self.opponent.confused
+            return self.opp.active.type, self.opp.active.hp, self.opp.active.status, self.opp.confused
 
         def get_party(self, pos: int = 0) -> Tuple[PkmType, float, PkmStatus]:
             pkm = self.team.party[pos]
@@ -290,6 +291,9 @@ class PkmBattleEngine(gym.Env):
             move = self.team.active.moves[pos]
             return move.power, move.type, move.name
 
+        def get_n_moves(self) -> int:
+            return len(self.team.active.moves)
+
         def get_stage(self, stat: PkmStat = PkmStat.ATTACK) -> int:
             return self.team.stage[stat]
 
@@ -298,6 +302,38 @@ class PkmBattleEngine(gym.Env):
 
         def get_weather(self) -> WeatherCondition:
             return self.engine.weather
+
+        def encode(self):
+            """
+            Encode Game state.
+
+            :return: encoded game state
+            """
+            e = []
+            # active pkms
+            for team in self.engine.teams:
+                e += one_hot(team.active.type, N_TYPES)
+                e += [team.active.hp / MAX_HIT_POINTS]
+                e += one_hot(team.active.status, N_STATUS)
+                e += one_hot(team.confused, 2)
+                # stages
+                for stat in range(N_STATS):
+                    e += one_hot(team.stage[stat], N_STAGES)
+                # entry hazards
+                for hazard in range(N_ENTRY_HAZARD):
+                    e += one_hot(team.entry_hazard[hazard], N_HAZARD_STAGES)
+            # party pkm
+            for pos in range(len(self.team.party)):
+                e += one_hot(self.team.party[pos].type, N_TYPES)
+                e += [self.team.party[pos].hp / MAX_HIT_POINTS]
+                e += one_hot(self.team.party[pos].status, N_STATUS)
+            # active moves
+            for pos in range(len(self.team.active.moves)):
+                e += [self.team.active.moves[pos].power / MAX_HIT_POINTS]
+                e += one_hot(self.team.active.moves[pos].type, N_TYPES)
+            # weather
+            e += one_hot(self.engine.weather, N_WEATHER)
+            return e
 
     def __create_trainer_view(self, t_id: int = 0) -> TrainerView:
         return PkmBattleEngine.TrainerView(self, t_id)
@@ -346,7 +382,7 @@ class PkmBattleEngine(gym.Env):
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             assert delta_stage != 0
             team = self._teams[t_id]
-            if -5 < team.stage[stat] < 5:
+            if MIN_STAGE < team.stage[stat] < MAX_STAGE:
                 team.stage += delta_stage
                 if self.__engine.debug:
                     self.__engine.log += 'STAGE: %s %s %s\n' % (
@@ -355,8 +391,8 @@ class PkmBattleEngine(gym.Env):
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
             team = self._teams[t_id]
             team.entry_hazard[hazard] += 1
-            if team.entry_hazard[hazard] > 3:
-                team.entry_hazard[hazard] = 3
+            if team.entry_hazard[hazard] > N_HAZARD_STAGES:
+                team.entry_hazard[hazard] = N_HAZARD_STAGES
             elif self.__engine.debug:
                 self.__engine.log += 'ENTRY HAZARD: Trainer %s gets spikes\n' % (str(t_id))
 

@@ -65,6 +65,9 @@ class PkmStat(IntEnum):
 
 
 N_STATS = len(list(map(int, PkmStat)))
+MAX_STAGE = 5
+MIN_STAGE = -5
+N_STAGES = MAX_STAGE - MIN_STAGE + 1
 
 
 # Pokemon battle stats
@@ -73,6 +76,7 @@ class PkmEntryHazard(IntEnum):
 
 
 N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))
+N_HAZARD_STAGES = 3
 
 
 class PkmMove:
@@ -170,7 +174,7 @@ class Pkm:
 
         :return: true if pkm is asleep and cannot move
         """
-        return self.status == PkmStatus.SLEEP
+        return self.status == PkmStatus.SLEEP and np.random.uniform(0, 1) <= 0.33
 
     def frozen(self) -> bool:
         """

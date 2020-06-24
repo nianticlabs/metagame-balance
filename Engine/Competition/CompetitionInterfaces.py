@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from Engine.PkmBattleEnv import Pkm
+from Engine.PkmBattleEngine import Pkm
 
 
 class PkmBattleBaseCompetition(ABC):
