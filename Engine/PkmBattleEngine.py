@@ -351,6 +351,8 @@ class PkmBattleEngine(gym.Env):
             if weather != self.__engine.weather:
                 self.__engine.weather = weather
                 self.__engine.n_turns_no_clear = 0
+                if self.__engine.debug:
+                    self.__engine.log += 'WEATHER: The weather is now %s\n' % weather.name
 
         def set_fixed_damage(self, damage: float):
             self.damage = damage
@@ -358,8 +360,8 @@ class PkmBattleEngine(gym.Env):
         def set_recover(self, recover: float):
             self.recover = recover
 
-        def set_status(self, status: PkmStatus, p_id: int = 1, t_id: int = 1):
-            pkm = self._active[p_id]
+        def set_status(self, status: PkmStatus, t_id: int = 1):
+            pkm = self._active[t_id]
             team = self._teams[t_id]
             if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
@@ -427,7 +429,7 @@ class PkmBattleEngine(gym.Env):
         opp_pkm = opp_team.active
 
         if self.debug:
-            self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move.name))
+            self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move))
 
         self.move_view._teams = [team, opp_team]
         self.move_view.pkm = [pkm, opp_pkm]

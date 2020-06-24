@@ -79,8 +79,13 @@ N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))
 N_HAZARD_STAGES = 3
 
 
+def null_effect(view):
+    pass
+
+
 class PkmMove:
-    def __init__(self, power=90., move_type: PkmType = PkmType.NORMAL, name: str = ""):
+
+    def __init__(self, power=90., move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect):
         """
         Pokemon move data structure. Special moves have power = 0.
 
@@ -90,9 +95,7 @@ class PkmMove:
         self.power = power
         self.type = move_type
         self.name = name
-
-    def effect(self, view):
-        pass
+        self.effect = effect
 
     @staticmethod
     def super_effective_move(t: PkmType) -> PkmType:
@@ -138,7 +141,7 @@ class PkmMove:
         return random.choice(s)
 
     def __str__(self):
-        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ")" if self.power != 0. else self.name
+        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ")" if self.name == "" else self.name
 
 
 class Pkm:
