@@ -1,10 +1,11 @@
 from Engine.PkmBattleEngine import PkmBattleEngine
-from Player.HeuristicReactiveAgent import HeuristicReactiveAgent
+from Engine.PkmTeamGenerator import RandomGenerator
 from Player.RandomAgent import RandomAgent
 
 
 def main():
     env = PkmBattleEngine(debug=True)
+    env.set_team_generator(RandomGenerator())
     s = env.reset()
     env.render()
     t = False

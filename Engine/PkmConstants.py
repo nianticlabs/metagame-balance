@@ -1,18 +1,21 @@
 
 # trainers
 N_TRAINERS = 2
-N_PARTY = 5
+N_MAX_PARTY = 5
 
 # move power range
-MOVE_POWER_MIN = 0.
-MOVE_POWER_MAX = 100.
+MOVE_POWER_MIN = 75.
+MOVE_POWER_MAX = 150.
 
-# number moves
+# number actions
 N_MOVES = 4
 N_SWITCHES = 5
 
 # hit Points
-MAX_HIT_POINTS = MOVE_POWER_MAX + MOVE_POWER_MIN + 150.
+MAX_HIT_POINTS = 300.
+MIN_HIT_POINTS = 200.
+
+# hazard damage
 STATE_DAMAGE = MAX_HIT_POINTS / 8.
 SPIKES_2 = MAX_HIT_POINTS / 6.
 SPIKES_3 = MAX_HIT_POINTS / 4.

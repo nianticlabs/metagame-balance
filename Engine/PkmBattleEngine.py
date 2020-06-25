@@ -9,6 +9,7 @@ from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTe
     N_TYPES, N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER
 from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
     TYPE_CHART_MULTIPLIER
+from Engine.PkmTeamGenerator import PkmTeamGenerator
 
 
 class PkmBattleEngine(gym.Env):
@@ -29,6 +30,10 @@ class PkmBattleEngine(gym.Env):
         self.log = ''
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
         self.observation_space = spaces.Discrete(len(self.trainer_view[0].encode()))
+        self.team_generator = None
+
+    def set_team_generator(self, team_generator: PkmTeamGenerator):
+        self.team_generator = team_generator
 
     def step(self, actions):
 
@@ -114,6 +119,12 @@ class PkmBattleEngine(gym.Env):
         self.weather = WeatherCondition.CLEAR
         self.n_turns_no_clear = 0
         self.switched = [False, False]
+
+        if self.team_generator is not None:
+            self.teams = [self.team_generator.get_team(0), self.team_generator.get_team(1)]
+
+        for team in self.teams:
+            team.reset()
 
         if self.debug:
             self.log += 'TRAINER 0\n' + str(self.teams[0])
@@ -352,7 +363,7 @@ class PkmBattleEngine(gym.Env):
                 self.__engine.weather = weather
                 self.__engine.n_turns_no_clear = 0
                 if self.__engine.debug:
-                    self.__engine.log += 'WEATHER: The weather is now %s\n' % weather.name
+                    self.__engine.log += 'STATE: The weather is now %s\n' % weather.name
 
         def set_fixed_damage(self, damage: float):
             self.damage = damage

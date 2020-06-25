@@ -155,6 +155,11 @@ class Pkm:
         self.n_turns_asleep: int = 0
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
 
+    def reset(self):
+        self.hp = self.max_hp
+        self.status = PkmStatus.NONE
+        self.n_turns_asleep = 0
+
     def fainted(self) -> bool:
         """
         Check if pkm is fainted (hp == 0).
@@ -204,6 +209,17 @@ class PkmTeam:
         self.confused: bool = False
         self.n_turns_confused: int = 0
         self.entry_hazard: List[int] = [0] * N_ENTRY_HAZARD
+
+    def reset(self):
+        self.active.reset()
+        for pkm in self.party:
+            pkm.reset()
+        for i in range(len(self.stage)):
+            self.stage[i] = 0
+        self.confused = False
+        self.n_turns_confused = 0
+        for i in range(len(self.entry_hazard)):
+            self.entry_hazard[i] = 0
 
     def size(self) -> int:
         """
