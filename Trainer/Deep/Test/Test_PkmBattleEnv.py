@@ -1,6 +1,7 @@
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
 from Player.HeuristicAgent import HeuristicAgent
+from Player.GUIAgent import GUIAgent
 from Player.RandomAgent import RandomAgent
 
 
@@ -11,11 +12,12 @@ def main():
     v = env.trainer_view
     env.render()
     t = False
-    a0 = RandomAgent()
+    a0 = GUIAgent()
     a1 = HeuristicAgent()
     while not t:
-        s, _, t, v = env.step([a0.get_action(s[0]), a1.get_action(v[1])])
+        s, _, t, v = env.step([a0.get_action(v[0]), a1.get_action(v[1])])
         env.render()
+    a0.close()
 
 
 if __name__ == '__main__':
