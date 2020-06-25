@@ -1,4 +1,4 @@
-from Environment.PkmBattleEnv import N_MOVES, N_SWITCHES
+from Engine.PkmBattleEngine import N_MOVES, N_SWITCHES
 from Trainer.Tabular.Abstract.Agent import *
 import numpy as np
 

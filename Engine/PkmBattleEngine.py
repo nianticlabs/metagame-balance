@@ -305,11 +305,14 @@ class PkmBattleEngine(gym.Env):
         def get_n_moves(self) -> int:
             return len(self.team.active.moves)
 
-        def get_stage(self, stat: PkmStat = PkmStat.ATTACK) -> int:
-            return self.team.stage[stat]
+        def get_stage(self, stat: PkmStat = PkmStat.ATTACK, t_id: int = 0) -> int:
+            if t_id == 0:
+                return self.team.stage[stat]
+            else:
+                return self.opp.stage[stat]
 
-        def get_entry_hazard(self, stat: PkmEntryHazard = PkmEntryHazard.SPIKES) -> int:
-            return self.team.stage[stat]
+        def get_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES) -> int:
+            return self.team.stage[hazard]
 
         def get_weather(self) -> WeatherCondition:
             return self.engine.weather
