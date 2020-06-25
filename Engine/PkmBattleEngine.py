@@ -113,7 +113,13 @@ class PkmBattleEngine(gym.Env):
         r[first] += float(t[first])
         r[second] += float(t[second])
 
-        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, t[0] or t[1], self.trainer_view
+        finished = t[0] or t[1]
+
+        if self.debug and finished:
+            self.log += '\nTRAINER %s %s\n%s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
+            self.log += 'TRAINER %s %s\n%s' % (1, 'Lost' if self.teams[1].fainted() else 'Won', str(self.teams[1]))
+
+        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, finished, self.trainer_view
 
     def reset(self):
         self.weather = WeatherCondition.CLEAR

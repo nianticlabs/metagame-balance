@@ -193,7 +193,7 @@ class Pkm:
         return self.status == PkmStatus.FROZEN
 
     def __str__(self):
-        return 'Pokemon(' + PkmType(self.type).name + ', HP ' + str(self.hp) + ', Status ' + PkmStatus(
+        return 'Pokemon(' + PkmType(self.type).name + ', ' + str(self.hp) + ' HP , ' + PkmStatus(
             self.status).name + ', ' + str(self.moves[0]) + ', ' + str(self.moves[1]) + ', ' + str(
             self.moves[2]) + ', ' + str(self.moves[3]) + ')'
 
@@ -291,5 +291,5 @@ class PkmTeam:
     def __str__(self):
         party = ''
         for i in range(0, len(self.party)):
-            party += str(self.party[i]) + ' '
-        return 'Active pokemon: %s\nParty pokemon: %s\n' % (str(self.active), party)
+            party += str(self.party[i]) + '\n'
+        return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)

@@ -49,8 +49,6 @@ class HeuristicAgent(Agent):
         if best_pkm > 0:
             move_id = N_MOVES + best_pkm - 1
 
-        print(move_id)
-
         return move_id
 
     @staticmethod
