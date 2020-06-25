@@ -121,10 +121,14 @@ class PkmBattleEngine(gym.Env):
         self.switched = [False, False]
 
         if self.team_generator is not None:
-            self.teams = [self.team_generator.get_team(0), self.team_generator.get_team(1)]
+            self.teams[0] = self.team_generator.get_team(0)
+            self.teams[1] = self.team_generator.get_team(1)
 
         for team in self.teams:
             team.reset()
+
+        for trainer_view in self.trainer_view:
+            trainer_view.reset()
 
         if self.debug:
             self.log += 'TRAINER 0\n' + str(self.teams[0])
@@ -282,8 +286,9 @@ class PkmBattleEngine(gym.Env):
 
         def __init__(self, engine, t_id: int = 0):
             self.engine = engine
-            self.team: PkmTeam = engine.teams[t_id]
-            self.opp: PkmTeam = engine.teams[not t_id]
+            self.t_id = t_id
+            self.team: PkmTeam = engine.teams[self.t_id]
+            self.opp: PkmTeam = engine.teams[not self.t_id]
 
         def get_active(self) -> Tuple[PkmType, float, PkmStatus, bool]:
             return self.team.active.type, self.team.active.hp, self.team.active.status, self.team.confused
@@ -316,6 +321,10 @@ class PkmBattleEngine(gym.Env):
 
         def get_weather(self) -> WeatherCondition:
             return self.engine.weather
+
+        def reset(self):
+            self.team: PkmTeam = self.engine.teams[self.t_id]
+            self.opp: PkmTeam = self.engine.teams[not self.t_id]
 
         def encode(self):
             """
