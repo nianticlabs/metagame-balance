@@ -13,7 +13,7 @@ from Engine.PkmTeamGenerator import PkmTeamGenerator
 
 
 class PkmBattleEngine(gym.Env):
-    def __init__(self, teams: [PkmTeam] = None, debug: bool = False):
+    def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
 
         # random active pokemon
         if teams is None:
@@ -31,6 +31,7 @@ class PkmBattleEngine(gym.Env):
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
         self.observation_space = spaces.Discrete(len(self.trainer_view[0].encode()))
         self.team_generator = None
+        self.winner = -1
 
     def set_team_generator(self, team_generator: PkmTeamGenerator):
         self.team_generator = team_generator
@@ -115,9 +116,12 @@ class PkmBattleEngine(gym.Env):
 
         finished = t[0] or t[1]
 
-        if self.debug and finished:
-            self.log += '\nTRAINER %s %s\n%s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
-            self.log += 'TRAINER %s %s\n%s' % (1, 'Lost' if self.teams[1].fainted() else 'Won', str(self.teams[1]))
+        if finished:
+            self.winner = 1 if t[0] else 0
+
+            if self.debug:
+                self.log += '\nTRAINER %s %s\n%s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
+                self.log += 'TRAINER %s %s\n%s' % (1, 'Lost' if self.teams[1].fainted() else 'Won', str(self.teams[1]))
 
         return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, finished, self.trainer_view
 
@@ -125,6 +129,7 @@ class PkmBattleEngine(gym.Env):
         self.weather = WeatherCondition.CLEAR
         self.n_turns_no_clear = 0
         self.turn = 0
+        self.winner = -1
         self.switched = [False, False]
 
         if self.team_generator is not None:
