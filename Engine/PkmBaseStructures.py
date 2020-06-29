@@ -98,9 +98,9 @@ class PkmMove:
         self.effect = effect
 
     @staticmethod
-    def super_effective_move(t: PkmType) -> PkmType:
+    def super_effective(t: PkmType) -> PkmType:
         """
-        Get a super effective move relative to type t.
+        Get a super effective type relative to type t.
 
         :param t: pokemon type
         :return: a random type that is super effective against pokemon type t
@@ -109,13 +109,13 @@ class PkmMove:
         s = [index for index, value in enumerate(_t) if value == 2.]
         if not s:
             print('Warning: Empty List!')
-            return random.randrange(N_TYPES)
+            return PkmMove.effective(t)
         return random.choice(s)
 
     @staticmethod
-    def non_very_effective_move(t: PkmType) -> PkmType:
+    def non_very_effective(t: PkmType) -> PkmType:
         """
-        Get a non very effective move relative to type t.
+        Get a non very effective type relative to type t.
 
         :param t: pokemon type
         :return: a random type that is not very effective against pokemon type t
@@ -123,13 +123,13 @@ class PkmMove:
         _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
         s = [index for index, value in enumerate(_t) if value == .5]
         if not s:
-            return random.randrange(N_TYPES)
+            return PkmMove.effective(t)
         return random.choice(s)
 
     @staticmethod
-    def effective_move(t: PkmType) -> PkmType:
+    def effective(t: PkmType) -> PkmType:
         """
-        Get a effective move relative to type t.
+        Get a effective type relative to type t.
 
         :param t: pokemon type
         :return: a random type that is not very effective against pokemon type t
