@@ -6,14 +6,14 @@ class Recorder:
     def __init__(self,  buffer_size: int = 4096, name: str = "Agent"):
         self.buffer_size: int = buffer_size
         self.name: str = "../Data/" + name
-        self.buffer: List[Tuple[List, int]] = []
+        self.buffer: List[Tuple[List, int, int]] = []
         self.pos: int = 0
 
-    def empty(self):
+    def clear(self):
         """
         Empty internal buffer.
         """
-        self.buffer = []
+        self.buffer.clear()
 
     def full(self) -> bool:
         """
@@ -32,15 +32,15 @@ class Recorder:
             for e in self.buffer:
                 f.write(str(e) + "\n")
 
-    def record(self, record: Tuple[List, int]):
+    def record(self, record: Tuple[List, int, int]):
         """
         Store data row to buffer. If buffer is empty persist all data and empty before.
 
-        :param record: data row
+        :param record: data row (observation: List, action: int, episode: int)
         """
         if self.full():
             self.save()
-            self.empty()
+            self.clear()
         self.buffer.append(record)
 
     def starved(self) -> bool:
@@ -51,16 +51,16 @@ class Recorder:
         """
         return self.pos >= len(self.buffer)
 
-    def read(self) -> Tuple[List, int]:
+    def read(self) -> Tuple[List, int, int]:
         """
         Read next element from buffer.
 
         :return: next element from buffer
         """
         if self.starved():
-            self.empty()
+            self.clear()
             self.load()
-        row: Tuple[List, int] = self.buffer[self.pos]
+        row: Tuple[List, int, int] = self.buffer[self.pos]
         self.pos += 1
         return row
 

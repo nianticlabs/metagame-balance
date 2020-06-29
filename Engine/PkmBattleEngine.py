@@ -124,6 +124,7 @@ class PkmBattleEngine(gym.Env):
     def reset(self):
         self.weather = WeatherCondition.CLEAR
         self.n_turns_no_clear = 0
+        self.turn = 0
         self.switched = [False, False]
 
         if self.team_generator is not None:
