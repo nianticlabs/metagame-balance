@@ -3,17 +3,37 @@ from typing import List, Tuple
 
 class Recorder:
 
-    def __init__(self,  buffer_size: int = 4096, name: str = "Agent"):
+    def __init__(self,  buffer_size: int = 2048, name: str = "Agent"):
         self.buffer_size: int = buffer_size
         self.name: str = "../Data/" + name
         self.buffer: List[Tuple[List, int, int]] = []
         self.pos: int = 0
+        self.f = None
+
+    def open(self):
+        """
+        Open recorder for reading.
+        """
+        self.f = open(self.name, "r")
+
+    def close(self):
+        """
+        Close recorder in reader mode.
+        """
+        self.f.close()
+
+    def empty(self) -> bool:
+        """
+        Check if internal buffer is empty.
+        """
+        return len(self.buffer) == 0
 
     def clear(self):
         """
         Empty internal buffer.
         """
         self.buffer.clear()
+        self.pos = 0
 
     def full(self) -> bool:
         """
@@ -60,20 +80,21 @@ class Recorder:
         if self.starved():
             self.clear()
             self.load()
+            if self.empty():
+                return [], -1, -1
         row: Tuple[List, int, int] = self.buffer[self.pos]
         self.pos += 1
+        print(self.pos)
         return row
 
     def load(self):
         """
         Load next chuck from file to buffer.
         """
-        self.pos = 0
         index = 0
-        with open(self.name, "r") as f:
-            while True and index < self.buffer_size:
-                line = f.readline()
-                if not line:
-                    break
-                self.buffer.append(eval(line))
-                index += 1
+        while True and index < self.buffer_size:
+            line = self.f.readline()
+            if not line:
+                break
+            self.buffer.append(eval(line))
+            index += 1
