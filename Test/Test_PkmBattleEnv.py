@@ -18,13 +18,13 @@ def main():
     while ep < n_matches:
         s = env.reset()
         v = env.trainer_view
-        # env.render()
+        env.render()
         ep += 1
         while not t:
             a = [a0.get_action(v[0]), a1.get_action(v[1])]
             r.record((s[0], a[0], ep))
             s, _, t, v = env.step(a)
-            # env.render()
+            env.render()
         t = False
     r.save()
     a0.close()
