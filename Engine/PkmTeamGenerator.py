@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 
 import random
 
 from Engine.PkmBaseStructures import PkmTeam, Pkm, PkmType, PkmMove
 from Engine.PkmConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
+from Trainer.Tabular.Abstract.Agent import SelectorAgent
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS
@@ -58,3 +59,27 @@ class FixedGenerator(PkmTeamGenerator):
 
     def fixed(self) -> bool:
         return True
+
+
+class TeamSelector(PkmTeamGenerator):
+
+    def __init__(self, team0: PkmTeam, team1: PkmTeam, selector_0: SelectorAgent, selector_1: SelectorAgent):
+        self.teams = team0, team1
+        team_view_0 = self.teams[0].create_team_view()
+        team_view_1 = self.teams[1].create_team_view()
+        self.team_views = (team_view_1[0], team_view_0[1]), (team_view_0[0], team_view_1[1])
+        self.selector: Tuple[SelectorAgent, SelectorAgent] = (selector_0, selector_1)
+
+    def get_team(self, t_id: int = 0) -> PkmTeam:
+        pkm_ids = self.selector[t_id].get_action(self.team_views[t_id])
+        selected_team: List[Pkm] = []
+        team: PkmTeam = self.teams[t_id]
+        for pkm_id in pkm_ids:
+            if pkm_id == 0:
+                selected_team.append(team.active)
+            else:
+                selected_team.append(team.party[pkm_id - 1])
+        return PkmTeam(selected_team)
+
+    def fixed(self) -> bool:
+        return False

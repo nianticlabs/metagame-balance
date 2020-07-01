@@ -26,9 +26,6 @@ class PkmBattleEngine(gym.Env):
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
         self.trainer_view = [self.__create_trainer_view(0), self.__create_trainer_view(1)]
-        team_view_0 = self.teams[0].create_team_view()
-        team_view_1 = self.teams[1].create_team_view()
-        self.team_view = ((team_view_1[0], team_view_0[0]), (team_view_0[1], team_view_1[1]))
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
@@ -139,9 +136,6 @@ class PkmBattleEngine(gym.Env):
         if self.team_generator is not None:
             self.teams[0] = self.team_generator.get_team(0)
             self.teams[1] = self.team_generator.get_team(1)
-            team_view_0 = self.teams[0].create_team_view()
-            team_view_1 = self.teams[1].create_team_view()
-            self.team_view = ((team_view_1[0], team_view_0[0]), (team_view_0[1], team_view_1[1]))
 
         for team in self.teams:
             team.reset()

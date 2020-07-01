@@ -1,25 +1,19 @@
 from Engine.PkmBaseStructures import PkmMove, PkmStatus, PkmStat
-from Engine.PkmConstants import N_MOVES
+from Engine.PkmConstants import N_MOVES, N_DEFAULT_PARTY
 from Trainer.Tabular.Abstract.Agent import *
 import PySimpleGUI as sg
 
 
 class GUIBattleAgent(BattleAgent):
 
-    def __init__(self):
+    def __init__(self, n_party: int = N_DEFAULT_PARTY, n_moves: int = N_MOVES):
         self.weather = sg.Text('                                                        ')
         self.opponent = sg.Text('                                                         ')
         self.active = sg.Text('                                                        ')
-        self.moves = [sg.ReadFormButton('Move 0', bind_return_key=True),
-                      sg.ReadFormButton('Move 1', bind_return_key=True),
-                      sg.ReadFormButton('Move 2', bind_return_key=True),
-                      sg.ReadFormButton('Move 3', bind_return_key=True)]
+        self.moves = [sg.ReadFormButton('Move ' + str(i), bind_return_key=True) for i in range(n_moves)]
         self.party = [
-            [sg.ReadFormButton('Switch 0', bind_return_key=True), sg.Text('                                      ')],
-            [sg.ReadFormButton('Switch 1', bind_return_key=True), sg.Text('                                      ')],
-            [sg.ReadFormButton('Switch 2', bind_return_key=True), sg.Text('                                      ')],
-            [sg.ReadFormButton('Switch 3', bind_return_key=True), sg.Text('                                      ')],
-            [sg.ReadFormButton('Switch 4', bind_return_key=True), sg.Text('                                      ')]]
+            [sg.ReadFormButton('Switch ' + str(i), bind_return_key=True),
+             sg.Text('                                      ')] for i in range(n_party)]
         layout = [[self.weather], [self.opponent], [self.active], self.moves] + self.party
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()

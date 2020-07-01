@@ -1,34 +1,20 @@
 from Engine.PkmBaseStructures import PkmTeam
-from Engine.PkmConstants import DEFAULT_SELECTION_SIZE
+from Engine.PkmConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 from Trainer.Tabular.Abstract.Agent import *
 import PySimpleGUI as sg
 
 
-class GUISelectionAgent(SelectionAgent):
+class GUISelectorAgent(SelectorAgent):
 
-    def __init__(self, selected_team_size: int = DEFAULT_SELECTION_SIZE):
+    def __init__(self, selected_team_size: int = DEFAULT_SELECTION_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
         self.opp_title = sg.Text('Opponent Team:')
-        self.opp = [[sg.Text('                                      ')],
-                    [sg.Text('                                      ')],
-                    [sg.Text('                                      ')],
-                    [sg.Text('                                      ')],
-                    [sg.Text('                                      ')],
-                    [sg.Text('                                      ')]]
+        self.opp = [[sg.Text('                                      ')] for i in range(full_team_size)]
         self.team_title = sg.Text('Your Team:')
         self.team = [
             [sg.Text('                                      '),
-             sg.Checkbox('Pkm 0', size=(10, 1), default=False, enable_events=True)],
-            [sg.Text('                                      '),
-             sg.Checkbox('Pkm 1', size=(10, 1), default=False, enable_events=True)],
-            [sg.Text('                                      '),
-             sg.Checkbox('Pkm 2', size=(10, 1), default=False, enable_events=True)],
-            [sg.Text('                                      '),
-             sg.Checkbox('Pkm 3', size=(10, 1), default=False, enable_events=True)],
-            [sg.Text('                                      '),
-             sg.Checkbox('Pkm 4', size=(10, 1), default=False, enable_events=True)],
-            [sg.Text('                                      '),
-             sg.Checkbox('Pkm 5', size=(10, 1), default=False, enable_events=True)]]
+             sg.Checkbox('Pkm ' + str(i), size=(10, 1), default=False, enable_events=True)] for i in
+            range(full_team_size)]
         self.select = sg.ReadFormButton('Select', bind_return_key=True)
         layout = [[self.opp_title]] + self.opp + [[self.team_title]] + self.team + [[self.select]]
         self.window = sg.Window('Pokemon Battle Engine', layout)
@@ -41,6 +27,9 @@ class GUISelectionAgent(SelectionAgent):
         :param s: state
         :return: action
         """
+        selected = []
+        for item in self.team:
+            item[1].Update(value=False)
         opp: PkmTeam.OpponentView = s[0]
         team: PkmTeam.View = s[1]
         # opponent active
@@ -61,7 +50,6 @@ class GUISelectionAgent(SelectionAgent):
             party_type, party_hp = team.get_party(i)
             party_text = party_type.name + ' ' + str(party_hp) + ' HP'
             self.team[i + 1][0].Update(party_text)
-        selected = []
         event, values = self.window.read()
         while event != self.select.get_text():
             if event not in selected:
@@ -70,6 +58,7 @@ class GUISelectionAgent(SelectionAgent):
                 selected.remove(event)
             self.select.Update(disabled=self.selected_team_size != len(selected))
             event, values = self.window.read()
+
         return selected
 
     def close(self):
