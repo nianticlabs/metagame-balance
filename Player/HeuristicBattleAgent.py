@@ -7,9 +7,12 @@ from Trainer.Tabular.Abstract.Agent import *
 import numpy as np
 
 
-class HeuristicAgent(Agent):
+class HeuristicBattleAgent(BattleAgent):
 
-    def get_action(self, s: PkmBattleEngine.TrainerView):
+    def close(self):
+        pass
+
+    def get_action(self, s: PkmBattleEngine.TrainerView) -> int:
         """
 
         :param s: state
@@ -32,8 +35,8 @@ class HeuristicAgent(Agent):
         estimated_damage: List[float] = []
         for i in range(s.get_n_moves()):
             move_power, move_type, _ = active_moves[i]
-            estimated_damage.append(HeuristicAgent.estimate_move_damage(move_type, active_type, move_power, opp_type,
-                                                                        attack_stage, defense_stage, weather))
+            estimated_damage.append(HeuristicBattleAgent.estimate_move_damage(move_type, active_type, move_power, opp_type,
+                                                                              attack_stage, defense_stage, weather))
         move_id: int = np.argmax(estimated_damage)
 
         # switch decision

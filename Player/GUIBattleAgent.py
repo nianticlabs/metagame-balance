@@ -4,7 +4,7 @@ from Trainer.Tabular.Abstract.Agent import *
 import PySimpleGUI as sg
 
 
-class GUIAgent(Agent):
+class GUIBattleAgent(BattleAgent):
 
     def __init__(self):
         self.weather = sg.Text('                                                        ')
@@ -24,7 +24,7 @@ class GUIAgent(Agent):
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()
 
-    def get_action(self, s):
+    def get_action(self, s) -> int:
         """
 
         :param s: state

@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from typing import Tuple
 
 from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmBattleEngine import PkmBattleEngine
-from Trainer.Tabular.Abstract.BattleAgent import BattleAgent
+from Trainer.Tabular.Abstract.Agent import BattleAgent
 from Util.Recorder import Recorder
 
 

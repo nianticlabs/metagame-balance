@@ -1,8 +1,8 @@
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
-from Player.HeuristicAgent import HeuristicAgent
-from Player.GUIAgent import GUIAgent
-from Player.RandomAgent import RandomAgent
+from Player.HeuristicBattleAgent import HeuristicBattleAgent
+from Player.GUIBattleAgent import GUIBattleAgent
+from Player.RandomBattleAgent import RandomBattleAgent
 from Util.Recorder import Recorder
 
 
@@ -10,11 +10,11 @@ def main():
     env = PkmBattleEngine(debug=True)
     env.set_team_generator(RandomGenerator())
     t = False
-    a0 = RandomAgent()
-    a1 = RandomAgent()
+    a0 = GUIBattleAgent()
+    a1 = RandomBattleAgent()
     r = Recorder(name="random_agent")
     ep = 0
-    n_matches = 1000
+    n_matches = 3
     while ep < n_matches:
         s = env.reset()
         v = env.trainer_view

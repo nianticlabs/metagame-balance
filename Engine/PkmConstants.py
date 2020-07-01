@@ -3,13 +3,17 @@
 N_TRAINERS = 2
 N_MAX_PARTY = 5
 
+# Teams
+MAX_TEAM_SIZE = N_MAX_PARTY + 1
+DEFAULT_SELECTION_SIZE = 3
+
 # move power range
 MOVE_POWER_MIN = 75.
 MOVE_POWER_MAX = 150.
 
 # number actions
 N_MOVES = 4
-N_SWITCHES = 5
+N_SWITCHES = N_MAX_PARTY
 
 # hit Points
 MAX_HIT_POINTS = 300.

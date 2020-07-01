@@ -221,6 +221,45 @@ class PkmTeam:
         for i in range(len(self.entry_hazard)):
             self.entry_hazard[i] = 0
 
+    class OpponentView:
+        def __init__(self, team):
+            self.team = team
+
+        def get_n_party(self) -> int:
+            return len(self.team.party)
+
+        def get_active(self) -> Tuple[PkmType, float]:
+            return self.team.active.type, MAX_HIT_POINTS
+
+        def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
+            return self.team.party[pos].type, MAX_HIT_POINTS
+
+    class View(OpponentView):
+
+        def get_active(self) -> Tuple[PkmType, float]:
+            return self.team.active.type, self.team.active.hp
+
+        def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
+            return self.team.party[pos].type, self.team.party[pos].hp
+
+        #def get_active_move_type(self, move: int = 0) -> PkmType:
+        #    return self.team.active.moves[move].type
+
+        #def get_active_move_power(self, move: int = 0) -> float:
+        #    return self.team.active.moves[move].power
+
+    def create_team_view(self) -> Tuple[OpponentView, View]:
+        return PkmTeam.OpponentView(self), PkmTeam.View(self)
+
+    def select_team(self, selected_pkm: List[int]):
+        """
+        Get a sub team.
+
+        :param selected_pkm: pkm sub team
+        :return: selected sub team
+        """
+        return PkmTeam(list(map(([self.active] + self.party).__getitem__, selected_pkm)))
+
     def size(self) -> int:
         """
         Get team size.

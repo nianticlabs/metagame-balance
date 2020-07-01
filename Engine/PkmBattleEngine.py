@@ -26,6 +26,8 @@ class PkmBattleEngine(gym.Env):
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
         self.trainer_view = [self.__create_trainer_view(0), self.__create_trainer_view(1)]
+        self.team_view: List[Tuple[PkmTeam.OpponentView, PkmTeam.View]] = [self.teams[0].create_team_view(),
+                                                                           self.teams[1].create_team_view()]
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
@@ -120,7 +122,8 @@ class PkmBattleEngine(gym.Env):
             self.winner = 1 if t[0] else 0
 
             if self.debug:
-                self.log += '\nTRAINER %s %s\n%s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
+                self.log += '\nTRAINER %s %s\n%s\n' % (
+                    0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
                 self.log += 'TRAINER %s %s\n%s' % (1, 'Lost' if self.teams[1].fainted() else 'Won', str(self.teams[1]))
 
         return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, finished, self.trainer_view
@@ -135,6 +138,7 @@ class PkmBattleEngine(gym.Env):
         if self.team_generator is not None:
             self.teams[0] = self.team_generator.get_team(0)
             self.teams[1] = self.team_generator.get_team(1)
+            self.team_view = [self.teams[0].create_team_view(), self.teams[1].create_team_view()]
 
         for team in self.teams:
             team.reset()
