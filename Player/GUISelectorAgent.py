@@ -58,7 +58,6 @@ class GUISelectorAgent(SelectorAgent):
                 selected.remove(event)
             self.select.Update(disabled=self.selected_team_size != len(selected))
             event, values = self.window.read()
-
         return selected
 
     def close(self):

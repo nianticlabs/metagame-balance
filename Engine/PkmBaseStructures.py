@@ -203,7 +203,7 @@ class PkmTeam:
     def __init__(self, team: List[Pkm] = None):
         if team is None:
             team = [Pkm()]
-        self.active: Pkm = team.pop()
+        self.active: Pkm = team.pop(0)
         self.party: List[Pkm] = team
         self.stage: List[int] = [0] * N_STATS
         self.confused: bool = False
