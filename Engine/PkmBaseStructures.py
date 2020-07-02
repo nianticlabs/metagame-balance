@@ -237,10 +237,10 @@ class PkmTeam:
     class View(OpponentView):
 
         def get_active(self) -> Tuple[PkmType, float]:
-            return self.team.active.type, self.team.active.hp
+            return self.team.active.type, self.team.active.max_hp
 
         def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
-            return self.team.party[pos].type, self.team.party[pos].hp
+            return self.team.party[pos].type, self.team.party[pos].max_hp
 
         #def get_active_move_type(self, move: int = 0) -> PkmType:
         #    return self.team.active.moves[move].type

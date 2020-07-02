@@ -1,0 +1,4 @@
+numpy>=1.15.4
+gym>=0.10.9
+tensorflow~=1.12.0
+PySimpleGUI>=4.20.0

@@ -57,7 +57,7 @@ class Match:
             r.save()
         a0.close()
 
-    def records(self) -> List[int, int]:
+    def records(self) -> List[int]:
         """
         Get match records.
 
