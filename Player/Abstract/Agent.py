@@ -24,7 +24,7 @@ class BattleAgent(Agent):
         pass
 
 
-class SelectionAgent(Agent):
+class SelectorAgent(Agent):
 
     @abstractmethod
     def get_action(self, s) -> List[int]:

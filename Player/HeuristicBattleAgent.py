@@ -3,8 +3,9 @@ from typing import List
 from Engine.PkmBaseStructures import PkmType, WeatherCondition, PkmStat
 from Engine.PkmBattleEngine import TYPE_CHART_MULTIPLIER, PkmBattleEngine
 from Engine.PkmConstants import N_MOVES
-from Trainer.Tabular.Abstract.Agent import *
 import numpy as np
+
+from Player.Abstract.Agent import BattleAgent
 
 
 class HeuristicBattleAgent(BattleAgent):

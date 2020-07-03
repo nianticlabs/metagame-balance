@@ -1,6 +1,7 @@
 from Engine.PkmBattleEngine import N_MOVES, N_SWITCHES
-from Trainer.Tabular.Abstract.Agent import *
 import numpy as np
+
+from Player.Abstract.Agent import BattleAgent
 
 SWITCH_PROBABILITY = .15
 

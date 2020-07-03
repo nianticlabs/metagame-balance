@@ -1,6 +1,7 @@
 from Engine.PkmConstants import MAX_TEAM_SIZE, DEFAULT_SELECTION_SIZE
-from Trainer.Tabular.Abstract.Agent import *
 import random
+
+from Player.Abstract.Agent import SelectorAgent
 
 
 class RandomSelectorAgent(SelectorAgent):

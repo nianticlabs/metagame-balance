@@ -1,7 +1,8 @@
 from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
-from Trainer.Tabular.Abstract.Agent import *
 import PySimpleGUI as sg
+
+from Player.Abstract.Agent import SelectorAgent
 
 
 class GUISelectorAgent(SelectorAgent):

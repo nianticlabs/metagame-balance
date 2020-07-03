@@ -1,7 +1,8 @@
 from Engine.PkmBaseStructures import PkmMove, PkmStatus, PkmStat
 from Engine.PkmConstants import N_MOVES, N_DEFAULT_PARTY
-from Trainer.Tabular.Abstract.Agent import *
 import PySimpleGUI as sg
+
+from Player.Abstract.Agent import BattleAgent
 
 
 class GUIBattleAgent(BattleAgent):
