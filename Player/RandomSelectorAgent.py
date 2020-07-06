@@ -1,3 +1,5 @@
+from typing import List
+
 from Engine.PkmConstants import MAX_TEAM_SIZE, DEFAULT_SELECTION_SIZE
 import random
 

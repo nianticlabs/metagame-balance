@@ -3,7 +3,7 @@ from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmConstants import DEFAULT_MATCH_N
 from Engine.PkmTeamGenerator import TeamSelector
-from Trainer.Tabular.Abstract.Agent import BattleAgent, SelectorAgent
+from Player.Abstract.Agent import BattleAgent, SelectorAgent
 from Util.Recorder import Recorder
 
 

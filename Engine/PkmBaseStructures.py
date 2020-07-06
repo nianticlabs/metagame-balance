@@ -200,11 +200,11 @@ class Pkm:
 
 class PkmTeam:
 
-    def __init__(self, team: List[Pkm] = None):
-        if team is None:
-            team = [Pkm()]
-        self.active: Pkm = team.pop(0)
-        self.party: List[Pkm] = team
+    def __init__(self, pkms: List[Pkm] = None):
+        if pkms is None:
+            pkms = [Pkm()]
+        self.active: Pkm = pkms.pop(0)
+        self.party: List[Pkm] = pkms
         self.stage: List[int] = [0] * N_STATS
         self.confused: bool = False
         self.n_turns_confused: int = 0
@@ -242,14 +242,12 @@ class PkmTeam:
         def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
             return self.team.party[pos].type, self.team.party[pos].max_hp
 
-        #def get_active_move_type(self, move: int = 0) -> PkmType:
-        #    return self.team.active.moves[move].type
-
-        #def get_active_move_power(self, move: int = 0) -> float:
-        #    return self.team.active.moves[move].power
-
     def create_team_view(self) -> Tuple[OpponentView, View]:
         return PkmTeam.OpponentView(self), PkmTeam.View(self)
+
+    def set_pkms(self, team):
+        self.active: Pkm = team.active
+        self.party: List[Pkm] = team.party
 
     def select_team(self, selected_pkm: List[int]):
         """

@@ -1,3 +1,5 @@
+from typing import List
+
 from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
