@@ -53,7 +53,9 @@ class PkmMatchEngine(gym.Env):
         self.log = ''
         self.team0.set_pkms(self.rand_generator.get_team(0))
         self.team1.set_pkms(self.rand_generator.get_team(1))
-        return self.team_selector.team_views
+        encode0 = self.team_selector.team_views[0][0].encode() + self.team_selector.team_views[0][1].encode()
+        encode1 = self.team_selector.team_views[1][0].encode() + self.team_selector.team_views[1][1].encode()
+        return [encode0, encode1]
 
     def render(self, mode='human'):
         print(self.log)
