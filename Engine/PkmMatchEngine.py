@@ -35,12 +35,16 @@ class PkmMatchEngine(gym.Env):
         t = False
         # play a game
         while not t:
-            a = [self.a0.get_action(v[0]), self.a1.get_action(v[1])]
+            o0 = s[0] if self.a0.requires_encode() else v[0]
+            o1 = s[1] if self.a1.requires_encode() else v[1]
+            a = [self.a0.get_action(o0), self.a1.get_action(o1)]
             s, r, t, v = self.env.step(a)
             self.acc_r[0] += r[0]
             self.acc_r[1] += r[1]
         self.game += 1
-        return self.team_selector.team_views, self.acc_r, self.game >= self.n_games, None
+        encode0 = self.team_selector.team_views[0][0].encode() + self.team_selector.team_views[0][1].encode()
+        encode1 = self.team_selector.team_views[1][0].encode() + self.team_selector.team_views[1][1].encode()
+        return [encode0, encode1], self.acc_r, self.game >= self.n_games, self.team_selector.team_views
 
     def reset(self):
         self.acc_r[0] = 0

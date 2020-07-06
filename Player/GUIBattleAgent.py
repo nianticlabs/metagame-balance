@@ -20,6 +20,9 @@ class GUIBattleAgent(BattleAgent):
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()
 
+    def requires_encode(self) -> bool:
+        return False
+
     def get_action(self, s) -> int:
         """
 

@@ -24,6 +24,9 @@ class GUISelectorAgent(SelectorAgent):
         self.window.Finalize()
         self.select.Update(disabled=True)
 
+    def requires_encode(self) -> bool:
+        return False
+
     def get_action(self, s) -> List[int]:
         """
 

@@ -12,6 +12,9 @@ class RandomSelectorAgent(SelectorAgent):
         self.teams_size = teams_size
         self.selection_size = selection_size
 
+    def requires_encode(self) -> bool:
+        return False
+
     def get_action(self, s) -> List[int]:
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)

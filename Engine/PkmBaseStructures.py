@@ -7,6 +7,9 @@ from typing import List, Tuple
 
 
 # Pokemon Typing
+from Util.Encoding import one_hot
+
+
 class PkmType(IntEnum):
     NORMAL = 0
     FIRE = 1
@@ -233,6 +236,18 @@ class PkmTeam:
 
         def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
             return self.team.party[pos].type, MAX_HIT_POINTS
+
+        def encode(self):
+            """
+            Encode opponent team state.
+
+            :return: encoded opponent team state
+            """
+            e = []
+            e += one_hot(self.team.active.type, N_TYPES)
+            for pos in range(len(self.team.party)):
+                e += one_hot(self.team.party[pos].type, N_TYPES)
+            return e
 
     class View(OpponentView):
 

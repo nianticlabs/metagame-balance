@@ -9,6 +9,10 @@ class Agent(ABC):
         pass
 
     @abstractmethod
+    def requires_encode(self) -> bool:
+        pass
+
+    @abstractmethod
     def close(self):
         pass
 

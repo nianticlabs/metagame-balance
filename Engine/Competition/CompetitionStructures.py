@@ -45,7 +45,9 @@ class Match:
                 env.render()
             game += 1
             while not t:
-                a = [a0.get_action(v[0]), a1.get_action(v[1])]
+                o0 = s[0] if a0.requires_encode() else v[0]
+                o1 = s[1] if a1.requires_encode() else v[1]
+                a = [a0.get_action(o0), a1.get_action(o1)]
                 if self.record:
                     r.record((s[0], a[0], game))
                 s, _, t, v = env.step(a)

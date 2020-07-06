@@ -13,6 +13,9 @@ class HeuristicBattleAgent(BattleAgent):
     def close(self):
         pass
 
+    def requires_encode(self) -> bool:
+        return False
+
     def get_action(self, s: PkmBattleEngine.TrainerView) -> int:
         """
 
