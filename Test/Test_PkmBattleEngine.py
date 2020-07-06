@@ -9,13 +9,14 @@ from Util.Recorder import Recorder
 def main():
     env = PkmBattleEngine(debug=True)
     env.set_team_generator(RandomGenerator())
+    env.reset()  # set correct team size for get_n_party
     t = False
-    a0 = GUIBattleAgent()
+    a0 = GUIBattleAgent(env.trainer_view[0].get_n_party())
     a1 = RandomBattleAgent()
     r = Recorder(name="random_agent")
     ep = 0
-    n_matches = 3
-    while ep < n_matches:
+    n_battles = 3
+    while ep < n_battles:
         s = env.reset()
         v = env.trainer_view
         env.render()

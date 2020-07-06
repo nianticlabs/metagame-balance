@@ -9,7 +9,7 @@ from Player.Abstract.Agent import BattleAgent
 
 class PkmMatchEngine(gym.Env):
 
-    def __init__(self, a0: BattleAgent, a1: BattleAgent, n_games: int = DEFAULT_MATCH_N):
+    def __init__(self, a0: BattleAgent, a1: BattleAgent, n_games: int = DEFAULT_MATCH_N, debug: bool = False):
         self.team0 = PkmTeam()
         self.team1 = PkmTeam()
         self.rand_generator = RandomGenerator()
@@ -21,10 +21,15 @@ class PkmMatchEngine(gym.Env):
         self.n_games = n_games
         self.game = 0
         self.acc_r = [0, 0]
+        self.debug = debug
+        self.log = ''
 
     def step(self, action):
         pkm_list0, pkm_list1 = action
         self.team_selector.set_teams(pkm_list0, pkm_list1)
+        if self.debug:
+            self.log += '\nGame ' + str(self.game) + '\n\nTrainer 0\n' + str(
+                self.team_selector.selected_teams[0]) + '\nTrainer 1\n' + str(self.team_selector.selected_teams[1])
         s = self.env.reset()
         v = self.env.trainer_view
         t = False
@@ -41,9 +46,10 @@ class PkmMatchEngine(gym.Env):
         self.acc_r[0] = 0
         self.acc_r[1] = 0
         self.game = 0
+        self.log = ''
         self.team0.set_pkms(self.rand_generator.get_team(0))
         self.team1.set_pkms(self.rand_generator.get_team(1))
         return self.team_selector.team_views
 
     def render(self, mode='human'):
-        pass
+        print(self.log)

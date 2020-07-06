@@ -8,6 +8,7 @@ from Player.Abstract.Agent import BattleAgent
 class GUIBattleAgent(BattleAgent):
 
     def __init__(self, n_party: int = N_DEFAULT_PARTY, n_moves: int = N_MOVES):
+        print(n_party)
         self.weather = sg.Text('                                                        ')
         self.opponent = sg.Text('                                                         ')
         self.active = sg.Text('                                                        ')
@@ -56,6 +57,8 @@ class GUIBattleAgent(BattleAgent):
             active_text += ' SPD ' + str(active_speed_stage)
         self.active.Update(active_text)
         # party
+        print(s.get_n_party())
+        print(len(self.party))
         for i in range(s.get_n_party()):
             party_type, party_hp, party_status = s.get_party(i)
             party_text = party_type.name + ' ' + str(party_hp) + ' HP' + (
@@ -65,7 +68,7 @@ class GUIBattleAgent(BattleAgent):
         # moves
         for i in range(s.get_n_moves()):
             move_power, move_type, move_name = s.get_active_move(i)
-            self.moves[i].Update(PkmMove(move_power, move_type, move_name))
+            self.moves[i].Update(str(PkmMove(move_power, move_type, move_name)))
         event, values = self.window.read()
         return self.__event_to_action(event)
 
