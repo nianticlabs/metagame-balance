@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
 
+from Engine.PkmBaseStructures import PkmTeam
+
 
 class Agent(ABC):
 
@@ -23,10 +25,6 @@ class BattleAgent(Agent):
     def get_action(self, s) -> int:
         pass
 
-    @abstractmethod
-    def close(self):
-        pass
-
 
 class SelectorAgent(Agent):
 
@@ -34,6 +32,9 @@ class SelectorAgent(Agent):
     def get_action(self, s) -> List[int]:
         pass
 
+
+class BuilderAgent(Agent):
+
     @abstractmethod
-    def close(self):
+    def get_action(self, s) -> PkmTeam():
         pass

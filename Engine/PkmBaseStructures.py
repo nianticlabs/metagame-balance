@@ -2,9 +2,8 @@ import random
 from enum import IntEnum
 import numpy as np
 
-from Engine.PkmConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER
+from Engine.PkmConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
 from typing import List, Tuple
-
 
 # Pokemon Typing
 from Util.Encoding import one_hot
@@ -88,7 +87,8 @@ def null_effect(view):
 
 class PkmMove:
 
-    def __init__(self, power=90., move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect):
+    def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
+                 move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect, priority: bool = False):
         """
         Pokemon move data structure. Special moves have power = 0.
 
@@ -96,9 +96,16 @@ class PkmMove:
         :param move_type: pokemon move type
         """
         self.power = power
+        self.acc = acc
+        self.max_pp = max_pp
+        self.pp = max_pp
         self.type = move_type
         self.name = name
         self.effect = effect
+        self.priority = priority
+
+    def reset(self):
+        self.pp = self.max_pp
 
     @staticmethod
     def super_effective(t: PkmType) -> PkmType:
@@ -144,7 +151,8 @@ class PkmMove:
         return random.choice(s)
 
     def __str__(self):
-        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ")" if self.name == "" else self.name
+        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ", " + str(
+            self.acc) + ")" if self.name == "" else self.name
 
 
 class Pkm:
@@ -162,6 +170,8 @@ class Pkm:
         self.hp = self.max_hp
         self.status = PkmStatus.NONE
         self.n_turns_asleep = 0
+        for move in self.moves:
+            move.reset()
 
     def fainted(self) -> bool:
         """

@@ -13,6 +13,10 @@ DEFAULT_MATCH_N = 3
 MOVE_POWER_MIN = 75.
 MOVE_POWER_MAX = 150.
 
+# move power point
+MOVE_MAX_PP = 20
+MOVE_MED_PP = MOVE_MAX_PP / 2
+
 # number actions
 N_MOVES = 4
 N_SWITCHES = N_MAX_PARTY

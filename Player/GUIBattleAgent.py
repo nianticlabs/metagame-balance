@@ -60,8 +60,6 @@ class GUIBattleAgent(BattleAgent):
             active_text += ' SPD ' + str(active_speed_stage)
         self.active.Update(active_text)
         # party
-        print(s.get_n_party())
-        print(len(self.party))
         for i in range(s.get_n_party()):
             party_type, party_hp, party_status = s.get_party(i)
             party_text = party_type.name + ' ' + str(party_hp) + ' HP' + (

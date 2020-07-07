@@ -4,11 +4,12 @@ import random
 import numpy as np
 from typing import List, Tuple
 
+from Engine.PkmMoves import Struggle
 from Util.Encoding import one_hot
 from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, Pkm, \
     N_TYPES, N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER
 from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
-    TYPE_CHART_MULTIPLIER
+    TYPE_CHART_MULTIPLIER, MOVE_MAX_PP
 from Engine.PkmTeamGenerator import PkmTeamGenerator
 
 
@@ -49,7 +50,7 @@ class PkmBattleEngine(gym.Env):
         self.__process_switch_pkms(actions)
 
         # set trainer attack order
-        first, second = self.__get_attack_order()
+        first, second = self.__get_attack_order(actions)
         first_team = self.teams[first]
         first_pkm = first_team.active
         second_team = self.teams[second]
@@ -154,7 +155,7 @@ class PkmBattleEngine(gym.Env):
 
     def __process_switch_pkms(self, actions: List[int]):
         """
-        Switch pokemons if players chosen to do so
+        Switch pkm if players chosen to do so.
 
         :param actions: players actions
         :return:
@@ -275,15 +276,19 @@ class PkmBattleEngine(gym.Env):
 
         return damage
 
-    def __get_attack_order(self) -> Tuple[int, int]:
+    def __get_attack_order(self, actions) -> Tuple[int, int]:
         """
         Get attack order for this turn.
         Priority is given to the pkm with highest speed_stage. Otherwise random.
 
         :return: tuple with first and second trainer to perform attack
         """
-        speed0 = self.teams[0].stage[PkmStat.SPEED]
-        speed1 = self.teams[1].stage[PkmStat.SPEED]
+        action0 = actions[0]
+        action1 = actions[1]
+        speed0 = self.teams[0].stage[PkmStat.SPEED] + (
+            self.teams[0].active.moves[action0].priority if action0 < N_MOVES else 0)
+        speed1 = self.teams[1].stage[PkmStat.SPEED] + (
+            self.teams[1].active.moves[action1].priority if action1 < N_MOVES else 0)
         if speed0 > speed1:
             order = [0, 1]
         elif speed1 < speed0:
@@ -360,13 +365,18 @@ class PkmBattleEngine(gym.Env):
                     e += one_hot(team.entry_hazard[hazard], N_HAZARD_STAGES)
             # party pkm
             for pos in range(len(self.team.party)):
-                e += one_hot(self.team.party[pos].type, N_TYPES)
-                e += [self.team.party[pos].hp / MAX_HIT_POINTS]
-                e += one_hot(self.team.party[pos].status, N_STATUS)
+                party = self.team.party[pos]
+                e += one_hot(party.type, N_TYPES)
+                e += [party.hp / MAX_HIT_POINTS]
+                e += one_hot(party.status, N_STATUS)
             # active moves
             for pos in range(len(self.team.active.moves)):
-                e += [self.team.active.moves[pos].power / MAX_HIT_POINTS]
-                e += one_hot(self.team.active.moves[pos].type, N_TYPES)
+                move = self.team.active.moves[pos]
+                e += [move.power / MAX_HIT_POINTS]
+                e += [move.acc]
+                e += [float(move.pp / MOVE_MAX_PP)]
+                e += [move.priority]
+                e += one_hot(move.type, N_TYPES)
             # weather
             e += one_hot(self.engine.weather, N_WEATHER)
             return e
@@ -460,6 +470,16 @@ class PkmBattleEngine(gym.Env):
         pkm = team.active
         move = pkm.moves[m_id]
 
+        if move.pp > 0:
+            move.pp -= 1
+        else:
+            move = Struggle
+
+        if move.acc <= random.random():
+            if self.debug:
+                self.log += 'MOVE: Trainer %s with %s fails %s\n' % (t_id, str(pkm), str(move))
+            return 0., 0.
+
         opp = not t_id
         opp_team = self.teams[opp]
         opp_pkm = opp_team.active
@@ -520,6 +540,8 @@ class PkmBattleEngine(gym.Env):
             recover = pkm.hp - before_hp
             if self.debug and recover > 0.:
                 self.log += 'RECOVER: recovers %s\n' % recover
+            elif self.debug and recover < 0.:
+                self.log += 'RECOIL DAMAGE: gets %s recoil damage\n' % recover
 
             # perform damage
             opp_pkm.hp -= damage_2_deal
