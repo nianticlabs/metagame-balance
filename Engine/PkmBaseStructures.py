@@ -104,6 +104,10 @@ class PkmMove:
         self.effect = effect
         self.priority = priority
 
+    def __str__(self):
+        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(
+            self.pp) + ", " + self.type.name + ", " + str(self.priority) + ")" if not self.name else self.name
+
     def reset(self):
         self.pp = self.max_pp
 
@@ -149,10 +153,6 @@ class PkmMove:
         if not s:
             return random.randrange(N_TYPES)
         return random.choice(s)
-
-    def __str__(self):
-        return "Move(" + PkmType(self.type).name + ", " + str(self.power) + ", " + str(
-            self.acc) + ")" if self.name == "" else self.name
 
 
 class Pkm:
@@ -361,8 +361,3 @@ class PkmTeam:
         for i in range(0, len(self.party)):
             party += str(self.party[i]) + '\n'
         return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)
-
-
-# Other Simple Structures
-PkmMovePool = List[PkmMove]
-PkmPool = List[Pkm]

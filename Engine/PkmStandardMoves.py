@@ -1,6 +1,6 @@
 import random
 
-from Engine.PkmBaseStructures import PkmMove, PkmType, WeatherCondition, PkmStat, PkmEntryHazard, PkmStatus, PkmMovePool
+from Engine.PkmBaseStructures import PkmMove, PkmType, WeatherCondition, PkmStat, PkmEntryHazard, PkmStatus
 
 # Struggle
 Struggle = PkmMove(max_pp=0, name="Struggle")
@@ -143,13 +143,13 @@ Moonblast = PkmMove(95., 1., 15, PkmType.FAIRY, "Moonblast",
                     lambda v: v.set_stage(PkmStat.ATTACK, -1, 1) if random.random() < .3 else None)
 
 # Standard Move Pool
-STANDARD_MOVE_POOL: PkmMovePool = [Recover, DoubleEdge, ExtremeSpeed, Slam, Tackle, SunnyDay, FireBlast, Flamethrower,
-                                   Ember, RainDance, HydroPump, AquaJet, BubbleBeam, ThunderWave, Thunder, Thunderbolt,
-                                   ThunderShock, Spore, GigaDrain, RazorLeaf, EnergyBall, Hail, Blizzard, IceBeam,
-                                   IceShard, BulkUp, MachPunch, CloseCombat, DynamicPunch, Poison, GunkShot, PoisonJab,
-                                   AcidSpray, Spikes, EarthPower, Earthquake, MudShot, Roost, Chatter, Hurricane,
-                                   WingAttack, CalmMind, Psychic, PsychoBoost, Psybeam, StringShot, BugBuzz, LeechLife,
-                                   SilverWind, Sandstorm, PowerGem, RockTomb, StoneEdge, NightShade, ShadowBall,
-                                   ShadowSneak, OminousWind, DragonRage, DracoMeteor, DragonBreath, Outrage, NastyPlot,
-                                   Crunch, Snarl, IronDefense, IronTail, SteelWing, BulletPunch, SweetKiss, PlayRough,
-                                   Moonblast]
+STANDARD_MOVE_POOL = [Recover, DoubleEdge, ExtremeSpeed, Slam, Tackle, SunnyDay, FireBlast, Flamethrower,
+                      Ember, RainDance, HydroPump, AquaJet, BubbleBeam, ThunderWave, Thunder, Thunderbolt,
+                      ThunderShock, Spore, GigaDrain, RazorLeaf, EnergyBall, Hail, Blizzard, IceBeam,
+                      IceShard, BulkUp, MachPunch, CloseCombat, DynamicPunch, Poison, GunkShot, PoisonJab,
+                      AcidSpray, Spikes, EarthPower, Earthquake, MudShot, Roost, Chatter, Hurricane,
+                      WingAttack, CalmMind, Psychic, PsychoBoost, Psybeam, StringShot, BugBuzz, LeechLife,
+                      SilverWind, Sandstorm, PowerGem, RockTomb, StoneEdge, NightShade, ShadowBall,
+                      ShadowSneak, OminousWind, DragonRage, DracoMeteor, DragonBreath, Outrage, NastyPlot,
+                      Crunch, Snarl, IronDefense, IronTail, SteelWing, BulletPunch, SweetKiss, PlayRough,
+                      Moonblast]
