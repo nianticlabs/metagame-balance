@@ -36,5 +36,5 @@ class SelectorAgent(Agent):
 class BuilderAgent(Agent):
 
     @abstractmethod
-    def get_action(self, s) -> PkmTeam():
+    def get_action(self, s) -> PkmTeam:
         pass

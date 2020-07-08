@@ -167,6 +167,9 @@ class Pkm:
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
 
     def reset(self):
+        """
+        Reset Pkm stats.
+        """
         self.hp = self.max_hp
         self.status = PkmStatus.NONE
         self.n_turns_asleep = 0
@@ -224,6 +227,9 @@ class PkmTeam:
         self.entry_hazard: List[int] = [0] * N_ENTRY_HAZARD
 
     def reset(self):
+        """
+        Reset all pkm status from team and active pkm conditions.
+        """
         self.active.reset()
         for pkm in self.party:
             pkm.reset()
@@ -355,3 +361,8 @@ class PkmTeam:
         for i in range(0, len(self.party)):
             party += str(self.party[i]) + '\n'
         return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)
+
+
+# Other Simple Structures
+PkmMovePool = List[PkmMove]
+PkmPool = List[Pkm]

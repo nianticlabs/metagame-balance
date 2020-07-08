@@ -4,7 +4,7 @@ import random
 import numpy as np
 from typing import List, Tuple
 
-from Engine.PkmMoves import Struggle
+from Engine.PkmStandardMoves import Struggle
 from Util.Encoding import one_hot
 from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, Pkm, \
     N_TYPES, N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER
