@@ -3,12 +3,12 @@ from Engine.Competition.CompetitionStructures import TreeChampionship, Competito
 from Engine.PkmPoolGenerator import StandardPkmPoolGenerator
 
 
-N_COMPETITORS = 8
+N_COMPETITORS = 16
 
 
 def main():
     pool_gen = StandardPkmPoolGenerator(10, 100)
-    competitors = [Competitor() for _ in range(N_COMPETITORS)]
+    competitors = [Competitor(name='Player ' + str(i)) for i in range(N_COMPETITORS)]
     tree_championship = TreeChampionship(pool_gen, competitors, debug=True)
     tree_championship.run()
 

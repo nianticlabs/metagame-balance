@@ -82,11 +82,15 @@ class PkmBattleEngine(gym.Env):
 
         # battle
         first_can_attack = active_not_fainted and not first_pkm.paralyzed() and not first_pkm.asleep() and not first_confusion_damage
+        if self.debug and not first_can_attack:
+            self.log += 'CANNOT MOVE: Trainer %d cannot move\n' % first
         dmg_2_second, hp_2_first = self.__perform_pkm_attack(first, actions[first]) if first_can_attack else (0., 0.)
 
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
 
         second_can_attack = active_not_fainted and not second_pkm.paralyzed() and not second_pkm.asleep() and not second_confusion_damage
+        if self.debug and not second_can_attack:
+            self.log += 'CANNOT MOVE: Trainer %d cannot move\n' % second
         dmg_2_first, hp_2_second = self.__perform_pkm_attack(second, actions[second]) if second_can_attack else (0., 0.)
 
         r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / MAX_HIT_POINTS + float(second_pkm.fainted())
@@ -414,7 +418,7 @@ class PkmBattleEngine(gym.Env):
                 pkm.status = PkmStatus.POISONED
                 if self.__engine.debug:
                     self.__engine.log += 'STATUS: %s was poisoned\n' % (str(pkm))
-            elif pkm.status != PkmStatus.SLEEP:
+            elif status == PkmStatus.SLEEP and pkm.status != PkmStatus.SLEEP:
                 pkm.status = PkmStatus.SLEEP
                 pkm.n_turns_asleep = 0
                 if self.__engine.debug:
@@ -426,7 +430,7 @@ class PkmBattleEngine(gym.Env):
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             assert delta_stage != 0
-            team = self._teams[t_id]
+            team = self.__engine.teams[t_id]
             if MIN_STAGE < team.stage[stat] < MAX_STAGE:
                 team.stage[stat] += delta_stage
                 if self.__engine.debug:
@@ -434,7 +438,7 @@ class PkmBattleEngine(gym.Env):
                         str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
 
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
-            team = self._teams[t_id]
+            team = self.__engine.teams[t_id]
             team.entry_hazard[hazard] += 1
             if team.entry_hazard[hazard] >= N_HAZARD_STAGES:
                 team.entry_hazard[hazard] = N_HAZARD_STAGES - 1
@@ -474,7 +478,7 @@ class PkmBattleEngine(gym.Env):
 
         if move.acc <= random.random():
             if self.debug:
-                self.log += 'MOVE: Trainer %s with %s fails %s\n' % (t_id, str(pkm), str(move))
+                self.log += 'MOVE FAILS: Trainer %s with %s fails %s\n' % (t_id, str(pkm), str(move))
             return 0., 0.
 
         opp = not t_id
@@ -538,7 +542,7 @@ class PkmBattleEngine(gym.Env):
             if self.debug and recover > 0.:
                 self.log += 'RECOVER: recovers %s\n' % recover
             elif self.debug and recover < 0.:
-                self.log += 'RECOIL DAMAGE: gets %s recoil damage\n' % recover
+                self.log += 'RECOIL DAMAGE: gets %s recoil damage\n' % -recover
 
             # perform damage
             opp_pkm.hp -= damage_2_deal

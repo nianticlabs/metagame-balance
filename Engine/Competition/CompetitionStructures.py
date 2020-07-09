@@ -116,12 +116,18 @@ class MatchHandlerTree:
                 self.match = Match(competitor0=self.prev_mh0.winner, competitor1=self.prev_mh1.winner,
                                    debug=enable_debug)
 
+            if enable_debug:
+                print(self.match.competitors[0].name + ' vs ' + self.match.competitors[1].name + '\n')
+
             self.match.run()
             wins: List[int] = self.match.records()
             if wins[0] > wins[1]:
                 self.winner = self.match.competitors[0]
             else:
                 self.winner = self.match.competitors[1]
+
+            if enable_debug:
+                print(self.winner.name + ' wins' + '\n')
 
     def __init__(self, competitors: List[Competitor], enable_debug: bool = False):
         self.competitors = competitors
@@ -166,7 +172,7 @@ class TreeChampionship(Championship):
         self.competitors: List[Competitor] = competitors
         copy_participants = self.competitors.copy()
         random.shuffle(copy_participants)
-        self.match_tree = MatchHandlerTree(copy_participants)
+        self.match_tree = MatchHandlerTree(copy_participants, debug)
         self.match_tree.build_tree()
         self.pool_generator = pool_generator
         self.pool = self.pool_generator.get_pool()
