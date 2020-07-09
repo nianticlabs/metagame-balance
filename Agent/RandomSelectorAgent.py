@@ -3,7 +3,7 @@ from typing import List
 from Engine.PkmConstants import MAX_TEAM_SIZE, DEFAULT_SELECTION_SIZE
 import random
 
-from Player.Abstract.Agent import SelectorAgent
+from Agent.Abstract.Agent import SelectorAgent
 
 
 class RandomSelectorAgent(SelectorAgent):

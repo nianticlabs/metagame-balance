@@ -3,7 +3,7 @@ from typing import List
 from Engine.PkmBattleEngine import N_MOVES, N_SWITCHES
 import numpy as np
 
-from Player.Abstract.Agent import BattleAgent
+from Agent.Abstract.Agent import BattleAgent
 
 SWITCH_PROBABILITY = .15
 

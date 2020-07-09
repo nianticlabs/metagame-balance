@@ -1,8 +1,8 @@
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
-from Player.HeuristicBattleAgent import HeuristicBattleAgent
-from Player.GUIBattleAgent import GUIBattleAgent
-from Player.RandomBattleAgent import RandomBattleAgent
+from Agent.HeuristicBattleAgent import HeuristicBattleAgent
+from Agent.GUIBattleAgent import GUIBattleAgent
+from Agent.RandomBattleAgent import RandomBattleAgent
 from Util.Recorder import Recorder
 
 

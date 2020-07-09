@@ -1,7 +1,7 @@
 from Engine.PkmMatchEngine import PkmMatchEngine
-from Player.GUISelectorAgent import GUISelectorAgent
-from Player.RandomBattleAgent import RandomBattleAgent
-from Player.RandomSelectorAgent import RandomSelectorAgent
+from Agent.GUISelectorAgent import GUISelectorAgent
+from Agent.RandomBattleAgent import RandomBattleAgent
+from Agent.RandomSelectorAgent import RandomSelectorAgent
 from Util.Recorder import Recorder
 
 

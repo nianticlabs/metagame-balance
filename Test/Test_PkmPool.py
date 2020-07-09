@@ -1,3 +1,4 @@
+from Agent.RandomBuilderAgent import RandomBuilderAgent
 from Engine.PkmPoolGenerator import StandardPkmPoolGenerator
 
 
@@ -7,6 +8,10 @@ def main():
     for pt in pool:
         print(pt)
         print()
+
+    a = RandomBuilderAgent()
+    t = a.get_action(pool)
+    print(t)
 
 
 if __name__ == '__main__':

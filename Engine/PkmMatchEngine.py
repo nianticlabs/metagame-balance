@@ -4,7 +4,7 @@ from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmConstants import DEFAULT_MATCH_N
 from Engine.PkmTeamGenerator import RandomGenerator, FixedTeamSelector
-from Player.Abstract.Agent import BattleAgent
+from Agent.Abstract.Agent import BattleAgent
 
 
 class PkmMatchEngine(gym.Env):

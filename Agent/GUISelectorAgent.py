@@ -4,7 +4,7 @@ from Engine.PkmBaseStructures import PkmTeam
 from Engine.PkmConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
 
-from Player.Abstract.Agent import SelectorAgent
+from Agent.Abstract.Agent import SelectorAgent
 
 
 class GUISelectorAgent(SelectorAgent):

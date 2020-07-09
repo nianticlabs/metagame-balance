@@ -1,9 +1,9 @@
 from Engine.Competition.CompetitionStructures import Competitor, Match
 from Engine.PkmTeamGenerator import RandomGenerator
-from Player.GUIBattleAgent import GUIBattleAgent
-from Player.GUISelectorAgent import GUISelectorAgent
-from Player.RandomBattleAgent import RandomBattleAgent
-from Player.RandomSelectorAgent import RandomSelectorAgent
+from Agent.GUIBattleAgent import GUIBattleAgent
+from Agent.GUISelectorAgent import GUISelectorAgent
+from Agent.RandomBattleAgent import RandomBattleAgent
+from Agent.RandomSelectorAgent import RandomSelectorAgent
 
 
 def main():

@@ -5,7 +5,7 @@ import random
 
 from Engine.PkmBaseStructures import PkmTeam, Pkm, PkmType, PkmMove
 from Engine.PkmConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
-from Player.Abstract.Agent import SelectorAgent
+from Agent.Abstract.Agent import SelectorAgent
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS

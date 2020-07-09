@@ -5,7 +5,7 @@ from Engine.PkmBattleEngine import TYPE_CHART_MULTIPLIER, PkmBattleEngine
 from Engine.PkmConstants import N_MOVES
 import numpy as np
 
-from Player.Abstract.Agent import BattleAgent
+from Agent.Abstract.Agent import BattleAgent
 
 
 class HeuristicBattleAgent(BattleAgent):
