@@ -1,0 +1,17 @@
+from Agent.RandomBuilderAgent import RandomBuilderAgent
+from Engine.Competition.CompetitionStructures import TreeChampionship, Competitor
+from Engine.PkmPoolGenerator import StandardPkmPoolGenerator
+
+
+N_COMPETITORS = 8
+
+
+def main():
+    pool_gen = StandardPkmPoolGenerator(10, 100)
+    competitors = [Competitor() for _ in range(N_COMPETITORS)]
+    tree_championship = TreeChampionship(pool_gen, competitors, debug=True)
+    tree_championship.run()
+
+
+if __name__ == '__main__':
+    main()

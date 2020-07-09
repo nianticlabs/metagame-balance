@@ -121,9 +121,8 @@ class PkmBattleEngine(gym.Env):
             self.winner = 1 if t[0] else 0
 
             if self.debug:
-                self.log += '\nTRAINER %s %s\n%s\n' % (
-                    0, 'Lost' if self.teams[0].fainted() else 'Won', str(self.teams[0]))
-                self.log += 'TRAINER %s %s\n%s' % (1, 'Lost' if self.teams[1].fainted() else 'Won', str(self.teams[1]))
+                self.log += '\nTRAINER %s %s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won')
+                self.log += 'TRAINER %s %s\n' % (1, 'Lost' if self.teams[1].fainted() else 'Won')
 
         return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, finished, self.trainer_view
 
@@ -145,7 +144,7 @@ class PkmBattleEngine(gym.Env):
             trainer_view.reset()
 
         if self.debug:
-            self.log += 'TRAINER 0\n' + str(self.teams[0])
+            self.log = 'TRAINER 0\n' + str(self.teams[0])
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
         return [self.trainer_view[0].encode(), self.trainer_view[1].encode()]
@@ -390,8 +389,6 @@ class PkmBattleEngine(gym.Env):
             self.__engine = engine
             self.damage: float = 0.
             self.recover: float = 0.
-            self._teams: List[PkmTeam] = []
-            self._active: List[Pkm] = []
 
         def set_weather(self, weather: WeatherCondition):
             if weather != self.__engine.weather:
@@ -407,8 +404,8 @@ class PkmBattleEngine(gym.Env):
             self.recover = recover
 
         def set_status(self, status: PkmStatus, t_id: int = 1):
-            pkm = self._active[t_id]
-            team = self._teams[t_id]
+            pkm = self.__engine.teams[t_id].active
+            team = self.__engine.teams[t_id]
             if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
                 if self.__engine.debug:
@@ -431,7 +428,7 @@ class PkmBattleEngine(gym.Env):
             assert delta_stage != 0
             team = self._teams[t_id]
             if MIN_STAGE < team.stage[stat] < MAX_STAGE:
-                team.stage += delta_stage
+                team.stage[stat] += delta_stage
                 if self.__engine.debug:
                     self.__engine.log += 'STAGE: %s %s %s\n' % (
                         str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
@@ -439,8 +436,8 @@ class PkmBattleEngine(gym.Env):
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
             team = self._teams[t_id]
             team.entry_hazard[hazard] += 1
-            if team.entry_hazard[hazard] > N_HAZARD_STAGES:
-                team.entry_hazard[hazard] = N_HAZARD_STAGES
+            if team.entry_hazard[hazard] >= N_HAZARD_STAGES:
+                team.entry_hazard[hazard] = N_HAZARD_STAGES - 1
             elif self.__engine.debug:
                 self.__engine.log += 'ENTRY HAZARD: Trainer %s gets spikes\n' % (str(t_id))
 

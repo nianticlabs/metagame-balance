@@ -56,7 +56,7 @@ class StandardPkmPoolGenerator(PkmPoolGenerator):
                 base_move_pool.remove(m)
             move_pool: PkmMovePool = moves
             for _ in range(self.n_moves_pkm - 1):
-                if random.random() < .5:
+                if random.random() < .2:
                     m_type: PkmType = random.choice(LIST_OF_TYPES)
                     m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
                     move = PkmMove(power=m_power, move_type=m_type)

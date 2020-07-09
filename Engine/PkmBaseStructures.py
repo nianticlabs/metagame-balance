@@ -105,8 +105,7 @@ class PkmMove:
         self.priority = priority
 
     def __str__(self):
-        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(
-            self.pp) + ", " + self.type.name + ", " + str(self.priority) + ")" if not self.name else self.name
+        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + str(self.priority) + ")" if not self.name else self.name
 
     def reset(self):
         self.pp = self.max_pp
@@ -209,7 +208,7 @@ class Pkm:
         return self.status == PkmStatus.FROZEN
 
     def __str__(self):
-        return 'Pokemon(' + PkmType(self.type).name + ', ' + str(self.hp) + ' HP , ' + PkmStatus(
+        return 'Pokemon(' + PkmType(self.type).name + ', ' + str(self.hp) + ' HP, ' + PkmStatus(
             self.status).name + ', ' + str(self.moves[0]) + ', ' + str(self.moves[1]) + ', ' + str(
             self.moves[2]) + ', ' + str(self.moves[3]) + ')'
 

@@ -15,7 +15,7 @@ MOVE_POWER_MAX = 120.
 
 # move power point
 MOVE_MAX_PP = 20
-MOVE_MED_PP = MOVE_MAX_PP / 2
+MOVE_MED_PP = MOVE_MAX_PP // 2
 
 # number actions
 N_MOVES = 4
