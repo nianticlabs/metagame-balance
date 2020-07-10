@@ -197,7 +197,7 @@ class Pkm:
 
         :return: true if pkm is asleep and cannot move
         """
-        return self.status == PkmStatus.SLEEP and np.random.uniform(0, 1) <= 0.33
+        return self.status == PkmStatus.SLEEP
 
     def frozen(self) -> bool:
         """

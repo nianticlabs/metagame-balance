@@ -165,11 +165,16 @@ class PkmBattleEngine(gym.Env):
         """
         for i, team in enumerate(self.teams):
             pos = actions[i] - N_MOVES
-            if 0 <= pos < (team.size() - 1) and not team.party[pos].fainted():
-                new_active, old_active = team.switch(pos)
-                self.switched[i] = True
-                if self.debug:
-                    self.log += 'SWITCH: Trainer %s switches %s with %s in party\n' % (i, old_active, new_active)
+            if 0 <= pos < (team.size() - 1):
+                if not team.party[pos].fainted():
+                    new_active, old_active = team.switch(pos)
+                    self.switched[i] = True
+                    if self.debug:
+                        self.log += 'SWITCH: Trainer %s switches %s with %s in party\n' % (i, old_active, new_active)
+                elif self.debug:
+                    self.log += 'SWITCH FAILED: Trainer %d fails to switch\n' % i
+            elif self.debug and pos >= (team.size() - 1):
+                self.log += 'INVALID SWITCH: Trainer %d fails to switch\n' % i
 
     def __get_entry_hazard_damage(self, t_id: int) -> float:
         """
@@ -523,7 +528,7 @@ class PkmBattleEngine(gym.Env):
             stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
             damage = TYPE_CHART_MULTIPLIER[move.type][opp_pkm.type] * stab * weather * stage * move.power
 
-        return damage, recover
+        return round(damage), round(recover)
 
     def __perform_pkm_attack(self, t_id: int, m_id: int) -> Tuple[float, float]:
         """
