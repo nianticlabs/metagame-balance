@@ -8,7 +8,7 @@ from Agent.RandomSelectorAgent import RandomSelectorAgent
 
 def main():
     rg = RandomGenerator()
-    c0 = Competitor(rg.get_team(), RandomBattleAgent(), RandomSelectorAgent())
+    c0 = Competitor(rg.get_team(), GUIBattleAgent(), GUISelectorAgent())
     c1 = Competitor(rg.get_team(), RandomBattleAgent(), RandomSelectorAgent())
     m = Match(c0, c1, debug=True)
     m.run()
