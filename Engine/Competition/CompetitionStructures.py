@@ -59,13 +59,13 @@ class Match:
         r = Recorder(name="random_agent")
         game = 0
         while game < self.n_games:
+            game += 1
             if self.debug:
                 print('GAME ' + str(game) + '\n')
             s = env.reset()
             v = env.trainer_view
             if self.debug:
                 env.render()
-            game += 1
             while not t:
                 o0 = s[0] if a0.requires_encode() else v[0]
                 o1 = s[1] if a1.requires_encode() else v[1]

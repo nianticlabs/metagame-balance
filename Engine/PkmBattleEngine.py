@@ -6,8 +6,8 @@ from typing import List, Tuple
 
 from Engine.PkmStandardMoves import Struggle
 from Util.Encoding import one_hot
-from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, Pkm, \
-    N_TYPES, N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER
+from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, N_TYPES, \
+    N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER, Pkm
 from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
     TYPE_CHART_MULTIPLIER, MOVE_MAX_PP
 from Engine.PkmTeamGenerator import PkmTeamGenerator
@@ -391,8 +391,10 @@ class PkmBattleEngine(gym.Env):
 
         def __init__(self, engine):
             self.__engine = engine
-            self.damage: float = 0.
-            self.recover: float = 0.
+            self._damage: float = 0.
+            self._recover: float = 0.
+            self._team: List[PkmTeam] = []
+            self._active: List[Pkm] = []
 
         def set_weather(self, weather: WeatherCondition):
             if weather != self.__engine.weather:
@@ -402,14 +404,14 @@ class PkmBattleEngine(gym.Env):
                     self.__engine.log += 'STATE: The weather is now %s\n' % weather.name
 
         def set_fixed_damage(self, damage: float):
-            self.damage = damage
+            self._damage = damage
 
         def set_recover(self, recover: float):
-            self.recover = recover
+            self._recover = recover
 
         def set_status(self, status: PkmStatus, t_id: int = 1):
-            pkm = self.__engine.teams[t_id].active
-            team = self.__engine.teams[t_id]
+            pkm = self._active[t_id]
+            team = self._team[t_id]
             if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
                 if self.__engine.debug:
@@ -430,7 +432,7 @@ class PkmBattleEngine(gym.Env):
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             assert delta_stage != 0
-            team = self.__engine.teams[t_id]
+            team = self._team[t_id]
             if MIN_STAGE < team.stage[stat] < MAX_STAGE:
                 team.stage[stat] += delta_stage
                 if self.__engine.debug:
@@ -445,14 +447,22 @@ class PkmBattleEngine(gym.Env):
             elif self.__engine.debug:
                 self.__engine.log += 'ENTRY HAZARD: Trainer %s gets spikes\n' % (str(t_id))
 
+        @property
+        def recover(self):
+            return self._recover
+
+        @property
+        def damage(self):
+            return self._damage
+
     def __get_fixed_damage(self) -> float:
         damage = self.move_view.damage
-        self.move_view.__damage = 0.
+        self.move_view._damage = 0.
         return damage
 
     def __get_recover(self) -> float:
         recover = self.move_view.recover
-        self.move_view.__recover = 0.
+        self.move_view._recover = 0.
         return recover
 
     def __create_pkm_move_view(self):
@@ -488,8 +498,8 @@ class PkmBattleEngine(gym.Env):
         if self.debug:
             self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move))
 
-        self.move_view._teams = [team, opp_team]
-        self.move_view.pkm = [pkm, opp_pkm]
+        self.move_view._team = [team, opp_team]
+        self.move_view._active = [pkm, opp_pkm]
         move.effect(self.move_view)
 
         # set recover
