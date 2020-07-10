@@ -69,7 +69,7 @@ class GUIBattleAgent(BattleAgent):
         # moves
         for i in range(s.get_n_moves()):
             move_power, move_type, move_name = s.get_active_move(i)
-            self.moves[i].Update(str(PkmMove(move_power, move_type, move_name)))
+            self.moves[i].Update(str(PkmMove(power=move_power, move_type=move_type, name=move_name)))
         event, values = self.window.read()
         return self.__event_to_action(event)
 
