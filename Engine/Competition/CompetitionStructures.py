@@ -1,6 +1,6 @@
 import random
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 
 from Agent.RandomBattleAgent import RandomBattleAgent
 from Agent.RandomBuilderAgent import RandomBuilderAgent
