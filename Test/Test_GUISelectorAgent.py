@@ -1,6 +1,6 @@
+from Agent.GUISelectorAgent import GUISelectorAgent
 from Engine.PkmBattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
-from Player.GUISelectorAgent import GUISelectorAgent
 
 
 def main():

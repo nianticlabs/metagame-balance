@@ -1,4 +1,3 @@
-from Agent.RandomBuilderAgent import RandomBuilderAgent
 from Engine.Competition.CompetitionStructures import TreeChampionship, Competitor
 from Engine.PkmPoolGenerator import StandardPkmPoolGenerator
 

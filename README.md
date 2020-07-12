@@ -1,2 +1,2 @@
-# Simplified Pokemon Environment
+# Pokemon VGC Engine
 
