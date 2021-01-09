@@ -2,31 +2,31 @@ import random
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
-from Agent.RandomBattleAgent import RandomBattleAgent
-from Agent.RandomBuilderAgent import RandomBuilderAgent
-from Agent.RandomSelectorAgent import RandomSelectorAgent
-from Engine.PkmBaseStructures import PkmTeam
-from Engine.PkmBattleEngine import PkmBattleEngine
-from Engine.PkmConstants import DEFAULT_MATCH_N
+from Behaviour.RandomBattleAgent import RandomBattleAgent
+from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
+from Behaviour.RandomSelectorAgent import RandomSelectorAgent
+from Engine.DataObjects import PkmTeam
+from Engine.BattleEngine import PkmBattleEngine
+from Engine.DataConstants import DEFAULT_MATCH_N
 from Engine.PkmPoolGenerator import PkmPoolGenerator
 from Engine.PkmTeamGenerator import TeamSelector
-from Agent.Abstract.Agent import BattleAgent, SelectorAgent, BuilderAgent
+from Behaviour.Abstract.Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy
 from Util.Recorder import Recorder
 
 random_battle_agent = RandomBattleAgent()
 random_selector_agent = RandomSelectorAgent()
-random_builder_agent = RandomBuilderAgent()
+random_builder_agent = RandomTeamBuilderPolicy()
 
 
 class Competitor:
 
-    def __init__(self, team: PkmTeam = PkmTeam(), battle_agent: BattleAgent = random_battle_agent,
-                 selection_agent: SelectorAgent = random_selector_agent,
-                 builder_agent: BuilderAgent = random_builder_agent, name: str = ""):
+    def __init__(self, team: PkmTeam = PkmTeam(), battle_agent: BattlePolicy = random_battle_agent,
+                 selection_agent: SelectorPolicy = random_selector_agent,
+                 builder_agent: TeamBuilderPolicy = random_builder_agent, name: str = ""):
         self.team: PkmTeam = team
-        self.battle_agent: BattleAgent = battle_agent
-        self.selection_agent: SelectorAgent = selection_agent
-        self.builder_agent: BuilderAgent = builder_agent
+        self.battle_agent: BattlePolicy = battle_agent
+        self.selection_agent: SelectorPolicy = selection_agent
+        self.builder_agent: TeamBuilderPolicy = builder_agent
         self.name = name
 
     def __str__(self):

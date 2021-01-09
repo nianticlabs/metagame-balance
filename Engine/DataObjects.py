@@ -2,87 +2,13 @@ import random
 from enum import IntEnum
 import numpy as np
 
-from Engine.PkmConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
+from Engine.DataTypes import PkmType, null_effect, PkmStatus, N_TYPES, N_STATS, N_ENTRY_HAZARD
+from Engine.DataConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
 from typing import List, Tuple
 
 # Pokemon Typing
+from Engine.PkmPoolGenerator import PkmTemplate
 from Util.Encoding import one_hot
-
-
-class PkmType(IntEnum):
-    NORMAL = 0
-    FIRE = 1
-    WATER = 2
-    ELECTRIC = 3
-    GRASS = 4
-    ICE = 5
-    FIGHT = 6
-    POISON = 7
-    GROUND = 8
-    FLYING = 9
-    PSYCHIC = 10
-    BUG = 11
-    ROCK = 12
-    GHOST = 13
-    DRAGON = 14
-    DARK = 15
-    STEEL = 16
-    FAIRY = 17
-
-
-N_TYPES = len(list(map(int, PkmType)))
-
-
-# Battle Weather conditions
-class WeatherCondition(IntEnum):
-    CLEAR = 0
-    SUNNY = 1
-    RAIN = 2
-    SANDSTORM = 3
-    HAIL = 4
-
-
-N_WEATHER = len(list(map(int, WeatherCondition)))
-
-
-# Pokemon battle status
-class PkmStatus(IntEnum):
-    NONE = 0
-    PARALYZED = 1
-    POISONED = 2
-    CONFUSED = 3
-    SLEEP = 4
-    FROZEN = 5
-    BURNED = 6
-
-
-N_STATUS = len(list(map(int, PkmStatus)))
-
-
-# Pokemon battle stats
-class PkmStat(IntEnum):
-    ATTACK = 0
-    DEFENSE = 1
-    SPEED = 2
-
-
-N_STATS = len(list(map(int, PkmStat)))
-MAX_STAGE = 5
-MIN_STAGE = -5
-N_STAGES = MAX_STAGE - MIN_STAGE + 1
-
-
-# Pokemon battle stats
-class PkmEntryHazard(IntEnum):
-    SPIKES = 0
-
-
-N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))
-N_HAZARD_STAGES = 3
-
-
-def null_effect(view):
-    pass
 
 
 class PkmMove:
@@ -211,6 +137,9 @@ class Pkm:
         return 'Pokemon(' + PkmType(self.type).name + ', ' + str(self.hp) + ' HP, ' + PkmStatus(
             self.status).name + ', ' + str(self.moves[0]) + ', ' + str(self.moves[1]) + ', ' + str(
             self.moves[2]) + ', ' + str(self.moves[3]) + ')'
+
+
+PkmRoster = List[PkmTemplate]
 
 
 class PkmTeam:

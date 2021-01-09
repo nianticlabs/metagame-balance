@@ -1,13 +1,13 @@
 import random
 from typing import List
 
-from Agent.Abstract.Agent import BuilderAgent
-from Engine.PkmBaseStructures import PkmTeam, Pkm
-from Engine.PkmConstants import N_MOVES, MAX_TEAM_SIZE
-from Engine.PkmPoolGenerator import PkmPool, PkmTemplate
+from Behaviour.Abstract.Behaviour import TeamBuilderPolicy
+from Engine.DataObjects import PkmTeam, Pkm
+from Engine.DataConstants import N_MOVES, MAX_TEAM_SIZE
+from Engine.PkmPoolGenerator import PkmRoster, PkmTemplate
 
 
-class RandomBuilderAgent(BuilderAgent):
+class RandomTeamBuilderPolicy(TeamBuilderPolicy):
 
     def requires_encode(self) -> bool:
         return False
@@ -16,7 +16,7 @@ class RandomBuilderAgent(BuilderAgent):
         pass
 
     def get_action(self, s) -> PkmTeam:
-        p: PkmPool = s
+        p: PkmRoster = s
         pre_selection: List[PkmTemplate] = random.sample(p, MAX_TEAM_SIZE)
         team: List[Pkm] = []
         for pt in pre_selection:

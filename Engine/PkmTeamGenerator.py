@@ -3,9 +3,9 @@ from typing import List, Tuple
 
 import random
 
-from Engine.PkmBaseStructures import PkmTeam, Pkm, PkmType, PkmMove
-from Engine.PkmConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
-from Agent.Abstract.Agent import SelectorAgent
+from Engine.DataObjects import PkmTeam, Pkm, PkmType, PkmMove
+from Engine.DataConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
+from Behaviour.Abstract.Behaviour import SelectorPolicy
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS
@@ -63,12 +63,12 @@ class FixedGenerator(PkmTeamGenerator):
 
 class TeamSelector(PkmTeamGenerator):
 
-    def __init__(self, team0: PkmTeam, team1: PkmTeam, selector_0: SelectorAgent, selector_1: SelectorAgent):
+    def __init__(self, team0: PkmTeam, team1: PkmTeam, selector_0: SelectorPolicy, selector_1: SelectorPolicy):
         self.teams = team0, team1
         team_view_0 = self.teams[0].create_team_view()
         team_view_1 = self.teams[1].create_team_view()
         self.team_views = (team_view_1[0], team_view_0[1]), (team_view_0[0], team_view_1[1])
-        self.selector: Tuple[SelectorAgent, SelectorAgent] = (selector_0, selector_1)
+        self.selector: Tuple[SelectorPolicy, SelectorPolicy] = (selector_0, selector_1)
 
     def get_team(self, t_id: int = 0) -> PkmTeam:
         pkm_ids = self.selector[t_id].get_action(self.team_views[t_id])

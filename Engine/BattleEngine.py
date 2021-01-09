@@ -1,22 +1,24 @@
 import gym
-from gym import spaces
 import random
 import numpy as np
-from typing import List, Tuple
 
-from Engine.PkmStandardMoves import Struggle
-from Util.Encoding import one_hot
-from Engine.PkmBaseStructures import WeatherCondition, PkmType, PkmStatus, PkmTeam, PkmStat, PkmEntryHazard, N_TYPES, \
-    N_STATUS, N_STATS, MIN_STAGE, MAX_STAGE, N_STAGES, N_HAZARD_STAGES, N_ENTRY_HAZARD, N_WEATHER, Pkm
-from Engine.PkmConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
+from gym import spaces
+from typing import List, Tuple
+from Engine.DataTypes import WeatherCondition, PkmEntryHazard, PkmStat, N_STATUS, N_STAGES, N_HAZARD_STAGES, N_WEATHER, \
+    MAX_STAGE, MIN_STAGE
+from Engine.StandardPkmMoves import Struggle
+from Engine.DataObjects import PkmType, PkmStatus, PkmTeam, N_TYPES, N_STATS, N_ENTRY_HAZARD, Pkm
+from Engine.DataConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
     TYPE_CHART_MULTIPLIER, MOVE_MAX_PP
 from Engine.PkmTeamGenerator import PkmTeamGenerator
+from Util.Encoding import one_hot
 
 
 class PkmBattleEngine(gym.Env):
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
 
         # random active pokemon
+        self.team_view = None
         if teams is None:
             self.teams: List[PkmTeam] = [PkmTeam(), PkmTeam()]
         else:
@@ -270,7 +272,7 @@ class PkmBattleEngine(gym.Env):
             self.log += 'STATE DAMAGE: %s takes %s weather damage from sandstorm/hail hp reduces from %s to %s\n' % (
                 str(pkm), damage, before_hp, pkm.hp)
 
-        if pkm.status == PkmStatus.POISONED:
+        if pkm.status == PkmStatus.POISONED or pkm.status == PkmStatus.BURNED:
             state_damage = STATE_DAMAGE
 
             before_hp = pkm.hp
@@ -278,7 +280,7 @@ class PkmBattleEngine(gym.Env):
             pkm.hp = 0. if pkm.hp < 0. else pkm.hp
             damage = before_hp - pkm.hp
 
-            if self.debug and damage > 0.:
+            if self.debug and damage > 0.:  # TODO burned and frozen
                 self.log += 'STATE DAMAGE: %s takes %s state damage from poison, hp reduces from %s to %s\n' % (
                     str(pkm), damage, before_hp, pkm.hp)
 

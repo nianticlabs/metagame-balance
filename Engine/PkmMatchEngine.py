@@ -1,15 +1,15 @@
 import gym
 
-from Engine.PkmBaseStructures import PkmTeam
-from Engine.PkmBattleEngine import PkmBattleEngine
-from Engine.PkmConstants import DEFAULT_MATCH_N
+from Engine.DataObjects import PkmTeam
+from Engine.BattleEngine import PkmBattleEngine
+from Engine.DataConstants import DEFAULT_MATCH_N
 from Engine.PkmTeamGenerator import RandomGenerator, FixedTeamSelector
-from Agent.Abstract.Agent import BattleAgent
+from Behaviour.Abstract.Behaviour import BattlePolicy
 
 
 class PkmMatchEngine(gym.Env):
 
-    def __init__(self, a0: BattleAgent, a1: BattleAgent, n_games: int = DEFAULT_MATCH_N, debug: bool = False):
+    def __init__(self, a0: BattlePolicy, a1: BattlePolicy, n_games: int = DEFAULT_MATCH_N, debug: bool = False):
         self.team0 = PkmTeam()
         self.team1 = PkmTeam()
         self.rand_generator = RandomGenerator()

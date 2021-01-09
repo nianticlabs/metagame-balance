@@ -1,13 +1,13 @@
 from typing import List
+from Behaviour.Abstract.Behaviour import SelectorPolicy
+from Engine.DataObjects import PkmTeam
+from Engine.DataConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 
-from Engine.PkmBaseStructures import PkmTeam
-from Engine.PkmConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
+import random
 
-from Agent.Abstract.Agent import SelectorAgent
 
-
-class GUISelectorAgent(SelectorAgent):
+class GUISelectorPolicy(SelectorPolicy):
 
     def __init__(self, selected_team_size: int = DEFAULT_SELECTION_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
@@ -68,3 +68,21 @@ class GUISelectorAgent(SelectorAgent):
 
     def close(self):
         self.window.close()
+
+
+class RandomSelectorAgent(SelectorPolicy):
+
+    def __init__(self, teams_size: int = MAX_TEAM_SIZE, selection_size: int = DEFAULT_SELECTION_SIZE):
+        self.teams_size = teams_size
+        self.selection_size = selection_size
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def get_action(self, s) -> List[int]:
+        ids = [i for i in range(self.teams_size)]
+        random.shuffle(ids)
+        return ids[:self.selection_size]
+
+    def close(self):
+        pass

@@ -1,6 +1,6 @@
 import random
 
-from Engine.PkmBaseStructures import PkmMove, PkmType, WeatherCondition, PkmStat, PkmEntryHazard, PkmStatus
+from Engine.DataObjects import PkmMove, PkmType, WeatherCondition, PkmStat, PkmEntryHazard, PkmStatus
 
 # Struggle
 Struggle = PkmMove(max_pp=0, name="Struggle")
@@ -131,7 +131,7 @@ Snarl = PkmMove(55., .95, 15, PkmType.DARK, "Snarl", lambda v: v.set_stage(PkmSt
 IronDefense = PkmMove(0., 1., 5, PkmType.STEEL, "Iron Defense", lambda v: v.set_stage(PkmStat.DEFENSE, 2, 0))
 IronTail = PkmMove(100., .75, 15, PkmType.STEEL, "Iron Tail",
                    lambda v: v.set_stage(PkmStat.DEFENSE, -1, 1) if random.random() < .3 else None)
-SteelWing = PkmMove(70., .9, 25, PkmType.STEEL, "Steel Wing",
+SteelWing = PkmMove(70., .9, 20, PkmType.STEEL, "Steel Wing",
                     lambda v: v.set_stage(PkmStat.DEFENSE, 1, 0) if random.random() < .1 else None)
 BulletPunch = PkmMove(40., 1., 20, PkmType.STEEL, "Bullet Punch", priority=True)
 

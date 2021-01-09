@@ -1,8 +1,8 @@
-from Engine.PkmBattleEngine import PkmBattleEngine
+from Engine.BattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
-from Agent.HeuristicBattleAgent import HeuristicBattleAgent
-from Agent.GUIBattleAgent import GUIBattleAgent
-from Agent.RandomBattleAgent import RandomBattleAgent
+from Behaviour.BattlePolicies import HeuristicBattlePolicy
+from Behaviour.BattlePolicies import GUIBattlePolicy
+from Behaviour.RandomBattleAgent import RandomBattleAgent
 from Util.Recorder import Recorder
 
 
@@ -11,7 +11,7 @@ def main():
     env.set_team_generator(RandomGenerator())
     env.reset()  # set correct team size for get_n_party
     t = False
-    a0 = GUIBattleAgent(env.trainer_view[0].get_n_party())
+    a0 = GUIBattlePolicy(env.trainer_view[0].get_n_party())
     a1 = RandomBattleAgent()
     r = Recorder(name="random_agent")
     ep = 0

@@ -1,5 +1,5 @@
-from Agent.GUISelectorAgent import GUISelectorAgent
-from Engine.PkmBattleEngine import PkmBattleEngine
+from Behaviour.SelectorPolicies import GUISelectorPolicy
+from Engine.BattleEngine import PkmBattleEngine
 from Engine.PkmTeamGenerator import RandomGenerator
 
 
@@ -8,7 +8,7 @@ def main():
     env.set_team_generator(RandomGenerator())
     env.reset()
     v0, v1 = env.team_view
-    a = GUISelectorAgent()
+    a = GUISelectorPolicy()
     print(a.get_action(v0))
 
 

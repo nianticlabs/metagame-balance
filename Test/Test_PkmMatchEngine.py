@@ -1,7 +1,7 @@
 from Engine.PkmMatchEngine import PkmMatchEngine
-from Agent.GUISelectorAgent import GUISelectorAgent
-from Agent.RandomBattleAgent import RandomBattleAgent
-from Agent.RandomSelectorAgent import RandomSelectorAgent
+from Behaviour.SelectorPolicies import GUISelectorPolicy
+from Behaviour.RandomBattleAgent import RandomBattleAgent
+from Behaviour.RandomSelectorAgent import RandomSelectorAgent
 from Util.Recorder import Recorder
 
 
@@ -9,7 +9,7 @@ def main():
     ba = RandomBattleAgent()
     env = PkmMatchEngine(ba, ba, debug=True)
     t = False
-    a0 = GUISelectorAgent()
+    a0 = GUISelectorPolicy()
     a1 = RandomSelectorAgent()
     r = Recorder(name="random_agent")
     ep = 0

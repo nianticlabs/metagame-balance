@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 import random
 from typing import List
 
-from Engine.PkmBaseStructures import PkmType, PkmMove, Pkm
-from Engine.PkmConstants import MIN_HIT_POINTS, MOVE_POWER_MIN
-from Engine.PkmStandardMoves import STANDARD_MOVE_POOL
+from Engine.DataObjects import PkmType, PkmMove, Pkm, PkmRoster
+from Engine.DataConstants import MIN_HIT_POINTS, MOVE_POWER_MIN
+from Engine.StandardPkmMoves import STANDARD_MOVE_POOL
 from Engine.PkmTeamGenerator import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
 
 PkmMovePool = List[PkmMove]
@@ -28,13 +28,10 @@ class PkmTemplate:
         return s + ')'
 
 
-PkmPool = List[PkmTemplate]
-
-
 class PkmPoolGenerator(ABC):
 
     @abstractmethod
-    def get_pool(self) -> PkmPool:
+    def get_pool(self) -> PkmRoster:
         pass
 
 
@@ -45,8 +42,8 @@ class StandardPkmPoolGenerator(PkmPoolGenerator):
         self.n_moves_pkm = n_moves_pkm
         self.pool_size = pool_size
 
-    def get_pool(self) -> PkmPool:
-        pool: PkmPool = []
+    def get_pool(self) -> PkmRoster:
+        pool: PkmRoster = []
         for i in range(self.pool_size):
             base_move_pool = self.move_pool.copy()
             p_type: PkmType = random.choice(LIST_OF_TYPES)

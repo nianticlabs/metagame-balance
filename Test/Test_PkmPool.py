@@ -1,4 +1,4 @@
-from Agent.RandomBuilderAgent import RandomBuilderAgent
+from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from Engine.PkmPoolGenerator import StandardPkmPoolGenerator
 
 
@@ -9,7 +9,7 @@ def main():
         print(pt)
         print()
 
-    a = RandomBuilderAgent()
+    a = RandomTeamBuilderPolicy()
     t = a.get_action(pool)
     print(t)
 
