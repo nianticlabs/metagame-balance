@@ -1,4 +1,4 @@
-from Engine.PkmMatchEngine import PkmMatchEngine
+from Engine.Competition.PkmMatchEngine import PkmMatchEngine
 from Behaviour.SelectorPolicies import GUISelectorPolicy
 from Behaviour.RandomBattleAgent import RandomBattleAgent
 from Behaviour.RandomSelectorAgent import RandomSelectorAgent

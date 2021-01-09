@@ -1,6 +1,6 @@
+from Engine.DataObjects import PkmMove, PkmType, PkmStatus
+from Engine.DataTypes import WeatherCondition, PkmStat, PkmEntryHazard
 import random
-
-from Engine.DataObjects import PkmMove, PkmType, WeatherCondition, PkmStat, PkmEntryHazard, PkmStatus
 
 # Struggle
 Struggle = PkmMove(max_pp=0, name="Struggle")

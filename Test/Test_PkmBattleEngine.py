@@ -1,6 +1,5 @@
 from Engine.BattleEngine import PkmBattleEngine
-from Engine.PkmTeamGenerator import RandomGenerator
-from Behaviour.BattlePolicies import HeuristicBattlePolicy
+from Engine.Competition.PkmTeamGenerator import RandomGenerator
 from Behaviour.BattlePolicies import GUIBattlePolicy
 from Behaviour.RandomBattleAgent import RandomBattleAgent
 from Util.Recorder import Recorder

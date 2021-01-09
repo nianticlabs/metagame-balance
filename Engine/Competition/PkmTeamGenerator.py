@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-
-import random
-
 from Engine.DataObjects import PkmTeam, Pkm, PkmType, PkmMove
 from Engine.DataConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
 from Behaviour.Abstract.Behaviour import SelectorPolicy
+import random
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS

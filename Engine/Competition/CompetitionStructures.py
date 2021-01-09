@@ -2,19 +2,19 @@ import random
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
-from Behaviour.RandomBattleAgent import RandomBattleAgent
+from Behaviour.BattlePolicies import RandomBattlePolicy
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
-from Behaviour.RandomSelectorAgent import RandomSelectorAgent
+from Behaviour.SelectorPolicies import RandomSelectorPolicy
 from Engine.DataObjects import PkmTeam
 from Engine.BattleEngine import PkmBattleEngine
 from Engine.DataConstants import DEFAULT_MATCH_N
-from Engine.PkmPoolGenerator import PkmPoolGenerator
-from Engine.PkmTeamGenerator import TeamSelector
+from Engine.Competition.PkmRosterGenerator import PkmPoolGenerator
+from Engine.Competition.PkmTeamGenerator import TeamSelector
 from Behaviour.Abstract.Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy
 from Util.Recorder import Recorder
 
-random_battle_agent = RandomBattleAgent()
-random_selector_agent = RandomSelectorAgent()
+random_battle_agent = RandomBattlePolicy()
+random_selector_agent = RandomSelectorPolicy()
 random_builder_agent = RandomTeamBuilderPolicy()
 
 

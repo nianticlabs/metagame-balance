@@ -2,9 +2,9 @@ import random
 from typing import List
 
 from Behaviour.Abstract.Behaviour import TeamBuilderPolicy
-from Engine.DataObjects import PkmTeam, Pkm
+from Engine.DataObjects import PkmTeam, Pkm, PkmTemplate
 from Engine.DataConstants import N_MOVES, MAX_TEAM_SIZE
-from Engine.PkmPoolGenerator import PkmRoster, PkmTemplate
+from Engine.Competition.PkmRosterGenerator import PkmRoster
 
 
 class RandomTeamBuilderPolicy(TeamBuilderPolicy):
@@ -20,5 +20,5 @@ class RandomTeamBuilderPolicy(TeamBuilderPolicy):
         pre_selection: List[PkmTemplate] = random.sample(p, MAX_TEAM_SIZE)
         team: List[Pkm] = []
         for pt in pre_selection:
-            team.append(pt.get_pkm(random.sample(range(len(pt.move_pool)), N_MOVES)))
+            team.append(pt.get_pkm(random.sample(range(len(pt.move_roster)), N_MOVES)))
         return PkmTeam(team)

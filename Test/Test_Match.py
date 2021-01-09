@@ -1,5 +1,5 @@
 from Engine.Competition.CompetitionStructures import Competitor, Match
-from Engine.PkmTeamGenerator import RandomGenerator
+from Engine.Competition.PkmTeamGenerator import RandomGenerator
 from Behaviour.BattlePolicies import GUIBattlePolicy
 from Behaviour.SelectorPolicies import GUISelectorPolicy
 from Behaviour.RandomBattleAgent import RandomBattleAgent

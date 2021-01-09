@@ -1,7 +1,9 @@
 from typing import List
-from Engine.DataObjects import PkmType, WeatherCondition, PkmStat, PkmStatus, PkmMove
-from Engine.BattleEngine import TYPE_CHART_MULTIPLIER, PkmBattleEngine
-from Engine.DataConstants import N_MOVES, N_DEFAULT_PARTY, N_SWITCHES
+
+from Engine.BattleEngine import PkmBattleEngine
+from Engine.DataObjects import PkmType, PkmStatus, PkmMove
+from Engine.DataConstants import N_MOVES, N_DEFAULT_PARTY, N_SWITCHES, TYPE_CHART_MULTIPLIER
+from Engine.DataTypes import PkmStat, WeatherCondition
 from Behaviour.Abstract.Behaviour import BattlePolicy
 
 import numpy as np

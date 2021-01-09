@@ -70,7 +70,7 @@ class GUISelectorPolicy(SelectorPolicy):
         self.window.close()
 
 
-class RandomSelectorAgent(SelectorPolicy):
+class RandomSelectorPolicy(SelectorPolicy):
 
     def __init__(self, teams_size: int = MAX_TEAM_SIZE, selection_size: int = DEFAULT_SELECTION_SIZE):
         self.teams_size = teams_size

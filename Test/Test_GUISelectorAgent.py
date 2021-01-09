@@ -1,6 +1,6 @@
 from Behaviour.SelectorPolicies import GUISelectorPolicy
 from Engine.BattleEngine import PkmBattleEngine
-from Engine.PkmTeamGenerator import RandomGenerator
+from Engine.Competition.PkmTeamGenerator import RandomGenerator
 
 
 def main():

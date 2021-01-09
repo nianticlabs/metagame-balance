@@ -1,13 +1,9 @@
 import random
-from enum import IntEnum
 import numpy as np
 
 from Engine.DataTypes import PkmType, null_effect, PkmStatus, N_TYPES, N_STATS, N_ENTRY_HAZARD
 from Engine.DataConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
-from typing import List, Tuple
-
-# Pokemon Typing
-from Engine.PkmPoolGenerator import PkmTemplate
+from typing import List, Tuple, Set
 from Util.Encoding import one_hot
 
 
@@ -31,7 +27,8 @@ class PkmMove:
         self.priority = priority
 
     def __str__(self):
-        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + str(self.priority) + ")" if not self.name else self.name
+        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + \
+               str(self.priority) + ")" if not self.name else self.name
 
     def reset(self):
         self.pp = self.max_pp
@@ -78,6 +75,9 @@ class PkmMove:
         if not s:
             return random.randrange(N_TYPES)
         return random.choice(s)
+
+
+PkmMoveRoster = Set[PkmMove]
 
 
 class Pkm:
@@ -139,7 +139,25 @@ class Pkm:
             self.moves[2]) + ', ' + str(self.moves[3]) + ')'
 
 
-PkmRoster = List[PkmTemplate]
+class PkmTemplate:
+
+    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float):
+        self.move_roster: PkmMoveRoster = move_roster
+        self.pkm_type: PkmType = pkm_type
+        self.max_hp = max_hp
+
+    def get_pkm(self, moves: List[int]) -> Pkm:
+        return Pkm(p_type=self.pkm_type, move0=self.move_roster[moves[0]], move1=self.move_roster[moves[1]],
+                   move2=self.move_roster[moves[2]], move3=self.move_roster[moves[3]])
+
+    def __str__(self):
+        s = 'Pokemon(' + PkmType(self.pkm_type).name + ', ' + str(self.max_hp) + ' HP, '
+        for move in self.move_roster:
+            s += str(move) + ', '
+        return s + ')'
+
+
+PkmRoster = Set[PkmTemplate]
 
 
 class PkmTeam:
@@ -289,3 +307,7 @@ class PkmTeam:
         for i in range(0, len(self.party)):
             party += str(self.party[i]) + '\n'
         return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)
+
+
+class MetaData:
+    pass

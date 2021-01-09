@@ -4,13 +4,13 @@ import numpy as np
 
 from gym import spaces
 from typing import List, Tuple
-from Engine.DataTypes import WeatherCondition, PkmEntryHazard, PkmStat, N_STATUS, N_STAGES, N_HAZARD_STAGES, N_WEATHER, \
-    MAX_STAGE, MIN_STAGE
+from Engine.DataTypes import WeatherCondition, PkmEntryHazard, PkmStat, N_STATUS, N_STAGES, N_HAZARD_STAGES, \
+    N_WEATHER, MAX_STAGE, MIN_STAGE
 from Engine.StandardPkmMoves import Struggle
 from Engine.DataObjects import PkmType, PkmStatus, PkmTeam, N_TYPES, N_STATS, N_ENTRY_HAZARD, Pkm
 from Engine.DataConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
     TYPE_CHART_MULTIPLIER, MOVE_MAX_PP
-from Engine.PkmTeamGenerator import PkmTeamGenerator
+from Engine.Competition.PkmTeamGenerator import PkmTeamGenerator
 from Util.Encoding import one_hot
 
 
@@ -83,14 +83,16 @@ class PkmBattleEngine(gym.Env):
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
 
         # battle
-        first_can_attack = active_not_fainted and not first_pkm.paralyzed() and not first_pkm.asleep() and not first_confusion_damage
+        first_can_attack = active_not_fainted and not first_pkm.paralyzed() and not first_pkm.asleep() and not \
+            first_confusion_damage
         if self.debug and not first_can_attack:
             self.log += 'CANNOT MOVE: Trainer %d cannot move\n' % first
         dmg_2_second, hp_2_first = self.__perform_pkm_attack(first, actions[first]) if first_can_attack else (0., 0.)
 
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
 
-        second_can_attack = active_not_fainted and not second_pkm.paralyzed() and not second_pkm.asleep() and not second_confusion_damage
+        second_can_attack = active_not_fainted and not second_pkm.paralyzed() and not second_pkm.asleep() and not \
+            second_confusion_damage
         if self.debug and not second_can_attack:
             self.log += 'CANNOT MOVE: Trainer %d cannot move\n' % second
         dmg_2_first, hp_2_second = self.__perform_pkm_attack(second, actions[second]) if second_can_attack else (0., 0.)
@@ -419,11 +421,13 @@ class PkmBattleEngine(gym.Env):
         def set_status(self, status: PkmStatus, t_id: int = 1):
             pkm = self._active[t_id]
             team = self._team[t_id]
-            if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and pkm.status != PkmStatus.PARALYZED:
+            if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and \
+                    pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
                 if self.__engine.debug:
                     self.__engine.log += 'STATUS: %s was paralyzed\n' % (str(pkm))
-            elif status == PkmStatus.POISONED and pkm.type != PkmType.POISON and pkm.type != PkmType.STEEL and pkm.status != PkmStatus.POISONED:
+            elif status == PkmStatus.POISONED and pkm.type != PkmType.POISON and pkm.type != PkmType.STEEL and \
+                    pkm.status != PkmStatus.POISONED:
                 pkm.status = PkmStatus.POISONED
                 if self.__engine.debug:
                     self.__engine.log += 'STATUS: %s was poisoned\n' % (str(pkm))
