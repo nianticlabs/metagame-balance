@@ -1,16 +1,15 @@
-from Engine.Competition.PkmMatchEngine import PkmMatchEngine
-from Behaviour.SelectorPolicies import GUISelectorPolicy
-from Behaviour.RandomBattleAgent import RandomBattleAgent
-from Behaviour.RandomSelectorAgent import RandomSelectorAgent
-from Util.Recorder import Recorder
+from Behaviour.BattlePolicies import RandomBattlePolicy
+from Behaviour.SelectorPolicies import GUISelectorPolicy, RandomSelectorPolicy
+from Framework.Competition.PkmMatchEngine import PkmMatchEngine
+from Util.Recorders import Recorder
 
 
 def main():
-    ba = RandomBattleAgent()
+    ba = RandomBattlePolicy()
     env = PkmMatchEngine(ba, ba, debug=True)
     t = False
     a0 = GUISelectorPolicy()
-    a1 = RandomSelectorAgent()
+    a1 = RandomSelectorPolicy()
     r = Recorder(name="random_agent")
     ep = 0
     n_matches = 3

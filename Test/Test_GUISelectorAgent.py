@@ -1,10 +1,10 @@
 from Behaviour.SelectorPolicies import GUISelectorPolicy
-from Engine.BattleEngine import PkmBattleEngine
-from Engine.Competition.PkmTeamGenerator import RandomGenerator
+from Framework.Competition.PkmTeamGenerator import RandomGenerator
+from Framework.Process.BattleEngine import PkmBattleEnv
 
 
 def main():
-    env = PkmBattleEngine(debug=True)
+    env = PkmBattleEnv(debug=True)
     env.set_team_generator(RandomGenerator())
     env.reset()
     v0, v1 = env.team_view

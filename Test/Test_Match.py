@@ -1,15 +1,13 @@
-from Engine.Competition.CompetitionStructures import Competitor, Match
-from Engine.Competition.PkmTeamGenerator import RandomGenerator
-from Behaviour.BattlePolicies import GUIBattlePolicy
-from Behaviour.SelectorPolicies import GUISelectorPolicy
-from Behaviour.RandomBattleAgent import RandomBattleAgent
-from Behaviour.RandomSelectorAgent import RandomSelectorAgent
+from Behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
+from Behaviour.SelectorPolicies import GUISelectorPolicy, RandomSelectorPolicy
+from Framework.Competition.CompetitionStructures import Competitor, Match
+from Framework.Competition.PkmTeamGenerator import RandomGenerator
 
 
 def main():
     rg = RandomGenerator()
     c0 = Competitor(rg.get_team(), GUIBattlePolicy(), GUISelectorPolicy())
-    c1 = Competitor(rg.get_team(), RandomBattleAgent(), RandomSelectorAgent())
+    c1 = Competitor(rg.get_team(), RandomBattlePolicy(), RandomSelectorPolicy())
     m = Match(c0, c1, debug=True)
     m.run()
 

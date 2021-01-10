@@ -1,4 +1,4 @@
-from Util.Recorder import Recorder
+from Util.Recorders import Recorder
 
 
 def main():

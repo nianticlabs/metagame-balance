@@ -1,10 +1,8 @@
-import random
 from typing import List
-
-from Behaviour.Abstract.Behaviour import TeamBuilderPolicy
-from Engine.DataObjects import PkmTeam, Pkm, PkmTemplate
-from Engine.DataConstants import N_MOVES, MAX_TEAM_SIZE
-from Engine.Competition.PkmRosterGenerator import PkmRoster
+from Behaviour import TeamBuilderPolicy
+from Framework.DataConstants import MAX_TEAM_SIZE, N_MOVES
+from Framework.DataObjects import PkmTeam, PkmRoster, Pkm, PkmTemplate
+import random
 
 
 class RandomTeamBuilderPolicy(TeamBuilderPolicy):

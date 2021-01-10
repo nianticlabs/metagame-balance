@@ -1,7 +1,9 @@
 import random
+from copy import deepcopy
+
 import numpy as np
 
-from Engine.DataTypes import PkmType, null_effect, PkmStatus, N_TYPES, N_STATS, N_ENTRY_HAZARD
+from Engine.DataTypes import PkmType, null_effect, PkmStatus, N_TYPES, N_STATS, N_ENTRY_HAZARD, PkmEffectType
 from Engine.DataConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
 from typing import List, Tuple, Set
 from Util.Encoding import one_hot
@@ -10,7 +12,8 @@ from Util.Encoding import one_hot
 class PkmMove:
 
     def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
-                 move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect, priority: bool = False):
+                 move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect, priority: bool = False,
+                 effect_types: Set[PkmEffectType] = None):
         """
         Pokemon move data structure. Special moves have power = 0.
 
@@ -25,6 +28,7 @@ class PkmMove:
         self.name = name
         self.effect = effect
         self.priority = priority
+        self.effect_types: Set[PkmEffectType] = deepcopy(effect_types)
 
     def __str__(self):
         return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + \
@@ -32,6 +36,9 @@ class PkmMove:
 
     def reset(self):
         self.pp = self.max_pp
+
+    def has_effect(self, e: PkmEffectType) -> bool:
+        return e in self.effect_types
 
     @staticmethod
     def super_effective(t: PkmType) -> PkmType:
@@ -46,7 +53,7 @@ class PkmMove:
         if not s:
             print('Warning: Empty List!')
             return PkmMove.effective(t)
-        return random.choice(s)
+        return PkmType(random.choice(s))
 
     @staticmethod
     def non_very_effective(t: PkmType) -> PkmType:
@@ -60,7 +67,7 @@ class PkmMove:
         s = [index for index, value in enumerate(_t) if value == .5]
         if not s:
             return PkmMove.effective(t)
-        return random.choice(s)
+        return PkmType(random.choice(s))
 
     @staticmethod
     def effective(t: PkmType) -> PkmType:
@@ -73,8 +80,8 @@ class PkmMove:
         _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
         s = [index for index, value in enumerate(_t) if value == 1.]
         if not s:
-            return random.randrange(N_TYPES)
-        return random.choice(s)
+            return PkmType(random.randrange(N_TYPES))
+        return PkmType(random.choice(s))
 
 
 PkmMoveRoster = Set[PkmMove]
@@ -147,8 +154,9 @@ class PkmTemplate:
         self.max_hp = max_hp
 
     def get_pkm(self, moves: List[int]) -> Pkm:
-        return Pkm(p_type=self.pkm_type, move0=self.move_roster[moves[0]], move1=self.move_roster[moves[1]],
-                   move2=self.move_roster[moves[2]], move3=self.move_roster[moves[3]])
+        move_list = list(self.move_roster)
+        return Pkm(p_type=self.pkm_type, move0=move_list[moves[0]], move1=move_list[moves[1]],
+                   move2=move_list[moves[2]], move3=move_list[moves[3]])
 
     def __str__(self):
         s = 'Pokemon(' + PkmType(self.pkm_type).name + ', ' + str(self.max_hp) + ' HP, '

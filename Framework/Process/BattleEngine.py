@@ -4,17 +4,21 @@ import numpy as np
 
 from gym import spaces
 from typing import List, Tuple
-from Engine.DataTypes import WeatherCondition, PkmEntryHazard, PkmStat, N_STATUS, N_STAGES, N_HAZARD_STAGES, \
-    N_WEATHER, MAX_STAGE, MIN_STAGE
-from Engine.StandardPkmMoves import Struggle
-from Engine.DataObjects import PkmType, PkmStatus, PkmTeam, N_TYPES, N_STATS, N_ENTRY_HAZARD, Pkm
-from Engine.DataConstants import N_SWITCHES, MAX_HIT_POINTS, N_MOVES, SPIKES_2, SPIKES_3, STATE_DAMAGE, \
-    TYPE_CHART_MULTIPLIER, MOVE_MAX_PP
-from Engine.Competition.PkmTeamGenerator import PkmTeamGenerator
+
+from Behaviour import BattlePolicy
+from Framework.Competition.Config import N_BATTLES
+from Framework.Competition.PkmTeamGenerator import PkmTeamGenerator
+from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, MOVE_MAX_PP, \
+    TYPE_CHART_MULTIPLIER
+from Framework.DataObjects import PkmTeam, Pkm
+from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_TYPES, N_STATUS, \
+    N_STATS, N_STAGES, N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, MIN_STAGE, MAX_STAGE
+from Framework.StandardPkmMoves import Struggle
+from Util import Recorder
 from Util.Encoding import one_hot
 
 
-class PkmBattleEngine(gym.Env):
+class PkmBattleEnv(gym.Env):
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
 
         # random active pokemon
@@ -394,7 +398,7 @@ class PkmBattleEngine(gym.Env):
             return e
 
     def __create_trainer_view(self, t_id: int = 0) -> TrainerView:
-        return PkmBattleEngine.TrainerView(self, t_id)
+        return PkmBattleEnv.TrainerView(self, t_id)
 
     class PkmMoveView:
 
@@ -477,7 +481,7 @@ class PkmBattleEngine(gym.Env):
         return recover
 
     def __create_pkm_move_view(self):
-        return PkmBattleEngine.PkmMoveView(self)
+        return PkmBattleEnv.PkmMoveView(self)
 
     def __get_attack_dmg_rcvr(self, t_id: int, m_id: int) -> Tuple[float, float]:
         """
@@ -612,3 +616,44 @@ class PkmBattleEngine(gym.Env):
         if (pkm0.fainted() or pkm1.fainted()) and (not team0.fainted() and not team1.fainted()):
             d0, d1 = self.__switch_fainted_pkm()
         return damage0 + d0, damage1 + d1
+
+
+class BattleEngine:
+
+    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, rec: Recorder, debug=True,
+                 render=True, n_battles=N_BATTLES):
+        self.env = PkmBattleEnv(teams=[team0, team1], debug=debug)
+        self.bp0 = bp0
+        self.bp1 = bp1
+        self.rec = rec
+        self.ep = 0
+        self.step = 0
+        self.n_battles = n_battles
+        self.render = render
+        self.s = None
+        self.v = None
+        self.t = True
+
+    def run_step(self):  # TODO return type
+        if self.t:
+            self.s = self.env.reset()
+            self.v = self.env.trainer_view
+            self.ep += 1
+            if self.render:
+                self.env.render()
+        o0 = self.s[0] if self.bp0.requires_encode() else self.v[0]
+        o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
+        a = [self.bp0.get_action(o0), self.bp1.get_action(o1)]
+        self.rec.record((self.s[0], a[0], self.ep))  # TODO record both players
+        self.s, r, self.t, self.v = self.env.step(a)
+        if self.render:
+            self.env.render()
+        return r
+
+    def match_completed(self) -> bool:
+        return self.t and self.ep == self.n_battles
+
+    def terminate(self):
+        self.rec.save()
+        self.bp0.close()
+        self.bp1.close()

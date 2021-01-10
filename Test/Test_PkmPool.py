@@ -1,5 +1,5 @@
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
-from Engine.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
+from Framework.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
 
 
 def main():

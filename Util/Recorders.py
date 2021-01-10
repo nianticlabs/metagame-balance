@@ -1,7 +1,8 @@
 from typing import List, Tuple
+from Util import Recorder
 
 
-class Recorder:
+class FileRecorder(Recorder):
 
     def __init__(self,  buffer_size: int = 2048, name: str = "Agent"):
         self.buffer_size: int = buffer_size

@@ -1,6 +1,5 @@
-from Engine.Competition.CompetitionStructures import TreeChampionship, Competitor
-from Engine.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
-
+from Framework.Competition.CompetitionStructures import Competitor, TreeChampionship
+from Framework.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
 
 N_COMPETITORS = 16
 

@@ -73,5 +73,20 @@ N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))
 N_HAZARD_STAGES = 3
 
 
+# Effects
 def null_effect(view):
     pass
+
+
+class PkmEffectType(IntEnum):
+    NONE = 0
+    WEATHER = 1
+    ATTACK_STAT = 2
+    DEFENSE_STAT = 3
+    SPEED_STAT = 4
+    STATUS = 5
+    RECOVER = 6
+    RECOIL = 7
+
+
+N_EFFECT_TYPES = len(list(map(int, PkmEffectType)))

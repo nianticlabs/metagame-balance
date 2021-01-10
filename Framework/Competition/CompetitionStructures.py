@@ -1,17 +1,16 @@
-import random
 from abc import ABC, abstractmethod
 from typing import Tuple, List
-
+from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy
 from Behaviour.BattlePolicies import RandomBattlePolicy
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from Behaviour.SelectorPolicies import RandomSelectorPolicy
-from Engine.DataObjects import PkmTeam
-from Engine.BattleEngine import PkmBattleEngine
-from Engine.DataConstants import DEFAULT_MATCH_N
-from Engine.Competition.PkmRosterGenerator import PkmPoolGenerator
-from Engine.Competition.PkmTeamGenerator import TeamSelector
-from Behaviour.Abstract.Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy
-from Util.Recorder import Recorder
+from Framework.Competition.PkmRosterGenerator import PkmPoolGenerator
+from Framework.Competition.PkmTeamGenerator import TeamSelector
+from Framework.DataConstants import DEFAULT_MATCH_N
+from Framework.DataObjects import PkmTeam
+from Framework.Process.BattleEngine import PkmBattleEnv
+from Util.Recorders import FileRecorder
+import random
 
 random_battle_agent = RandomBattlePolicy()
 random_selector_agent = RandomSelectorPolicy()
@@ -24,9 +23,9 @@ class Competitor:
                  selection_agent: SelectorPolicy = random_selector_agent,
                  builder_agent: TeamBuilderPolicy = random_builder_agent, name: str = ""):
         self.team: PkmTeam = team
-        self.battle_agent: BattlePolicy = battle_agent
-        self.selection_agent: SelectorPolicy = selection_agent
-        self.builder_agent: TeamBuilderPolicy = builder_agent
+        self.battle_policy: BattlePolicy = battle_agent
+        self.selection_policy: SelectorPolicy = selection_agent
+        self.builder_policy: TeamBuilderPolicy = builder_agent
         self.name = name
 
     def __str__(self):
@@ -50,13 +49,13 @@ class Match:
     def run(self):
         c0 = self.competitors[0]
         c1 = self.competitors[1]
-        team_selector = TeamSelector(c0.team, c1.team, c0.selection_agent, c1.selection_agent)
-        env = PkmBattleEngine(debug=self.debug, teams=[c0.team, c1.team])
+        team_selector = TeamSelector(c0.team, c1.team, c0.selection_policy, c1.selection_policy)
+        env = PkmBattleEnv(debug=self.debug, teams=[c0.team, c1.team])
         env.set_team_generator(team_selector)
         t = False
-        a0 = c0.battle_agent
-        a1 = c1.battle_agent
-        r = Recorder(name="random_agent")
+        a0 = c0.battle_policy
+        a1 = c1.battle_policy
+        r = FileRecorder(name="random_agent")
         game = 0
         while game < self.n_games:
             game += 1
@@ -192,5 +191,5 @@ class TreeChampionship(Championship):
 
     def run(self):
         for competitor in self.competitors:
-            competitor.team = competitor.builder_agent.get_action(self.pool)
+            competitor.team = competitor.builder_policy.get_action(self.pool)
         self.match_tree.run_matches(self.debug)

@@ -1,8 +1,7 @@
 from typing import List
-from Behaviour.Abstract.Behaviour import SelectorPolicy
-from Engine.DataObjects import PkmTeam
-from Engine.DataConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
-
+from Behaviour import SelectorPolicy
+from Framework.DataConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
+from Framework.DataObjects import PkmTeam
 import PySimpleGUI as sg
 import random
 
@@ -12,7 +11,7 @@ class GUISelectorPolicy(SelectorPolicy):
     def __init__(self, selected_team_size: int = DEFAULT_SELECTION_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
         self.opp_title = sg.Text('Opponent Team:')
-        self.opp = [[sg.Text('                                      ')] for i in range(full_team_size)]
+        self.opp = [[sg.Text('                                      ')] for _ in range(full_team_size)]
         self.team_title = sg.Text('Your Team:')
         self.team = [
             [sg.Text('                                      '),

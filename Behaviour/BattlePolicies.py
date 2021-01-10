@@ -1,10 +1,9 @@
 from typing import List
-
-from Engine.BattleEngine import PkmBattleEngine
-from Engine.DataObjects import PkmType, PkmStatus, PkmMove
-from Engine.DataConstants import N_MOVES, N_DEFAULT_PARTY, N_SWITCHES, TYPE_CHART_MULTIPLIER
-from Engine.DataTypes import PkmStat, WeatherCondition
-from Behaviour.Abstract.Behaviour import BattlePolicy
+from Behaviour import BattlePolicy
+from Framework.DataConstants import TYPE_CHART_MULTIPLIER, N_MOVES, N_DEFAULT_PARTY, N_SWITCHES
+from Framework.DataObjects import PkmMove
+from Framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
+from Framework.Process.BattleEngine import PkmBattleEnv
 
 import numpy as np
 import PySimpleGUI as sg
@@ -18,7 +17,7 @@ class HeuristicBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, s: PkmBattleEngine.TrainerView) -> int:
+    def get_action(self, s: PkmBattleEnv.TrainerView) -> int:
         """
 
         :param s: state
@@ -44,7 +43,7 @@ class HeuristicBattlePolicy(BattlePolicy):
             estimated_damage.append(HeuristicBattlePolicy.estimate_move_damage(move_type, active_type, move_power,
                                                                                opp_type, attack_stage, defense_stage,
                                                                                weather))
-        move_id: int = np.argmax(estimated_damage)
+        move_id: int = np.argmax(estimated_damage)[0]
 
         # switch decision
         best_pkm = 0

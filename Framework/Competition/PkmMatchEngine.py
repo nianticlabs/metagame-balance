@@ -1,7 +1,7 @@
 import gym
 
 from Engine.DataObjects import PkmTeam
-from Engine.BattleEngine import PkmBattleEngine
+from Engine.Process.BattleEngine import PkmBattleEngine
 from Engine.DataConstants import DEFAULT_MATCH_N
 from Engine.Competition.PkmTeamGenerator import RandomGenerator, FixedTeamSelector
 from Behaviour.Abstract.Behaviour import BattlePolicy
