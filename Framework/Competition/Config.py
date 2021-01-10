@@ -1,2 +1,3 @@
 
 N_BATTLES = 3
+TEAM_SIZE = 3

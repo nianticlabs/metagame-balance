@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
-from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy
+from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamHyphotesizer, TeamValuator
 from Behaviour.BattlePolicies import RandomBattlePolicy
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from Behaviour.SelectorPolicies import RandomSelectorPolicy
@@ -26,6 +26,10 @@ class Competitor:
         self.battle_policy: BattlePolicy = battle_agent
         self.selection_policy: SelectorPolicy = selection_agent
         self.builder_policy: TeamBuilderPolicy = builder_agent
+        self.valance_policy: BattlePolicy
+        self.data_aggregator: DataAggregator
+        self.team_hyphotesizer: TeamHyphotesizer
+        self.team_valuator: TeamValuator
         self.name = name
 
     def __str__(self):

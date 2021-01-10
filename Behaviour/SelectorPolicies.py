@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 from Behaviour import SelectorPolicy
 from Framework.DataConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 from Framework.DataObjects import PkmTeam
@@ -26,7 +26,7 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, s) -> List[int]:
+    def get_action(self, s) -> Set[int]:
         """
 
         :param s: state
@@ -63,7 +63,7 @@ class GUISelectorPolicy(SelectorPolicy):
                 selected.remove(event)
             self.select.Update(disabled=self.selected_team_size != len(selected))
             event, values = self.window.read()
-        return selected
+        return set(selected)
 
     def close(self):
         self.window.close()
@@ -78,10 +78,10 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, s) -> List[int]:
+    def get_action(self, s) -> Set[int]:
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)
-        return ids[:self.selection_size]
+        return set(ids[:self.selection_size])
 
     def close(self):
         pass

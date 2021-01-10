@@ -8,8 +8,8 @@ from typing import List, Tuple
 from Behaviour import BattlePolicy
 from Framework.Competition.Config import N_BATTLES
 from Framework.Competition.PkmTeamGenerator import PkmTeamGenerator
-from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, MOVE_MAX_PP, \
-    TYPE_CHART_MULTIPLIER
+from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
+    MOVE_MAX_PP, TYPE_CHART_MULTIPLIER
 from Framework.DataObjects import PkmTeam, Pkm
 from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_TYPES, N_STATUS, \
     N_STATS, N_STAGES, N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, MIN_STAGE, MAX_STAGE

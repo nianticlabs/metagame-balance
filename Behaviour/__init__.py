@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any, List, Set
 from Framework.DataObjects import PkmTeam, PkmRoster
 
 
@@ -28,7 +28,7 @@ class BattlePolicy(Behaviour):
 class SelectorPolicy(Behaviour):
 
     @abstractmethod
-    def get_action(self, s) -> List[int]:
+    def get_action(self, s) -> Set[int]:
         pass
 
 
