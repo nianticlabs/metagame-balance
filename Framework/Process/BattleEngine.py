@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 from Behaviour import BattlePolicy
 from Framework.Competition.Config import N_BATTLES
-from Framework.Competition.PkmTeamGenerator import PkmTeamGenerator
+from Util.PkmTeamGenerators import PkmTeamGenerator
 from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     MOVE_MAX_PP, TYPE_CHART_MULTIPLIER
 from Framework.DataObjects import PkmTeam, Pkm

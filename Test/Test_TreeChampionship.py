@@ -1,11 +1,11 @@
 from Framework.Competition.CompetitionStructures import Competitor, TreeChampionship
-from Framework.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
+from Util.PkmRosterGenerators import StandardPkmRosterGenerator
 
 N_COMPETITORS = 16
 
 
 def main():
-    pool_gen = StandardPkmPoolGenerator(10, 100)
+    pool_gen = StandardPkmRosterGenerator(10, 100)
     competitors = [Competitor(name='Player ' + str(i)) for i in range(N_COMPETITORS)]
     tree_championship = TreeChampionship(pool_gen, competitors, debug=True)
     tree_championship.run()

@@ -1,5 +1,5 @@
 from Behaviour.SelectorPolicies import GUISelectorPolicy
-from Framework.Competition.PkmTeamGenerator import RandomGenerator
+from Util.PkmTeamGenerators import RandomGenerator
 from Framework.Process.BattleEngine import PkmBattleEnv
 
 

@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import Set
 from Behaviour import SelectorPolicy
 from Framework.DataConstants import DEFAULT_SELECTION_SIZE, MAX_TEAM_SIZE
 from Framework.DataObjects import PkmTeam

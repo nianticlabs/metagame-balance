@@ -9,7 +9,7 @@ import numpy as np
 import PySimpleGUI as sg
 
 
-class HeuristicBattlePolicy(BattlePolicy):
+class BaseHeuristicBattlePolicy(BattlePolicy):
 
     def close(self):
         pass
@@ -28,21 +28,21 @@ class HeuristicBattlePolicy(BattlePolicy):
         party = [s.get_party(i) for i in range(s.get_n_party())]
         attack_stage = s.get_stage()
         defense_stage = s.get_stage(PkmStat.DEFENSE)
-        speed_stage = s.get_stage(PkmStat.SPEED)
-        opp_attack_stage = s.get_stage(t_id=1)
-        opp_defense_stage = s.get_stage(PkmStat.DEFENSE, 1)
-        opp_speed_stage = s.get_stage(PkmStat.SPEED, 1)
+        # speed_stage = s.get_stage(PkmStat.SPEED)
+        # opp_attack_stage = s.get_stage(t_id=1)
+        # opp_defense_stage = s.get_stage(PkmStat.DEFENSE, 1)
+        # opp_speed_stage = s.get_stage(PkmStat.SPEED, 1)
         active_moves = [s.get_active_move(i) for i in range(s.get_n_moves())]
-        spikes = s.get_entry_hazard()
+        # spikes = s.get_entry_hazard()
         weather = s.get_weather()
 
         # get best move
         estimated_damage: List[float] = []
         for i in range(s.get_n_moves()):
             move_power, move_type, _ = active_moves[i]
-            estimated_damage.append(HeuristicBattlePolicy.estimate_move_damage(move_type, active_type, move_power,
-                                                                               opp_type, attack_stage, defense_stage,
-                                                                               weather))
+            estimated_damage.append(BaseHeuristicBattlePolicy.estimate_move_damage(move_type, active_type, move_power,
+                                                                                   opp_type, attack_stage,
+                                                                                   defense_stage, weather))
         move_id: int = np.argmax(estimated_damage)[0]
 
         # switch decision

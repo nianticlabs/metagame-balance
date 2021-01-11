@@ -1,9 +1,9 @@
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
-from Framework.Competition.PkmRosterGenerator import StandardPkmPoolGenerator
+from Util.PkmRosterGenerators import StandardPkmRosterGenerator
 
 
 def main():
-    pool_gen = StandardPkmPoolGenerator(10, 100)
+    pool_gen = StandardPkmRosterGenerator(10, 100)
     pool = pool_gen.get_pool()
     for pt in pool:
         print(pt)

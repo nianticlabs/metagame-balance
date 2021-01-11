@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-from Engine.DataObjects import PkmTeam, Pkm, PkmType, PkmMove
-from Engine.DataConstants import N_MAX_PARTY, MAX_HIT_POINTS, MIN_HIT_POINTS, N_MOVES, MOVE_POWER_MAX, MOVE_POWER_MIN
-from Behaviour.Abstract.Behaviour import SelectorPolicy
+from Behaviour import SelectorPolicy
+from Framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, N_MAX_PARTY, N_MOVES
+from Framework.DataObjects import PkmTeam, Pkm, PkmMove
+from Framework.DataTypes import PkmType
 import random
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)

@@ -4,8 +4,8 @@ from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggre
 from Behaviour.BattlePolicies import RandomBattlePolicy
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from Behaviour.SelectorPolicies import RandomSelectorPolicy
-from Framework.Competition.PkmRosterGenerator import PkmPoolGenerator
-from Framework.Competition.PkmTeamGenerator import TeamSelector
+from Util.PkmRosterGenerators import PkmRosterGenerator
+from Util.PkmTeamGenerators import TeamSelector
 from Framework.DataConstants import DEFAULT_MATCH_N
 from Framework.DataObjects import PkmTeam
 from Framework.Process.BattleEngine import PkmBattleEnv
@@ -169,7 +169,7 @@ class MatchHandlerTree:
 
 class TreeChampionship(Championship):
 
-    def __init__(self, pool_generator: PkmPoolGenerator, competitors: List[Competitor] = None,
+    def __init__(self, pool_generator: PkmRosterGenerator, competitors: List[Competitor] = None,
                  name: str = "Championship", debug: bool = False):
         self.name = name
         self.competitors: List[Competitor] = competitors

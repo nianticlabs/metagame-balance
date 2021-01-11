@@ -1,5 +1,5 @@
 from Behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
-from Framework.Competition.PkmTeamGenerator import RandomGenerator
+from Util.PkmTeamGenerators import RandomGenerator
 from Framework.Process.BattleEngine import PkmBattleEnv
 from Util.Recorders import FileRecorder
 

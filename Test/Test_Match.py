@@ -1,7 +1,7 @@
 from Behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
 from Behaviour.SelectorPolicies import GUISelectorPolicy, RandomSelectorPolicy
 from Framework.Competition.CompetitionStructures import Competitor, Match
-from Framework.Competition.PkmTeamGenerator import RandomGenerator
+from Util.PkmTeamGenerators import RandomGenerator
 
 
 def main():

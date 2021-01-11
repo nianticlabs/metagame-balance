@@ -15,8 +15,11 @@ class TeamSelection:
 
     def get_selected_team(self) -> PkmTeam:
         team = deepcopy(self.team)
-        data = deepcopy(self.team)
-        team_ids = list(self.sp.get_action((team, self.opp, data)))
+        meta_data = deepcopy(self.meta_data)
+        try:
+            team_ids = list(self.sp.get_action((team, self.opp, meta_data)))
+        except:
+            team_ids = sample(range(6), TEAM_SIZE)
         # if returned team is bigger than allowed
         if len(team_ids) > TEAM_SIZE:
             team_ids = team_ids[:TEAM_SIZE]
