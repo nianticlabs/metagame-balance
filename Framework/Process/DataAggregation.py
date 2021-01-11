@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 from Behaviour import DataAggregator
 from Framework.DataObjects import MetaData
@@ -11,7 +12,7 @@ class DataAggregation:
         self.meta_data = meta_data
         self.traj = traj
 
-    def get_team_hyphothesis(self):
+    def get_team_hyphothesis(self) -> Any:
         meta_data = deepcopy(self.meta_data)
         traj = deepcopy(self.traj)
         try:
