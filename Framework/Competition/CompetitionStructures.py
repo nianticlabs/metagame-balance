@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
-from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamHyphotesizer, TeamValuator
+from Behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamHyphotesizer, TeamValuator, \
+    BalancePolicy
+from Behaviour.BalancePolicies import IdleBalancePolicy
 from Behaviour.BattlePolicies import RandomBattlePolicy
+from Behaviour.DataAggregators import NullDataAggregator
 from Behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from Behaviour.SelectorPolicies import RandomSelectorPolicy
+from Behaviour.TeamHyphotesizers import NullTeamHyphotesizer
+from Behaviour.TeamValuators import NullTeamValuator
 from Util.PkmRosterGenerators import PkmRosterGenerator
 from Util.PkmTeamGenerators import TeamSelector
 from Framework.DataConstants import DEFAULT_MATCH_N
@@ -15,21 +20,29 @@ import random
 random_battle_agent = RandomBattlePolicy()
 random_selector_agent = RandomSelectorPolicy()
 random_builder_agent = RandomTeamBuilderPolicy()
-
+idle_balance_policy = IdleBalancePolicy()
+null_data_aggregator = NullDataAggregator()
+null_team_hyphotesizer = NullTeamHyphotesizer()
+null_team_valuator = NullTeamValuator()
 
 class Competitor:
 
     def __init__(self, team: PkmTeam = PkmTeam(), battle_agent: BattlePolicy = random_battle_agent,
                  selection_agent: SelectorPolicy = random_selector_agent,
-                 builder_agent: TeamBuilderPolicy = random_builder_agent, name: str = ""):
+                 builder_agent: TeamBuilderPolicy = random_builder_agent,
+                 balance_policy: BalancePolicy = idle_balance_policy,
+                 data_aggregator: DataAggregator = null_data_aggregator,
+                 team_hyphotesizer: TeamHyphotesizer = null_team_hyphotesizer,
+                 team_valuator: TeamValuator = null_team_valuator,
+                 name: str = ""):
         self.team: PkmTeam = team
         self.battle_policy: BattlePolicy = battle_agent
         self.selection_policy: SelectorPolicy = selection_agent
         self.builder_policy: TeamBuilderPolicy = builder_agent
-        self.valance_policy: BattlePolicy
-        self.data_aggregator: DataAggregator
-        self.team_hyphotesizer: TeamHyphotesizer
-        self.team_valuator: TeamValuator
+        self.balance_policy: BalancePolicy = balance_policy
+        self.data_aggregator: DataAggregator = data_aggregator
+        self.team_hyphotesizer: TeamHyphotesizer = team_hyphotesizer
+        self.team_valuator: TeamValuator = team_valuator
         self.name = name
 
     def __str__(self):

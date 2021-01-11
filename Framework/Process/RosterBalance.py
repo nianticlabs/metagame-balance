@@ -12,7 +12,7 @@ class RosterBalance:
         self.meta_data = meta_data
         self.roster = roster
 
-    def get_team(self) -> Any:
+    def get_roster(self) -> Any:
         meta_data = deepcopy(self.meta_data)
         roster = deepcopy(self.roster)
         try:

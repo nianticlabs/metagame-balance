@@ -1,10 +1,5 @@
-import gym
-import random
-import numpy as np
-
 from gym import spaces
 from typing import List, Tuple
-
 from Behaviour import BattlePolicy
 from Framework.Competition.Config import N_BATTLES
 from Util.PkmTeamGenerators import PkmTeamGenerator
@@ -16,6 +11,9 @@ from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmSt
 from Framework.StandardPkmMoves import Struggle
 from Util import Recorder
 from Util.Encoding import one_hot
+import gym
+import random
+import numpy as np
 
 
 class PkmBattleEnv(gym.Env):
