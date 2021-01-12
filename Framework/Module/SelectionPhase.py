@@ -6,10 +6,9 @@ from Framework.Process.TeamSelection import TeamSelection
 
 class SelectionPhase:
 
-    def __init__(self, c: Competitor, opp_team: PkmTeam, meta_data: MetaData):
+    def __init__(self, c: Competitor, opp_team: PkmTeam):
         self.c = c
         self.opp_team = opp_team
-        self.meta_data = meta_data
         self.playing_team = None
         self.opp_hyphotesis = None
 
@@ -19,7 +18,7 @@ class SelectionPhase:
 
     def run(self):
         opp = SelectionPhase.extract_oponent_info(self.opp_team)
-        oth = OponentTeamHyphotesizing(self.c.team_hyphotesizer, self.meta_data, opp, None)
+        oth = OponentTeamHyphotesizing(self.c.team_hyphotesizer, self.c.meta_data, opp, None)
         self.opp_hyphotesis = oth.get_team_hyphothesis()
-        ts = TeamSelection(self.c.selection_policy, self.c.team, self.meta_data, self.opp_hyphotesis)
+        ts = TeamSelection(self.c.selection_policy, self.c.team, self.c.meta_data, self.opp_hyphotesis)
         self.playing_team = ts.get_selected_team()

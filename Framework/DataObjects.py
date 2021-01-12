@@ -1,19 +1,20 @@
-import random
-from copy import deepcopy
-
-import numpy as np
-
-from Engine.DataTypes import PkmType, null_effect, PkmStatus, N_TYPES, N_STATS, N_ENTRY_HAZARD, PkmEffectType
-from Engine.DataConstants import MAX_HIT_POINTS, TYPE_CHART_MULTIPLIER, MOVE_MED_PP
 from typing import List, Tuple, Set
+
+from Framework.DataConstants import MOVE_MED_PP, TYPE_CHART_MULTIPLIER, MAX_HIT_POINTS
+from Framework.DataTypes import PkmType, N_TYPES, PkmStatus, N_STATS, N_ENTRY_HAZARD, \
+    PkmStat, WeatherCondition, PkmEntryHazard
 from Util.Encoding import one_hot
+import random
+import numpy as np
 
 
 class PkmMove:
 
     def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
-                 move_type: PkmType = PkmType.NORMAL, name: str = "", effect=null_effect, priority: bool = False,
-                 effect_types: Set[PkmEffectType] = None):
+                 move_type: PkmType = PkmType.NORMAL, name: str = "", priority: bool = False,
+                 prob=0.0, target=1, recover=0.0, status: PkmStatus = None,
+                 stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,
+                 weather: WeatherCondition = None, hazard: PkmEntryHazard = None):
         """
         Pokemon move data structure. Special moves have power = 0.
 
@@ -26,9 +27,17 @@ class PkmMove:
         self.pp = max_pp
         self.type = move_type
         self.name = name
-        self.effect = effect
         self.priority = priority
-        self.effect_types: Set[PkmEffectType] = deepcopy(effect_types)
+        # effect types
+        self.prob = prob
+        self.target = target
+        self.recover = recover
+        self.status = status
+        self.stat = stat
+        self.stage = stage
+        self.fixed_damage = fixed_damage
+        self.weather = weather
+        self.hazard = hazard
 
     def __str__(self):
         return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + \
@@ -37,8 +46,18 @@ class PkmMove:
     def reset(self):
         self.pp = self.max_pp
 
-    def has_effect(self, e: PkmEffectType) -> bool:
-        return e in self.effect_types
+    def effect(self, v):
+        if random.random() < self.prob:
+            v.set_recover(self.recover)
+            v.set_fixed_damage(self.fixed_damage)
+            if self.stage > 0:
+                v.set_stage(self.stat, self.target, self.stage)
+            if self.status is not None:
+                v.set_status(self.status, self.target)
+            if self.weather is not None:
+                v.set_weather(self.weather)
+            if self.hazard is not None:
+                v.set_entry_hazard(self.hazard, self.target)
 
     @staticmethod
     def super_effective(t: PkmType) -> PkmType:

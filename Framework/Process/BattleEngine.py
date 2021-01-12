@@ -4,21 +4,21 @@ from Behaviour import BattlePolicy
 from Framework.Competition.Config import N_BATTLES
 from Util.PkmTeamGenerators import PkmTeamGenerator
 from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
-    MOVE_MAX_PP, TYPE_CHART_MULTIPLIER
+    TYPE_CHART_MULTIPLIER
 from Framework.DataObjects import PkmTeam, Pkm
-from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_TYPES, N_STATUS, \
-    N_STATS, N_STAGES, N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, MIN_STAGE, MAX_STAGE
+from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_STATS, N_STAGES, \
+    N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, MIN_STAGE, MAX_STAGE
 from Framework.StandardPkmMoves import Struggle
 from Util import Recorder
-from Util.Encoding import one_hot
+from Util.Encoding import one_hot, encode_pkm, encode_team, encode_game_state
 import gym
 import random
 import numpy as np
 
 
 class PkmBattleEnv(gym.Env):
-    def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
 
+    def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
         # random active pokemon
         self.team_view = None
         if teams is None:
@@ -284,9 +284,9 @@ class PkmBattleEnv(gym.Env):
             pkm.hp = 0. if pkm.hp < 0. else pkm.hp
             damage = before_hp - pkm.hp
 
-            if self.debug and damage > 0.:  # TODO burned and frozen
-                self.log += 'STATE DAMAGE: %s takes %s state damage from poison, hp reduces from %s to %s\n' % (
-                    str(pkm), damage, before_hp, pkm.hp)
+            if self.debug and damage > 0.:
+                self.log += 'STATE DAMAGE: %s takes %s state damage from %s, hp reduces from %s to %s\n' % (
+                    str(pkm), damage, 'poison' if pkm.status == PkmStatus.POISONED else 'burn', before_hp, pkm.hp)
 
         return damage
 
@@ -365,34 +365,7 @@ class PkmBattleEnv(gym.Env):
             :return: encoded game state
             """
             e = []
-            # active pkms
-            for team in self.engine.teams:
-                e += one_hot(team.active.type, N_TYPES)
-                e += [team.active.hp / MAX_HIT_POINTS]
-                e += one_hot(team.active.status, N_STATUS)
-                e += one_hot(team.confused, 2)
-                # stages
-                for stat in range(N_STATS):
-                    e += one_hot(team.stage[stat], N_STAGES)
-                # entry hazards
-                for hazard in range(N_ENTRY_HAZARD):
-                    e += one_hot(team.entry_hazard[hazard], N_HAZARD_STAGES)
-            # party pkm
-            for pos in range(len(self.team.party)):
-                party = self.team.party[pos]
-                e += one_hot(party.type, N_TYPES)
-                e += [party.hp / MAX_HIT_POINTS]
-                e += one_hot(party.status, N_STATUS)
-            # active moves
-            for pos in range(len(self.team.active.moves)):
-                move = self.team.active.moves[pos]
-                e += [move.power / MAX_HIT_POINTS]
-                e += [move.acc]
-                e += [float(move.pp / MOVE_MAX_PP)]
-                e += [move.priority]
-                e += one_hot(move.type, N_TYPES)
-            # weather
-            e += one_hot(self.engine.weather, N_WEATHER)
+            encode_game_state(e, self.engine.teams, self.engine.weather)
             return e
 
     def __create_trainer_view(self, t_id: int = 0) -> TrainerView:

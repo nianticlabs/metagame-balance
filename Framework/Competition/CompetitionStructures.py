@@ -12,7 +12,7 @@ from Behaviour.TeamValuators import NullTeamValuator
 from Util.PkmRosterGenerators import PkmRosterGenerator
 from Util.PkmTeamGenerators import TeamSelector
 from Framework.DataConstants import DEFAULT_MATCH_N
-from Framework.DataObjects import PkmTeam
+from Framework.DataObjects import PkmTeam, MetaData
 from Framework.Process.BattleEngine import PkmBattleEnv
 from Util.Recorders import FileRecorder
 import random
@@ -24,6 +24,8 @@ idle_balance_policy = IdleBalancePolicy()
 null_data_aggregator = NullDataAggregator()
 null_team_hyphotesizer = NullTeamHyphotesizer()
 null_team_valuator = NullTeamValuator()
+null_meta_data = MetaData()
+
 
 class Competitor:
 
@@ -34,6 +36,7 @@ class Competitor:
                  data_aggregator: DataAggregator = null_data_aggregator,
                  team_hyphotesizer: TeamHyphotesizer = null_team_hyphotesizer,
                  team_valuator: TeamValuator = null_team_valuator,
+                 meta_data: MetaData = null_meta_data,
                  name: str = ""):
         self.team: PkmTeam = team
         self.battle_policy: BattlePolicy = battle_agent
@@ -44,6 +47,7 @@ class Competitor:
         self.team_hyphotesizer: TeamHyphotesizer = team_hyphotesizer
         self.team_valuator: TeamValuator = team_valuator
         self.name = name
+        self.meta_data = meta_data
 
     def __str__(self):
         return str(self.team)
