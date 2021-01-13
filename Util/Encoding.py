@@ -10,25 +10,31 @@ def one_hot(p, n):
 
 
 def encode_move(e, move: PkmMove):
-    e += [move.power / MAX_HIT_POINTS]
-    e += [move.acc]
-    e += [float(move.pp / MOVE_MAX_PP)]
+    e += [move.power / MAX_HIT_POINTS,
+          move.acc,
+          float(move.pp / MOVE_MAX_PP),
+          move.priority,
+          move.prob,
+          move.target,
+          move.recover / MAX_HIT_POINTS,
+          move.stat,
+          move.stage / 2,
+          move.fixed_damage / MAX_HIT_POINTS]
     e += one_hot(move.type, N_TYPES)
-    e += [move.priority]
-    e += [move.prob]
-    e += [move.target]
-    e += [move.recover / MAX_HIT_POINTS]
-    e += [move.status]
-    e += [move.stat]
-    e += [move.stage / 2]
-    e += [move.fixed_damage / MAX_HIT_POINTS]
+    e += one_hot(move.status, N_STATUS)
     e += one_hot(move.weather, N_WEATHER)
-    e += [move.hazard]
+    e += one_hot(N_ENTRY_HAZARD if move.hazard is None else move.hazard, N_ENTRY_HAZARD + 1)
+
+
+def decode_move(e) -> PkmMove:
+    move = PkmMove()
+
+    return move
 
 
 def encode_pkm(e, pkm: Pkm):
-    e += one_hot(pkm.type, N_TYPES)
     e += [pkm.hp / MAX_HIT_POINTS]
+    e += one_hot(pkm.type, N_TYPES)
     e += one_hot(pkm.status, N_STATUS)
     # Pkm moves
     for move in pkm.moves:
@@ -42,10 +48,10 @@ def encode_team(e, team: PkmTeam):
     for pkm in team.party:
         encode_pkm(e, pkm)
     # confusion status
-    e += one_hot(team.confused, 2)
+    e += [team.confused]
     # stages
     for stat in range(N_STATS):
-        e += one_hot(team.stage[stat], N_STAGES)
+        e += [team.stage[stat] / N_STAGES]
     # entry hazards
     for hazard in range(N_ENTRY_HAZARD):
         e += one_hot(team.entry_hazard[hazard], N_HAZARD_STAGES)

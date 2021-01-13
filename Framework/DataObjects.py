@@ -1,9 +1,7 @@
 from typing import List, Tuple, Set
-
 from Framework.DataConstants import MOVE_MED_PP, TYPE_CHART_MULTIPLIER, MAX_HIT_POINTS
-from Framework.DataTypes import PkmType, N_TYPES, PkmStatus, N_STATS, N_ENTRY_HAZARD, \
-    PkmStat, WeatherCondition, PkmEntryHazard
-from Util.Encoding import one_hot
+from Framework.DataTypes import PkmType, N_TYPES, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
+    PkmEntryHazard
 import random
 import numpy as np
 
@@ -11,15 +9,27 @@ import numpy as np
 class PkmMove:
 
     def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
-                 move_type: PkmType = PkmType.NORMAL, name: str = "", priority: bool = False,
+                 move_type: PkmType = PkmType.NORMAL, name: str = None, priority: bool = False,
                  prob=0.0, target=1, recover=0.0, status: PkmStatus = None,
                  stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,
                  weather: WeatherCondition = None, hazard: PkmEntryHazard = None):
         """
-        Pokemon move data structure. Special moves have power = 0.
+        Pokemon move data structure.
 
-        :param power: pokemon move power
-        :param move_type: pokemon move type
+        :param power: move power
+        :param acc: move accuracy
+        :param max_pp: move max power points
+        :param move_type: move type
+        :param name: move name
+        :param priority: move priority
+        :param prob: move effect probability (only moves with probability greater than zero perform effects)
+        :param target: move effect target, zero for self and 1 for opponent
+        :param recover: move recover quantity, how much hit points to recover
+        :param status: status the move effect changes
+        :param stage: stage the move effect adds/subtracts from the status
+        :param fixed_damage: effect fixed_damage to apply, not affected by resistance or weakness (if greater than zero)
+        :param weather: effect activates a weather condition
+        :param hazard: effect deploys and hazard enter condition on the opponent field
         """
         self.power = power
         self.acc = acc
@@ -28,7 +38,6 @@ class PkmMove:
         self.type = move_type
         self.name = name
         self.priority = priority
-        # effect types
         self.prob = prob
         self.target = target
         self.recover = recover
@@ -39,9 +48,67 @@ class PkmMove:
         self.weather = weather
         self.hazard = hazard
 
+    def __eq__(self, other):
+        if self.power != other.power:
+            return False
+        if self.acc != other.acc:
+            return False
+        if self.max_pp != other.max_pp:
+            return False
+        if self.type != other.type:
+            return False
+        if self.priority != other.priority:
+            return False
+        if self.prob > 0.:
+            if self.prob != other.prob:
+                return False
+            if self.target != self.target:
+                return False
+            if self.recover != self.recover:
+                return False
+            if self.status != self.status:
+                return False
+            if self.stat != self.stat:
+                return False
+            if self.stage != self.stage:
+                return False
+            if self.fixed_damage != self.fixed_damage:
+                return False
+            if self.weather != self.weather:
+                return False
+            if self.hazard != self.hazard:
+                return False
+        return True
+
+    def __hash__(self):
+        if self.prob == 0.:
+            return hash((self.power, self.acc, self.max_pp, self.type, self.priority))
+        return hash((self.power, self.acc, self.max_pp, self.type, self.priority, self.prob, self.target, self.recover,
+                     self.status, self.stat, self.stage, self.fixed_damage, self.weather, self.hazard))
+
     def __str__(self):
-        return "Move(" + str(self.power) + ", " + str(self.acc) + ", " + str(self.pp) + ", " + self.type.name + ", " + \
-               str(self.priority) + ")" if not self.name else self.name
+        if self.name:
+            return self.name
+        name = "Move(Power=%f, Acc=%f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
+        if self.priority > 0:
+            name += ", Priority=%f" % self.priority
+        if self.prob > 0.:
+            if self.prob < 1.:
+                name += ", Prob=%f" % self.prob
+            name += "Target=Self" if self.target == 0 else "Target=Opp"
+            if self.recover > 0.:
+                name += ", Recover=%f" % self.recover
+            if self.status != PkmStatus.NONE:
+                name += ", Status=%s" % self.status.name
+            if self.stage > 0.:
+                name += ", Stat=%s, Stage=%d" % (self.stat.name, self.stage)
+            if self.fixed_damage > 0.:
+                name += ", Fixed=%f" % self.fixed_damage
+            if self.weather != self.weather.CLEAR:
+                name += ", Weather=%s" % self.weather.name
+            if self.hazard is not None:
+                name += ", Hazard=%s" % self.hazard.name
+        return name + ")"
 
     def reset(self):
         self.pp = self.max_pp
@@ -52,9 +119,9 @@ class PkmMove:
             v.set_fixed_damage(self.fixed_damage)
             if self.stage > 0:
                 v.set_stage(self.stat, self.target, self.stage)
-            if self.status is not None:
+            if self.status != self.status.NONE:
                 v.set_status(self.status, self.target)
-            if self.weather is not None:
+            if self.weather != self.weather.CLEAR:
                 v.set_weather(self.weather)
             if self.hazard is not None:
                 v.set_entry_hazard(self.hazard, self.target)
@@ -226,16 +293,16 @@ class PkmTeam:
         def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
             return self.team.party[pos].type, MAX_HIT_POINTS
 
-        def encode(self):
+        def encode(self):  # TODO
             """
             Encode opponent team state.
 
             :return: encoded opponent team state
             """
             e = []
-            e += one_hot(self.team.active.type, N_TYPES)
-            for pos in range(len(self.team.party)):
-                e += one_hot(self.team.party[pos].type, N_TYPES)
+            # e += one_hot(self.team.active.type, N_TYPES)
+            # for pos in range(len(self.team.party)):
+            #    e += one_hot(self.team.party[pos].type, N_TYPES)
             return e
 
     class View(OpponentView):
