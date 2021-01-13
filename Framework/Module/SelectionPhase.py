@@ -1,4 +1,4 @@
-from Framework.Competition.CompetitionStructures import Competitor
+from Framework.Competition.CompetitionObjects import Competitor
 from Framework.DataObjects import PkmTeam, MetaData
 from Framework.Process.OpponentTeamHyphotesizing import OponentTeamHyphotesizing
 from Framework.Process.TeamSelection import TeamSelection

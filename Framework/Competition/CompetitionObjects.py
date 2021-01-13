@@ -12,7 +12,7 @@ from Behaviour.TeamValuators import NullTeamValuator
 from Util.PkmRosterGenerators import PkmRosterGenerator
 from Util.PkmTeamGenerators import TeamSelector
 from Framework.DataConstants import DEFAULT_MATCH_N
-from Framework.DataObjects import PkmTeam, MetaData
+from Framework.DataObjects import PkmTeam, MetaData, Pkm
 from Framework.Process.BattleEngine import PkmBattleEnv
 from Util.Recorders import FileRecorder
 import random
@@ -29,7 +29,7 @@ null_meta_data = MetaData()
 
 class Competitor:
 
-    def __init__(self, team: PkmTeam = PkmTeam(), battle_agent: BattlePolicy = random_battle_agent,
+    def __init__(self, team=None, battle_agent: BattlePolicy = random_battle_agent,
                  selection_agent: SelectorPolicy = random_selector_agent,
                  builder_agent: TeamBuilderPolicy = random_builder_agent,
                  balance_policy: BalancePolicy = idle_balance_policy,
@@ -38,6 +38,8 @@ class Competitor:
                  team_valuator: TeamValuator = null_team_valuator,
                  meta_data: MetaData = null_meta_data,
                  name: str = ""):
+        if team is None:
+            team = [Pkm(), Pkm(), Pkm(), Pkm(), Pkm(), Pkm()]
         self.team: PkmTeam = team
         self.battle_policy: BattlePolicy = battle_agent
         self.selection_policy: SelectorPolicy = selection_agent

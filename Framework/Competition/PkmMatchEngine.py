@@ -51,8 +51,8 @@ class PkmMatchEngine(gym.Env):
         self.acc_r[1] = 0
         self.game = 0
         self.log = ''
-        self.team0.set_pkms(self.rand_generator.get_team(0))
-        self.team1.set_pkms(self.rand_generator.get_team(1))
+        self.team0.reset_team_members(self.rand_generator.get_team(0))
+        self.team1.reset_team_members(self.rand_generator.get_team(1))
         encode0 = self.team_selector.team_views[0][0].encode() + self.team_selector.team_views[0][1].encode()
         encode1 = self.team_selector.team_views[1][0].encode() + self.team_selector.team_views[1][1].encode()
         return [encode0, encode1]

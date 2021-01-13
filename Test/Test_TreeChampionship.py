@@ -1,4 +1,4 @@
-from Framework.Competition.CompetitionStructures import Competitor, TreeChampionship
+from Framework.Competition.CompetitionObjects import Competitor, TreeChampionship
 from Util.PkmRosterGenerators import StandardPkmRosterGenerator
 
 N_COMPETITORS = 16

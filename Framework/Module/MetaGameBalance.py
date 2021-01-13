@@ -1,4 +1,4 @@
-from Framework.Competition.CompetitionStructures import Competitor
+from Framework.Competition.CompetitionObjects import Competitor
 from Framework.DataObjects import MetaData, PkmRoster
 from Framework.Process.RosterBalance import RosterBalance
 

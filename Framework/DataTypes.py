@@ -1,4 +1,7 @@
+import random
 from enum import IntEnum
+
+from Framework.DataConstants import TYPE_CHART_MULTIPLIER
 
 
 class PkmType(IntEnum):
@@ -23,6 +26,49 @@ class PkmType(IntEnum):
 
 
 N_TYPES = len(list(map(int, PkmType)))
+
+
+def effective(t: PkmType) -> PkmType:
+    """
+    Get a effective type relative to type t.
+
+    :param t: pokemon type
+    :return: a random type that is not very effective against pokemon type t
+    """
+    _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
+    s = [index for index, value in enumerate(_t) if value == 1.]
+    if not s:
+        return PkmType(random.randrange(N_TYPES))
+    return PkmType(random.choice(s))
+
+
+def super_effective(t: PkmType) -> PkmType:
+    """
+    Get a super effective type relative to type t.
+
+    :param t: pokemon type
+    :return: a random type that is super effective against pokemon type t
+    """
+    _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
+    s = [index for index, value in enumerate(_t) if value == 2.]
+    if not s:
+        print('Warning: Empty List!')
+        return effective(t)
+    return PkmType(random.choice(s))
+
+
+def non_very_effective(t: PkmType) -> PkmType:
+    """
+    Get a non very effective type relative to type t.
+
+    :param t: pokemon type
+    :return: a random type that is not very effective against pokemon type t
+    """
+    _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
+    s = [index for index, value in enumerate(_t) if value == .5]
+    if not s:
+        return effective(t)
+    return PkmType(random.choice(s))
 
 
 # Battle Weather conditions

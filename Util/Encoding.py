@@ -33,7 +33,7 @@ def decode_move(e) -> PkmMove:
 
 
 def encode_pkm(e, pkm: Pkm):
-    e += [pkm.hp / MAX_HIT_POINTS]
+    e += [pkm.hp / MAX_HIT_POINTS, pkm.n_turns_asleep / 5]
     e += one_hot(pkm.type, N_TYPES)
     e += one_hot(pkm.status, N_STATUS)
     # Pkm moves

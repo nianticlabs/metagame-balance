@@ -1,6 +1,6 @@
 from typing import List, Tuple, Set
-from Framework.DataConstants import MOVE_MED_PP, TYPE_CHART_MULTIPLIER, MAX_HIT_POINTS
-from Framework.DataTypes import PkmType, N_TYPES, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
+from Framework.DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
+from Framework.DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
     PkmEntryHazard
 import random
 import numpy as np
@@ -10,9 +10,9 @@ class PkmMove:
 
     def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
                  move_type: PkmType = PkmType.NORMAL, name: str = None, priority: bool = False,
-                 prob=0.0, target=1, recover=0.0, status: PkmStatus = None,
+                 prob=0.0, target=1, recover=0.0, status: PkmStatus = PkmStatus.NONE,
                  stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,
-                 weather: WeatherCondition = None, hazard: PkmEntryHazard = None):
+                 weather: WeatherCondition = WeatherCondition.CLEAR, hazard: PkmEntryHazard = None):
         """
         Pokemon move data structure.
 
@@ -89,13 +89,13 @@ class PkmMove:
     def __str__(self):
         if self.name:
             return self.name
-        name = "Move(Power=%f, Acc=%f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
+        name = "PkmMove(Power=%f, Acc=%f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
         if self.priority > 0:
             name += ", Priority=%f" % self.priority
         if self.prob > 0.:
             if self.prob < 1.:
                 name += ", Prob=%f" % self.prob
-            name += "Target=Self" if self.target == 0 else "Target=Opp"
+            name += ", Target=Self" if self.target == 0 else ", Target=Opp"
             if self.recover > 0.:
                 name += ", Recover=%f" % self.recover
             if self.status != PkmStatus.NONE:
@@ -126,63 +126,97 @@ class PkmMove:
             if self.hazard is not None:
                 v.set_entry_hazard(self.hazard, self.target)
 
-    @staticmethod
-    def super_effective(t: PkmType) -> PkmType:
-        """
-        Get a super effective type relative to type t.
 
-        :param t: pokemon type
-        :return: a random type that is super effective against pokemon type t
-        """
-        _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
-        s = [index for index, value in enumerate(_t) if value == 2.]
-        if not s:
-            print('Warning: Empty List!')
-            return PkmMove.effective(t)
-        return PkmType(random.choice(s))
+def get_move_view(move: PkmMove):
+    class MoveView:
 
-    @staticmethod
-    def non_very_effective(t: PkmType) -> PkmType:
-        """
-        Get a non very effective type relative to type t.
+        def get_power(self) -> float:
+            return move.power
 
-        :param t: pokemon type
-        :return: a random type that is not very effective against pokemon type t
-        """
-        _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
-        s = [index for index, value in enumerate(_t) if value == .5]
-        if not s:
-            return PkmMove.effective(t)
-        return PkmType(random.choice(s))
+        def get_acc(self) -> float:
+            return move.acc
 
-    @staticmethod
-    def effective(t: PkmType) -> PkmType:
-        """
-        Get a effective type relative to type t.
+        def get_pp(self) -> int:
+            return move.pp
 
-        :param t: pokemon type
-        :return: a random type that is not very effective against pokemon type t
-        """
-        _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
-        s = [index for index, value in enumerate(_t) if value == 1.]
-        if not s:
-            return PkmType(random.randrange(N_TYPES))
-        return PkmType(random.choice(s))
+        def get_type(self) -> PkmType:
+            return move.type
+
+        def get_priority(self) -> int:
+            return move.priority
+
+        def get_prob(self) -> float:
+            return move.prob
+
+        def get_target(self) -> int:
+            return move.target
+
+        def get_recover(self) -> float:
+            return move.recover
+
+        def get_status(self) -> PkmStatus:
+            return move.status
+
+        def get_stat(self) -> PkmStat:
+            return move.stat
+
+        def get_stage(self) -> int:
+            return move.stage
+
+        def get_fixed_damage(self) -> float:
+            return move.fixed_damage
+
+        def get_weather(self) -> WeatherCondition:
+            return move.weather
+
+        def get_hazard(self) -> PkmEntryHazard:
+            return move.hazard
+
+    return MoveView()
 
 
 PkmMoveRoster = Set[PkmMove]
 
 
 class Pkm:
+
     def __init__(self, p_type: PkmType = PkmType.NORMAL, max_hp: float = MAX_HIT_POINTS,
                  status: PkmStatus = PkmStatus.NONE, move0: PkmMove = PkmMove(), move1: PkmMove = PkmMove(),
                  move2: PkmMove = PkmMove(), move3: PkmMove = PkmMove()):
+        """
+        In battle Pokemon base data struct.
+
+        :param p_type: pokemon type
+        :param max_hp: max hit points
+        :param status: current status (PARALYZED, ASLEEP, etc.)
+        :param move0: first move
+        :param move1: second move
+        :param move2: third move
+        :param move3: fourth move
+        """
         self.type: PkmType = p_type
         self.max_hp: float = max_hp
         self.hp: float = max_hp
         self.status: PkmStatus = status
         self.n_turns_asleep: int = 0
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
+
+    def __eq__(self, other):
+        return self.type == other.type and self.max_hp == other.max_hp and set(self.moves) == set(other.moves)
+
+    def __hash__(self):
+        return hash((self.type, self.max_hp) + tuple(self.moves))
+
+    def __str__(self):
+        s = 'Pkm(Type=%s, HP=%d' % (self.type.name, self.hp)
+        if self.status != PkmStatus.NONE:
+            s += ', Status=%s' % self.status.name
+            if self.status == PkmStatus.SLEEP:
+                s += ', Turns Asleep=%d' % self.n_turns_asleep
+        s += ', Moves={'
+        for move in self.moves:
+            s += str(move) + ', '
+        return s + '})'
 
     def reset(self):
         """
@@ -226,29 +260,76 @@ class Pkm:
         """
         return self.status == PkmStatus.FROZEN
 
-    def __str__(self):
-        return 'Pokemon(' + PkmType(self.type).name + ', ' + str(self.hp) + ' HP, ' + PkmStatus(
-            self.status).name + ', ' + str(self.moves[0]) + ', ' + str(self.moves[1]) + ', ' + str(
-            self.moves[2]) + ', ' + str(self.moves[3]) + ')'
-
 
 class PkmTemplate:
 
     def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float):
+        """
+        Pokemon specimen definition data structure.
+
+        :param move_roster: set of available moves for Pokemon of this species
+        :param pkm_type: pokemon type
+        :param max_hp: pokemon max_hp
+        """
         self.move_roster: PkmMoveRoster = move_roster
-        self.pkm_type: PkmType = pkm_type
+        self.type: PkmType = pkm_type
         self.max_hp = max_hp
 
-    def get_pkm(self, moves: List[int]) -> Pkm:
-        move_list = list(self.move_roster)
-        return Pkm(p_type=self.pkm_type, move0=move_list[moves[0]], move1=move_list[moves[1]],
-                   move2=move_list[moves[2]], move3=move_list[moves[3]])
+    def __eq__(self, other):
+        return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
+
+    def __hash__(self):
+        return hash((self.type, self.max_hp) + tuple(self.move_roster))
 
     def __str__(self):
-        s = 'Pokemon(' + PkmType(self.pkm_type).name + ', ' + str(self.max_hp) + ' HP, '
+        s = 'PkmTemplate(Type=%s, Max_HP=%d, Moves={' % (PkmType(self.type).name, self.max_hp)
         for move in self.move_roster:
             s += str(move) + ', '
-        return s + ')'
+        return s + '})'
+
+    def gen_pkm(self, moves: List[int]) -> Pkm:
+        """
+        Given the indexes of the moves generate a pokemon of this species.
+
+        :param moves: index list of moves
+        :return: the requested pokemon
+        """
+        move_list = list(self.move_roster)
+        return Pkm(p_type=self.type, max_hp=self.max_hp,
+                   move0=move_list[moves[0]],
+                   move1=move_list[moves[1]],
+                   move2=move_list[moves[2]],
+                   move3=move_list[moves[3]])
+
+    def is_speciman(self, pkm: Pkm) -> bool:
+        """
+        Check if input pokemon is a speciman of this species
+
+        :param pkm: pokemon
+        :return: if pokemon is speciman of this template
+        """
+        return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
+
+
+def get_pkm_view(pkm: Pkm):
+    class PkmView:
+
+        def get_type(self) -> PkmType:
+            return pkm.type
+
+        def get_hp(self) -> float:
+            return pkm.hp
+
+        def get_pkm_status(self) -> PkmStatus:
+            return pkm.status
+
+        def get_n_turns_asleep(self) -> int:
+            return pkm.n_turns_asleep
+
+        def get_move_view(self, idx: int) -> get_move_view.MoveView:
+            return pkm.moves[idx]
+
+    return PkmView()
 
 
 PkmRoster = Set[PkmTemplate]
@@ -257,6 +338,11 @@ PkmRoster = Set[PkmTemplate]
 class PkmTeam:
 
     def __init__(self, pkms: List[Pkm] = None):
+        """
+        In battle Pkm team.
+
+        :param pkms: Chosen pokemon. The first stays the active pokemon.
+        """
         if pkms is None:
             pkms = [Pkm()]
         self.active: Pkm = pkms.pop(0)
@@ -265,6 +351,12 @@ class PkmTeam:
         self.confused: bool = False
         self.n_turns_confused: int = 0
         self.entry_hazard: List[int] = [0] * N_ENTRY_HAZARD
+
+    def __str__(self):
+        party = ''
+        for i in range(0, len(self.party)):
+            party += str(self.party[i]) + '\n'
+        return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)
 
     def reset(self):
         """
@@ -280,54 +372,17 @@ class PkmTeam:
         for i in range(len(self.entry_hazard)):
             self.entry_hazard[i] = 0
 
-    class OpponentView:
-        def __init__(self, team):
-            self.team = team
-
-        def get_n_party(self) -> int:
-            return len(self.team.party)
-
-        def get_active(self) -> Tuple[PkmType, float]:
-            return self.team.active.type, MAX_HIT_POINTS
-
-        def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
-            return self.team.party[pos].type, MAX_HIT_POINTS
-
-        def encode(self):  # TODO
-            """
-            Encode opponent team state.
-
-            :return: encoded opponent team state
-            """
-            e = []
-            # e += one_hot(self.team.active.type, N_TYPES)
-            # for pos in range(len(self.team.party)):
-            #    e += one_hot(self.team.party[pos].type, N_TYPES)
-            return e
-
-    class View(OpponentView):
-
-        def get_active(self) -> Tuple[PkmType, float]:
-            return self.team.active.type, self.team.active.max_hp
-
-        def get_party(self, pos: int = 0) -> Tuple[PkmType, float]:
-            return self.team.party[pos].type, self.team.party[pos].max_hp
-
-    def create_team_view(self) -> Tuple[OpponentView, View]:
-        return PkmTeam.OpponentView(self), PkmTeam.View(self)
-
-    def set_pkms(self, team):
-        self.active: Pkm = team.active
-        self.party: List[Pkm] = team.party
-
-    def select_team(self, selected_pkm: List[int]):
+    def reset_team_members(self, pkms: List[Pkm] = None):
         """
-        Get a sub team.
+        Reset tean members
 
-        :param selected_pkm: pkm sub team
-        :return: selected sub team
+        :param pkms: list of pkm members
         """
-        return PkmTeam(list(map(([self.active] + self.party).__getitem__, selected_pkm)))
+        if pkms is None:
+            pkms = [Pkm()]
+        self.active: Pkm = pkms.pop(0)
+        self.party: List[Pkm] = pkms
+        self.reset()
 
     def size(self) -> int:
         """
@@ -350,8 +405,9 @@ class PkmTeam:
 
     def get_not_fainted(self) -> List[int]:
         """
-        Return a list of positions of not fainted pkm in party.
+        Check which pokemon are not fainted in party.
 
+        :return: a list of positions of not fainted pkm in party.
         """
         not_fainted = []
         for i, p in enumerate(self.party):
@@ -369,8 +425,6 @@ class PkmTeam:
         """
         if len(self.party) == 0:
             return self.active, self.active
-
-        assert -1 <= pos < len(self.party)
 
         # identify fainted pkm
         not_fainted_pkm = self.get_not_fainted()
@@ -396,11 +450,29 @@ class PkmTeam:
 
         return self.active, self.party[pos]
 
-    def __str__(self):
-        party = ''
-        for i in range(0, len(self.party)):
-            party += str(self.party[i]) + '\n'
-        return 'Active:\n%s\nParty:\n%s' % (str(self.active), party)
+
+def get_team_view(team: PkmTeam):
+    class PkmTeamView:
+
+        def get_active_pkm_view(self) -> get_pkm_view.PkmView:
+            return get_pkm_view(team.active)
+
+        def get_party_pkm_view(self, idx: int) -> get_pkm_view.PkmView:
+            return get_pkm_view(team.party[idx])
+
+        def get_stage(self, stat: PkmStat) -> int:
+            return team.stage[stat]
+
+        def get_confused(self) -> bool:
+            return team.confused
+
+        def get_n_turns_confused(self) -> int:
+            return team.n_turns_confused
+
+        def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
+            return team.entry_hazard[hazard]
+
+    return PkmTeamView()
 
 
 class MetaData:
