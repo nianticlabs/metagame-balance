@@ -112,7 +112,8 @@ N_STAGES = MAX_STAGE - MIN_STAGE + 1
 
 # Pokemon battle stats
 class PkmEntryHazard(IntEnum):
-    SPIKES = 0
+    NONE = 0
+    SPIKES = 1
 
 
 N_ENTRY_HAZARD = len(list(map(int, PkmEntryHazard)))

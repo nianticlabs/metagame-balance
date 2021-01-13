@@ -1,3 +1,4 @@
+from math import isclose
 from typing import List, Tuple, Set
 from Framework.DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
 from Framework.DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
@@ -12,7 +13,7 @@ class PkmMove:
                  move_type: PkmType = PkmType.NORMAL, name: str = None, priority: bool = False,
                  prob=0.0, target=1, recover=0.0, status: PkmStatus = PkmStatus.NONE,
                  stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,
-                 weather: WeatherCondition = WeatherCondition.CLEAR, hazard: PkmEntryHazard = None):
+                 weather: WeatherCondition = WeatherCondition.CLEAR, hazard: PkmEntryHazard = PkmEntryHazard.NONE):
         """
         Pokemon move data structure.
 
@@ -91,7 +92,7 @@ class PkmMove:
             return self.name
         name = "PkmMove(Power=%f, Acc=%f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
         if self.priority > 0:
-            name += ", Priority=%f" % self.priority
+            name += ", Priority=%d" % self.priority
         if self.prob > 0.:
             if self.prob < 1.:
                 name += ", Prob=%f" % self.prob
@@ -106,7 +107,7 @@ class PkmMove:
                 name += ", Fixed=%f" % self.fixed_damage
             if self.weather != self.weather.CLEAR:
                 name += ", Weather=%s" % self.weather.name
-            if self.hazard is not None:
+            if self.hazard != PkmEntryHazard.NONE:
                 name += ", Hazard=%s" % self.hazard.name
         return name + ")"
 
@@ -123,7 +124,7 @@ class PkmMove:
                 v.set_status(self.status, self.target)
             if self.weather != self.weather.CLEAR:
                 v.set_weather(self.weather)
-            if self.hazard is not None:
+            if self.hazard != PkmEntryHazard.NONE:
                 v.set_entry_hazard(self.hazard, self.target)
 
 
@@ -202,7 +203,7 @@ class Pkm:
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
 
     def __eq__(self, other):
-        return self.type == other.type and self.max_hp == other.max_hp and set(self.moves) == set(other.moves)
+        return self.type == other.type and isclose(self.max_hp, other.max_hp) and set(self.moves) == set(other.moves)
 
     def __hash__(self):
         return hash((self.type, self.max_hp) + tuple(self.moves))

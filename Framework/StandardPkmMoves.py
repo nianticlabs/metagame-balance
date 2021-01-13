@@ -5,7 +5,7 @@ from Framework.DataTypes import PkmType, PkmStatus, WeatherCondition, PkmStat, P
 Struggle = PkmMove(max_pp=0, name="Struggle")
 
 # Normal Moves
-Recover = PkmMove(0., 1., 5, PkmType.NORMAL, "Recover", recover=80., prob=1.)
+Recover = PkmMove(0., 1., 5, PkmType.NORMAL, "Recover", recover=80., target=0, prob=1.)
 DoubleEdge = PkmMove(120., 1., 10, PkmType.NORMAL, "Double-Edge", recover=-40., prob=1.)
 ExtremeSpeed = PkmMove(80., 1., 10, PkmType.NORMAL, "Extreme Speed", priority=True)
 Slam = PkmMove(80., .75, 20, PkmType.NORMAL, "Slam", status=PkmStatus.PARALYZED, prob=1 / 3)
@@ -60,14 +60,14 @@ MudShot = PkmMove(55., 95., 15, PkmType.GROUND, "Mud Shot", stat=PkmStat.SPEED, 
 EarthPower = PkmMove(90., 1., 10, PkmType.GROUND, "Earth Power", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 
 # Flying Moves
-Roost = PkmMove(0., 1., 5, PkmType.FLYING, "Roost", recover=80., prob=1.)
+Roost = PkmMove(0., 1., 5, PkmType.FLYING, "Roost", recover=80., target=0, prob=1.)
 Chatter = PkmMove(65., 1., 20, PkmType.FLYING, "Chatter", status=PkmStatus.CONFUSED, prob=1.)
 Hurricane = PkmMove(110., .7, 10, PkmType.FLYING, "Hurricane", status=PkmStatus.CONFUSED, prob=.3)
 WingAttack = PkmMove(60., 100., 20, PkmType.FLYING, "WingAttack")
 
 # Psychic Moves
 CalmMind = PkmMove(0., 1., 5, PkmType.PSYCHIC, "Calm Mind", stat=PkmStat.DEFENSE, stage=2, target=0, prob=1.)
-Psychic = PkmMove(90., 1., 10, PkmType.PSYCHIC, "Psychic", stat=PkmStat.DEFENSE, stage=-1,  prob=.1)
+Psychic = PkmMove(90., 1., 10, PkmType.PSYCHIC, "Psychic", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 PsychoBoost = PkmMove(140., .9, 5, PkmType.PSYCHIC, "Psycho Boost", stat=PkmStat.DEFENSE, stage=-2, target=0, prob=.1)
 Psybeam = PkmMove(65., 1., 10, PkmType.PSYCHIC, "Psybeam", status=PkmStatus.CONFUSED, prob=.1)
 
