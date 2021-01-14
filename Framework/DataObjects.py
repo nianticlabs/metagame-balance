@@ -101,7 +101,7 @@ class PkmMove:
                 name += ", Recover=%f" % self.recover
             if self.status != PkmStatus.NONE:
                 name += ", Status=%s" % self.status.name
-            if self.stage > 0.:
+            if self.stage != 0.:
                 name += ", Stat=%s, Stage=%d" % (self.stat.name, self.stage)
             if self.fixed_damage > 0.:
                 name += ", Fixed=%f" % self.fixed_damage
@@ -352,6 +352,19 @@ class PkmTeam:
         self.confused: bool = False
         self.n_turns_confused: int = 0
         self.entry_hazard: List[int] = [0] * N_ENTRY_HAZARD
+
+    def __eq__(self, other):
+        eq = self.active == other.active and self.stage == other.stage and self.confused == other.confused and \
+               self.n_turns_confused == other.n_turns_confused
+        if not eq:
+            return False
+        for i, p in enumerate(self.party):
+            if p != other.party[i]:
+                return False
+        for i, h in enumerate(self.entry_hazard):
+            if h != other.entry_hazard[i]:
+                return False
+        return True
 
     def __str__(self):
         party = ''

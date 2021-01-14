@@ -2,15 +2,11 @@ import itertools
 import random
 import unittest
 from copy import deepcopy
-from decimal import Decimal
-
-import numpy as np
-
 from Framework.DataConstants import MIN_HIT_POINTS, MAX_HIT_POINTS
-from Framework.DataObjects import PkmTemplate
+from Framework.DataObjects import PkmTemplate, PkmTeam
 from Framework.DataTypes import PkmType
 from Framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from Util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm
+from Util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team
 
 
 class TestEncodingMethods(unittest.TestCase):
@@ -35,6 +31,22 @@ class TestEncodingMethods(unittest.TestCase):
                 encode_pkm(e, pkm)
                 d = decode_pkm(e)
                 self.assertEqual(pkm, d)
+
+    def test_encode_team(self):
+        for _ in range(10):
+            pkm_type = random.choice(list(PkmType))
+            max_hp = random.randint(MIN_HIT_POINTS, MAX_HIT_POINTS)
+            move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            move_combinations = itertools.combinations(range(10), 4)
+            pkms = []
+            for idx in random.sample(list(move_combinations), 3):
+                pkms.append(template.gen_pkm(moves=list(idx)))
+            team = PkmTeam(pkms)
+            e = []
+            encode_team(e, team)
+            d = decode_team(e)
+            self.assertEqual(team, d)
 
 
 if __name__ == '__main__':

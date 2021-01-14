@@ -1,7 +1,10 @@
+from typing import List, Tuple
+
+from Framework.Competition.Config import TEAM_SIZE
 from Framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP
 from Framework.DataObjects import PkmMove, Pkm, PkmTeam
-from Framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_STAGES, N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, \
-    PkmStat, PkmType, PkmStatus, WeatherCondition, PkmEntryHazard
+from Framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
+    WeatherCondition, PkmEntryHazard
 
 
 def one_hot(p, n):
@@ -50,10 +53,12 @@ def decode_move(e) -> PkmMove:
     _start = _end
     _end = _start + N_ENTRY_HAZARD
     hazard = PkmEntryHazard(e.index(1, _start, _end) - _start)
-    move = PkmMove(power=power, acc=acc, max_pp=pp, priority=priority, prob=prob, target=target, recover=recover,
+    return PkmMove(power=power, acc=acc, max_pp=pp, priority=priority, prob=prob, target=target, recover=recover,
                    stat=stat, stage=stage, fixed_damage=fixed_damage, move_type=move_type, status=status,
                    weather=weather, hazard=hazard)
-    return move
+
+
+MOVE_ENCODE_LEN = 42
 
 
 def encode_pkm(e, pkm: Pkm):
@@ -65,10 +70,7 @@ def encode_pkm(e, pkm: Pkm):
         encode_move(e, move)
 
 
-MOVE_ENCODE_LEN = 42
-
-
-def decode_pkm(e):
+def decode_pkm(e) -> Pkm:
     hp = e[0] * MAX_HIT_POINTS
     n_turns_asleep = int(e[1] * 5)
     _start = 2
@@ -94,22 +96,52 @@ def decode_pkm(e):
     return pkm
 
 
+PKM_ENCODE_LEN = 195
+
+
 def encode_team(e, team: PkmTeam):
     e += [team.confused]
+    e += team.entry_hazard
     for stat in range(N_STATS):
-        e += [team.stage[stat] / N_STAGES]
-    for hazard in range(N_ENTRY_HAZARD):
-        e += one_hot(team.entry_hazard[hazard], N_HAZARD_STAGES)
+        e += [team.stage[stat] / 5]
     encode_pkm(e, team.active)
-    for pkm in team.party:
+    for pkm in team.party[:TEAM_SIZE - 1]:
         encode_pkm(e, pkm)
 
 
-def decode_team(e):
+def decode_team(e) -> PkmTeam:
     confused = e[0]
+    _start = 1
+    _end = _start + N_ENTRY_HAZARD
+    entry_hazard = e[_start: _end]
+    _start = _end
+    _end = _start + N_STATS
+    stage = []
+    i = 0
+    for stat in range(_start, _end):
+        stage.append(e[stat] * 5)
+        i += 1
+    pkms: List[Pkm] = []
+    for _ in range(TEAM_SIZE):
+        _start = _end
+        _end = _start + PKM_ENCODE_LEN
+        pkms.append(decode_pkm(e[_start: _end]))
+    team = PkmTeam(pkms)
+    team.confused = confused
+    team.entry_hazard = entry_hazard
+    return team
+
+
+TEAM_ENCODE_LEN = 591
 
 
 def encode_game_state(e, teams, weather):
-    for team in teams:
-        encode_team(e, team)
+    encode_team(e, teams[0])
+    encode_team(e, teams[1])
     e += one_hot(weather, N_WEATHER)
+
+
+def decode_game_state(e) -> Tuple[List[PkmTeam], WeatherCondition]:
+    teams = [decode_team(e[:TEAM_ENCODE_LEN]), decode_team(e[TEAM_ENCODE_LEN:TEAM_ENCODE_LEN * 2])]
+    weather = WeatherCondition(e[TEAM_ENCODE_LEN * 2])
+    return teams, weather
