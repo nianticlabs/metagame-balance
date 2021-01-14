@@ -3,10 +3,11 @@ import random
 import unittest
 from copy import deepcopy
 from Framework.DataConstants import MIN_HIT_POINTS, MAX_HIT_POINTS
-from Framework.DataObjects import PkmTemplate, PkmTeam
+from Framework.DataObjects import PkmTemplate, PkmTeam, GameState
 from Framework.DataTypes import PkmType
 from Framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from Util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team
+from Util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, encode_game_state, \
+    decode_game_state
 
 
 class TestEncodingMethods(unittest.TestCase):
@@ -47,6 +48,23 @@ class TestEncodingMethods(unittest.TestCase):
             encode_team(e, team)
             d = decode_team(e)
             self.assertEqual(team, d)
+
+    def test_encode_game_state(self):
+        for _ in range(10):
+            pkm_type = random.choice(list(PkmType))
+            max_hp = random.randint(MIN_HIT_POINTS, MAX_HIT_POINTS)
+            move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            move_combinations = itertools.combinations(range(10), 4)
+            pkms = []
+            for idx in random.sample(list(move_combinations), 3):
+                pkms.append(template.gen_pkm(moves=list(idx)))
+            team = PkmTeam(pkms)
+            game_state = GameState([team, team])
+            e = []
+            encode_game_state(e, game_state)
+            d = decode_game_state(e)
+            self.assertEqual(game_state, d)
 
 
 if __name__ == '__main__':

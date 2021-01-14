@@ -35,23 +35,32 @@ class GUISelectorPolicy(SelectorPolicy):
         selected = []
         for item in self.team:
             item[1].Update(value=False)
-
         # opponent active
-        opp_type, opp_hp = opp.get_active()
-        opp_text = opp_type.name + ' ' + str(opp_hp) + ' HP'
+        opp_team = g.get_team_view(1)
+        opp_active = opp_team.get_active_pkm_view()
+        opp_active_type = opp_active.get_type()
+        opp_active_hp = opp_active.get_hp()
+        opp_text = opp_active_type.name + ' ' + str(opp_active_hp) + ' HP'
         self.opp[0][0].Update(opp_text)
         # opponent party
-        for i in range(opp.get_n_party()):
-            party_type, party_hp = opp.get_party(i)
+        opp_party = [opp_team.get_party_pkm_view(0), opp_team.get_party_pkm_view(1)]
+        for i, pkm in enumerate(opp_party):
+            party_type = pkm.get_type()
+            party_hp = pkm.get_hp()
             party_text = party_type.name + ' ' + str(party_hp) + ' HP'
             self.opp[i + 1][0].Update(party_text)
         # active
-        active_type, active_hp = team.get_active()
-        active_text = active_type.name + ' ' + str(active_hp) + ' HP'
+        my_team = g.get_team_view(0)
+        my_active = my_team.get_active_pkm_view()
+        my_active_type = my_active.get_type()
+        my_active_hp = my_active.get_hp()
+        active_text = my_active_type.name + ' ' + str(my_active_hp) + ' HP'
         self.team[0][0].Update(active_text)
         # party
-        for i in range(opp.get_n_party()):
-            party_type, party_hp = team.get_party(i)
+        my_party = [my_team.get_party_pkm_view(0), my_team.get_party_pkm_view(1)]
+        for i, pkm in enumerate(my_party):
+            party_type = pkm.get_type()
+            party_hp = pkm.get_hp()
             party_text = party_type.name + ' ' + str(party_hp) + ' HP'
             self.team[i + 1][0].Update(party_text)
         event, values = self.window.read()

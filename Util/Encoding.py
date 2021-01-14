@@ -141,23 +141,13 @@ def encode_game_state(e, game_state: GameState):
     e += one_hot(game_state.weather, N_WEATHER)
 
 
-def encode_game_state_pair(e0, e1, game_state: GameState):
-    team_encode = [[], []]
-    for i, team in enumerate(game_state.teams):
-        encode_team(team_encode[i], team)
-    e0.append(team_encode[0])
-    e0.append(team_encode[1])
-    e0 += one_hot(game_state.weather, N_WEATHER)
-    e1.append(team_encode[1])
-    e1.append(team_encode[0])
-    e1 += one_hot(game_state.weather, N_WEATHER)
-
-
 def decode_game_state(e) -> GameState:
     teams = [decode_team(e[:TEAM_ENCODE_LEN]), decode_team(e[TEAM_ENCODE_LEN:TEAM_ENCODE_LEN * 2])]
     game_state = GameState(teams)
-    game_state.weather = WeatherCondition(e[TEAM_ENCODE_LEN * 2])
+    _start = TEAM_ENCODE_LEN * 2
+    _end = _start + N_WEATHER
+    game_state.weather = WeatherCondition(e.index(1, _start, _end) - _start)
     return game_state
 
 
-GAME_STATE_ENCODE_LEN = TEAM_ENCODE_LEN * 2 + N_WEATHER
+GAME_STATE_ENCODE_LEN = 1187

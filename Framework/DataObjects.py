@@ -501,6 +501,12 @@ class GameState:
         self.teams = teams
         self.weather = WeatherCondition.CLEAR
 
+    def __eq__(self, other):
+        for i, team in enumerate(self.teams):
+            if team != other.teams[i]:
+                return False
+        return self.weather == other.weather
+
 
 def get_game_state_view(game_state: GameState):
     class GameStateView:

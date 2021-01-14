@@ -10,7 +10,7 @@ from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmSt
     MIN_STAGE, MAX_STAGE
 from Framework.StandardPkmMoves import Struggle
 from Util import Recorder
-from Util.Encoding import GAME_STATE_ENCODE_LEN
+from Util.Encoding import GAME_STATE_ENCODE_LEN, encode_game_state
 import gym
 import random
 import numpy as np
@@ -29,8 +29,8 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
-        self.game_state_view = [get_game_state_view(GameState([teams[0], teams[1]])),
-                                get_game_state_view(GameState([teams[1], teams[0]]))]
+        self.game_state = [GameState([teams[0], teams[1]]), GameState([teams[1], teams[0]])]
+        self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
@@ -134,7 +134,10 @@ class PkmBattleEnv(gym.Env):
                 self.log += '\nTRAINER %s %s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won')
                 self.log += 'TRAINER %s %s\n' % (1, 'Lost' if self.teams[1].fainted() else 'Won')
 
-        return [self.game_state_view[0].encode(), self.game_state_view[1].encode()], r, finished, self.game_state_view
+        e0, e1 = [], []
+        encode_game_state(e0, self.game_state[0])
+        encode_game_state(e1, self.game_state[1])
+        return [e0, e1], r, finished, self.game_state_view
 
     def reset(self):
         self.weather = WeatherCondition.CLEAR
@@ -146,8 +149,8 @@ class PkmBattleEnv(gym.Env):
         if self.team_generator is not None:
             self.teams[0] = self.team_generator.get_team(0)
             self.teams[1] = self.team_generator.get_team(1)
-            self.game_state_view = [get_game_state_view(GameState([self.teams[0], self.teams[1]])),
-                                    get_game_state_view(GameState([self.teams[1], self.teams[0]]))]
+            self.game_state = [GameState([self.teams[0], self.teams[1]]), GameState([self.teams[1], self.teams[0]])]
+            self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
 
         for team in self.teams:
             team.reset()
@@ -156,7 +159,10 @@ class PkmBattleEnv(gym.Env):
             self.log = 'TRAINER 0\n' + str(self.teams[0])
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
-        return [self.game_state_view[0].encode(), self.game_state_view[1].encode()]
+        e0, e1 = [], []
+        encode_game_state(e0, self.game_state[0])
+        encode_game_state(e1, self.game_state[1])
+        return [e0, e1]
 
     def render(self, mode='human'):
         print(self.log)
