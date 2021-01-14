@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from Behaviour import SelectorPolicy
+from Framework.Competition.Config import TEAM_SIZE
 from Framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, N_MAX_PARTY, N_MOVES
 from Framework.DataObjects import PkmTeam, Pkm, PkmMove
 from Framework.DataTypes import PkmType
@@ -25,7 +26,7 @@ class PkmTeamGenerator(ABC):
 # Example generators
 class RandomGenerator(PkmTeamGenerator):
 
-    def __init__(self, party_size: int = N_MAX_PARTY):
+    def __init__(self, party_size: int = TEAM_SIZE - 1):
         self.party_size = party_size
 
     def get_team(self, t_id: int = 0) -> PkmTeam:

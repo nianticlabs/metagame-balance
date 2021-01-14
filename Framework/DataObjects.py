@@ -315,11 +315,8 @@ class PkmTemplate:
 def get_pkm_view(pkm: Pkm):
     class PkmView:
 
-        def __init__(self):
-            self._move_views = [get_move_view(move) for move in pkm.moves]
-
-        def get_move_view(self, idx: int) -> get_move_view.MoveView:
-            return self._move_views[idx]
+        def get_move_view(self, idx: int):
+            return get_move_view(pkm.moves[idx])
 
         def get_type(self) -> PkmType:
             return pkm.type
@@ -348,7 +345,7 @@ class PkmTeam:
         :param pkms: Chosen pokemon. The first stays the active pokemon.
         """
         if pkms is None:
-            pkms = [Pkm()]
+            pkms = [Pkm(), Pkm(), Pkm()]
         self.active: Pkm = pkms.pop(0)
         self.party: List[Pkm] = pkms
         self.stage: List[int] = [0] * N_STATS
@@ -470,15 +467,11 @@ class PkmTeam:
 def get_team_view(team: PkmTeam):
     class PkmTeamView:
 
-        def __init__(self):
-            self._active = get_pkm_view(team.active)
-            self._party = [get_pkm_view(pkm) for pkm in team.party]
+        def get_active_pkm_view(self):
+            return get_pkm_view(team.active)
 
-        def get_active_pkm_view(self) -> get_pkm_view.PkmView:
-            return self._active
-
-        def get_party_pkm_view(self, idx: int) -> get_pkm_view.PkmView:
-            return self._party[idx]
+        def get_party_pkm_view(self, idx: int):
+            return get_pkm_view(team.party[idx])
 
         def get_stage(self, stat: PkmStat) -> int:
             return team.stage[stat]
@@ -514,7 +507,7 @@ def get_game_state_view(game_state: GameState):
         def __init__(self):
             self._teams = [get_team_view(team) for team in game_state.teams]
 
-        def get_team_view(self, idx: int) -> get_pkm_view.PkmTeamView:
+        def get_team_view(self, idx: int):
             return self._teams[idx]
 
         def get_weather_condition(self) -> WeatherCondition:

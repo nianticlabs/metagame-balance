@@ -1,7 +1,8 @@
 from typing import List
 from Behaviour import BattlePolicy
-from Framework.DataConstants import TYPE_CHART_MULTIPLIER, N_MOVES, N_DEFAULT_PARTY, N_SWITCHES
-from Framework.DataObjects import PkmMove, get_game_state_view
+from Framework.Competition.Config import PARTY_SIZE
+from Framework.DataConstants import TYPE_CHART_MULTIPLIER, N_MOVES, N_DEFAULT_PARTY
+from Framework.DataObjects import PkmMove
 from Framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
 import numpy as np
 import PySimpleGUI as sg
@@ -32,7 +33,7 @@ class SimpleBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g: get_game_state_view.GameStateView) -> int:
+    def get_action(self, g) -> int:
         """
         Decision step.
 
@@ -65,7 +66,7 @@ class SimpleBattlePolicy(BattlePolicy):
             damage.append(
                 estimate_damage(move_type, my_active_type, move_power, opp_active_type, my_attack_stage,
                                 opp_defense_stage, weather))
-        move_id: int = np.argmax(damage)[0]
+        move_id = int(np.argmax(damage))
 
         # switch decision
         best_pkm = 0
@@ -73,12 +74,13 @@ class SimpleBattlePolicy(BattlePolicy):
             effectiveness_to_stay = TYPE_CHART_MULTIPLIER[my_active_type][opp_active_type]
             for i, pkm in enumerate(my_party):
                 party_type = pkm.get_type()
+                party_hp = pkm.get_hp()
                 effectiveness_party = TYPE_CHART_MULTIPLIER[party_type][opp_active_type]
-                if effectiveness_party > effectiveness_to_stay:
+                if effectiveness_party > effectiveness_to_stay and party_hp != 0.0:
                     effectiveness_to_stay = effectiveness_party
-                    best_pkm = i + 1
+                    best_pkm = i
         if best_pkm > 0:
-            move_id = N_MOVES + best_pkm - 1
+            move_id = N_MOVES + best_pkm
 
         return move_id
 
@@ -101,7 +103,7 @@ class GUIBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g: get_game_state_view.GameStateView) -> int:
+    def get_action(self, g) -> int:
         """
         Decision step.
 
@@ -116,6 +118,7 @@ class GUIBattlePolicy(BattlePolicy):
         opp_active = opp_team.get_active_pkm_view()
         opp_active_type = opp_active.get_type()
         opp_active_hp = opp_active.get_hp()
+        print(opp_active_hp)
         opp_status = opp_active.get_status()
         opp_text = 'Opp: ' + opp_active_type.name + ' ' + str(opp_active_hp) + ' HP' + (
             '' if opp_status == PkmStatus.NONE else opp_status.name)
@@ -187,7 +190,7 @@ SWITCH_PROBABILITY = .15
 class RandomBattlePolicy(BattlePolicy):
 
     def __init__(self, switch_probability: float = SWITCH_PROBABILITY, n_moves: int = N_MOVES,
-                 n_switches: int = N_SWITCHES):
+                 n_switches: int = PARTY_SIZE):
         super().__init__()
         self.n_actions: int = n_moves + n_switches
         self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
@@ -196,7 +199,7 @@ class RandomBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g: get_game_state_view.GameStateView) -> int:
+    def get_action(self, g) -> int:
         """
         Decision step.
 

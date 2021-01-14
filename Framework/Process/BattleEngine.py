@@ -29,7 +29,7 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
-        self.game_state = [GameState([teams[0], teams[1]]), GameState([teams[1], teams[0]])]
+        self.game_state = [GameState([self.teams[0], self.teams[1]]), GameState([self.teams[1], self.teams[0]])]
         self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
         self.debug = debug
         self.log = ''
