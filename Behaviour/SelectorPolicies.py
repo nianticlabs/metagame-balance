@@ -26,7 +26,7 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, s) -> Set[int]:
+    def get_action(self, g) -> Set[int]:
         """
 
         :param s: state
@@ -35,8 +35,7 @@ class GUISelectorPolicy(SelectorPolicy):
         selected = []
         for item in self.team:
             item[1].Update(value=False)
-        opp: PkmTeam.OpponentView = s[0]
-        team: PkmTeam.View = s[1]
+
         # opponent active
         opp_type, opp_hp = opp.get_active()
         opp_text = opp_type.name + ' ' + str(opp_hp) + ' HP'
@@ -78,7 +77,7 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, s) -> Set[int]:
+    def get_action(self, g) -> Set[int]:
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)
         return set(ids[:self.selection_size])

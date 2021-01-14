@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from Framework.Competition.Config import TEAM_SIZE
 from Framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP
-from Framework.DataObjects import PkmMove, Pkm, PkmTeam
+from Framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState
 from Framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
     WeatherCondition, PkmEntryHazard
 
@@ -135,13 +135,29 @@ def decode_team(e) -> PkmTeam:
 TEAM_ENCODE_LEN = 591
 
 
-def encode_game_state(e, teams, weather):
-    encode_team(e, teams[0])
-    encode_team(e, teams[1])
-    e += one_hot(weather, N_WEATHER)
+def encode_game_state(e, game_state: GameState):
+    for team in game_state.teams:
+        encode_team(e, team)
+    e += one_hot(game_state.weather, N_WEATHER)
 
 
-def decode_game_state(e) -> Tuple[List[PkmTeam], WeatherCondition]:
+def encode_game_state_pair(e0, e1, game_state: GameState):
+    team_encode = [[], []]
+    for i, team in enumerate(game_state.teams):
+        encode_team(team_encode[i], team)
+    e0.append(team_encode[0])
+    e0.append(team_encode[1])
+    e0 += one_hot(game_state.weather, N_WEATHER)
+    e1.append(team_encode[1])
+    e1.append(team_encode[0])
+    e1 += one_hot(game_state.weather, N_WEATHER)
+
+
+def decode_game_state(e) -> GameState:
     teams = [decode_team(e[:TEAM_ENCODE_LEN]), decode_team(e[TEAM_ENCODE_LEN:TEAM_ENCODE_LEN * 2])]
-    weather = WeatherCondition(e[TEAM_ENCODE_LEN * 2])
-    return teams, weather
+    game_state = GameState(teams)
+    game_state.weather = WeatherCondition(e[TEAM_ENCODE_LEN * 2])
+    return game_state
+
+
+GAME_STATE_ENCODE_LEN = TEAM_ENCODE_LEN * 2 + N_WEATHER

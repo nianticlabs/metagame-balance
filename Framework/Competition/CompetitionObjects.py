@@ -85,7 +85,7 @@ class Match:
             if self.debug:
                 print('GAME ' + str(game) + '\n')
             s = env.reset()
-            v = env.trainer_view
+            v = env.game_state_view
             if self.debug:
                 env.render()
             while not t:

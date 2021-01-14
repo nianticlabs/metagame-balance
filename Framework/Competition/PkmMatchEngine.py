@@ -31,7 +31,7 @@ class PkmMatchEngine(gym.Env):
             self.log += '\nGame ' + str(self.game) + '\n\nTrainer 0\n' + str(
                 self.team_selector.selected_teams[0]) + '\nTrainer 1\n' + str(self.team_selector.selected_teams[1])
         s = self.env.reset()
-        v = self.env.trainer_view
+        v = self.env.game_state_view
         t = False
         # play a game
         while not t:

@@ -5,12 +5,12 @@ from Framework.Competition.Config import N_BATTLES
 from Util.PkmTeamGenerators import PkmTeamGenerator
 from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER
-from Framework.DataObjects import PkmTeam, Pkm
-from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_STATS, N_STAGES, \
-    N_ENTRY_HAZARD, N_HAZARD_STAGES, N_WEATHER, MIN_STAGE, MAX_STAGE
+from Framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState
+from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
+    MIN_STAGE, MAX_STAGE
 from Framework.StandardPkmMoves import Struggle
 from Util import Recorder
-from Util.Encoding import one_hot, encode_pkm, encode_team, encode_game_state
+from Util.Encoding import GAME_STATE_ENCODE_LEN
 import gym
 import random
 import numpy as np
@@ -20,7 +20,6 @@ class PkmBattleEnv(gym.Env):
 
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
         # random active pokemon
-        self.team_view = None
         if teams is None:
             self.teams: List[PkmTeam] = [PkmTeam(), PkmTeam()]
         else:
@@ -30,11 +29,12 @@ class PkmBattleEnv(gym.Env):
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
-        self.trainer_view = [self.__create_trainer_view(0), self.__create_trainer_view(1)]
+        self.game_state_view = [get_game_state_view(GameState([teams[0], teams[1]])),
+                                get_game_state_view(GameState([teams[1], teams[0]]))]
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
-        self.observation_space = spaces.Discrete(len(self.trainer_view[0].encode()))
+        self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.team_generator = None
         self.winner = -1
 
@@ -134,7 +134,7 @@ class PkmBattleEnv(gym.Env):
                 self.log += '\nTRAINER %s %s\n' % (0, 'Lost' if self.teams[0].fainted() else 'Won')
                 self.log += 'TRAINER %s %s\n' % (1, 'Lost' if self.teams[1].fainted() else 'Won')
 
-        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()], r, finished, self.trainer_view
+        return [self.game_state_view[0].encode(), self.game_state_view[1].encode()], r, finished, self.game_state_view
 
     def reset(self):
         self.weather = WeatherCondition.CLEAR
@@ -146,18 +146,17 @@ class PkmBattleEnv(gym.Env):
         if self.team_generator is not None:
             self.teams[0] = self.team_generator.get_team(0)
             self.teams[1] = self.team_generator.get_team(1)
+            self.game_state_view = [get_game_state_view(GameState([self.teams[0], self.teams[1]])),
+                                    get_game_state_view(GameState([self.teams[1], self.teams[0]]))]
 
         for team in self.teams:
             team.reset()
-
-        for trainer_view in self.trainer_view:
-            trainer_view.reset()
 
         if self.debug:
             self.log = 'TRAINER 0\n' + str(self.teams[0])
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
-        return [self.trainer_view[0].encode(), self.trainer_view[1].encode()]
+        return [self.game_state_view[0].encode(), self.game_state_view[1].encode()]
 
     def render(self, mode='human'):
         print(self.log)
@@ -313,63 +312,6 @@ class PkmBattleEnv(gym.Env):
             np.random.shuffle(order)
 
         return order[0], order[1]
-
-    class TrainerView:
-
-        def __init__(self, engine, t_id: int = 0):
-            self.engine = engine
-            self.t_id = t_id
-            self.team: PkmTeam = engine.teams[self.t_id]
-            self.opp: PkmTeam = engine.teams[not self.t_id]
-
-        def get_active(self) -> Tuple[PkmType, float, PkmStatus, bool]:
-            return self.team.active.type, self.team.active.hp, self.team.active.status, self.team.confused
-
-        def get_opponent(self) -> Tuple[PkmType, float, PkmStatus, bool]:
-            return self.opp.active.type, self.opp.active.hp, self.opp.active.status, self.opp.confused
-
-        def get_party(self, pos: int = 0) -> Tuple[PkmType, float, PkmStatus]:
-            pkm = self.team.party[pos]
-            return pkm.type, pkm.hp, pkm.status
-
-        def get_n_party(self) -> int:
-            return len(self.team.party)
-
-        def get_active_move(self, pos: int = 0) -> Tuple[float, PkmType, str]:
-            move = self.team.active.moves[pos]
-            return move.power, move.type, move.name
-
-        def get_n_moves(self) -> int:
-            return len(self.team.active.moves)
-
-        def get_stage(self, stat: PkmStat = PkmStat.ATTACK, t_id: int = 0) -> int:
-            if t_id == 0:
-                return self.team.stage[stat]
-            else:
-                return self.opp.stage[stat]
-
-        def get_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES) -> int:
-            return self.team.stage[hazard]
-
-        def get_weather(self) -> WeatherCondition:
-            return self.engine.weather
-
-        def reset(self):
-            self.team: PkmTeam = self.engine.teams[self.t_id]
-            self.opp: PkmTeam = self.engine.teams[not self.t_id]
-
-        def encode(self):
-            """
-            Encode Game state.
-
-            :return: encoded game state
-            """
-            e = []
-            encode_game_state(e, self.engine.teams, self.engine.weather)
-            return e
-
-    def __create_trainer_view(self, t_id: int = 0) -> TrainerView:
-        return PkmBattleEnv.TrainerView(self, t_id)
 
     class PkmMoveView:
 
@@ -608,7 +550,7 @@ class BattleEngine:
     def run_step(self):  # TODO return type
         if self.t:
             self.s = self.env.reset()
-            self.v = self.env.trainer_view
+            self.v = self.env.game_state_view
             self.ep += 1
             if self.render:
                 self.env.render()

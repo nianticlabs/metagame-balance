@@ -9,14 +9,14 @@ def main():
     env.set_team_generator(RandomGenerator())
     env.reset()  # set correct team size for get_n_party
     t = False
-    a0 = GUIBattlePolicy(env.trainer_view[0].get_n_party())
+    a0 = GUIBattlePolicy(env.game_state_view[0].get_n_party())
     a1 = RandomBattlePolicy()
     r = FileRecorder(name="random_agent")
     ep = 0
     n_battles = 3
     while ep < n_battles:
         s = env.reset()
-        v = env.trainer_view
+        v = env.game_state_view
         env.render()
         ep += 1
         while not t:

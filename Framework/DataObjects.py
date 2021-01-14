@@ -315,20 +315,23 @@ class PkmTemplate:
 def get_pkm_view(pkm: Pkm):
     class PkmView:
 
+        def __init__(self):
+            self._move_views = [get_move_view(move) for move in pkm.moves]
+
+        def get_move_view(self, idx: int) -> get_move_view.MoveView:
+            return self._move_views[idx]
+
         def get_type(self) -> PkmType:
             return pkm.type
 
         def get_hp(self) -> float:
             return pkm.hp
 
-        def get_pkm_status(self) -> PkmStatus:
+        def get_status(self) -> PkmStatus:
             return pkm.status
 
         def get_n_turns_asleep(self) -> int:
             return pkm.n_turns_asleep
-
-        def get_move_view(self, idx: int) -> get_move_view.MoveView:
-            return pkm.moves[idx]
 
     return PkmView()
 
@@ -355,7 +358,7 @@ class PkmTeam:
 
     def __eq__(self, other):
         eq = self.active == other.active and self.stage == other.stage and self.confused == other.confused and \
-               self.n_turns_confused == other.n_turns_confused
+             self.n_turns_confused == other.n_turns_confused
         if not eq:
             return False
         for i, p in enumerate(self.party):
@@ -446,7 +449,6 @@ class PkmTeam:
         all_fainted = all_party_fainted and self.active.fainted()
 
         if not all_fainted:
-
             # select random party pkm to switch if needed
             if not all_party_fainted:
                 if pos == -1:
@@ -468,11 +470,15 @@ class PkmTeam:
 def get_team_view(team: PkmTeam):
     class PkmTeamView:
 
+        def __init__(self):
+            self._active = get_pkm_view(team.active)
+            self._party = [get_pkm_view(pkm) for pkm in team.party]
+
         def get_active_pkm_view(self) -> get_pkm_view.PkmView:
-            return get_pkm_view(team.active)
+            return self._active
 
         def get_party_pkm_view(self, idx: int) -> get_pkm_view.PkmView:
-            return get_pkm_view(team.party[idx])
+            return self._party[idx]
 
         def get_stage(self, stat: PkmStat) -> int:
             return team.stage[stat]
@@ -487,6 +493,28 @@ def get_team_view(team: PkmTeam):
             return team.entry_hazard[hazard]
 
     return PkmTeamView()
+
+
+class GameState:
+
+    def __init__(self, teams: List[PkmTeam]):
+        self.teams = teams
+        self.weather = WeatherCondition.CLEAR
+
+
+def get_game_state_view(game_state: GameState):
+    class GameStateView:
+
+        def __init__(self):
+            self._teams = [get_team_view(team) for team in game_state.teams]
+
+        def get_team_view(self, idx: int) -> get_pkm_view.PkmTeamView:
+            return self._teams[idx]
+
+        def get_weather_condition(self) -> WeatherCondition:
+            return game_state.weather
+
+    return GameStateView()
 
 
 class MetaData:
