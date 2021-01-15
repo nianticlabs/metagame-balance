@@ -1,3 +1,4 @@
 numpy>=1.15.4
 gym>=0.10.9
 PySimpleGUI>=4.20.0
+simple-plugin-loader>=1.6

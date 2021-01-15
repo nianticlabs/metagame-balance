@@ -4,6 +4,12 @@ from Framework.DataObjects import PkmTeam
 
 class NullTeamHyphotesizer(TeamHyphotesizer):
 
+    def requires_encode(self) -> bool:
+        pass
+
+    def close(self):
+        pass
+
     null_team = PkmTeam()
 
     def get_action(self, s) -> PkmTeam:

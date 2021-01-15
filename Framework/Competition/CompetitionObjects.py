@@ -51,6 +51,9 @@ class Competitor:
         self.name = name
         self.meta_data = meta_data
 
+    def get_battle_policy(self) -> BattlePolicy:
+        return self.battle_policy
+
     def __str__(self):
         return str(self.team)
 
