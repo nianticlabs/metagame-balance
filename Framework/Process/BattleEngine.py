@@ -10,7 +10,7 @@ from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmSt
     MIN_STAGE, MAX_STAGE
 from Framework.StandardPkmMoves import Struggle
 from Util import Recorder
-from Util.Encoding import GAME_STATE_ENCODE_LEN, encode_game_state
+from Util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
 import gym
 import random
 import numpy as np
@@ -135,8 +135,8 @@ class PkmBattleEnv(gym.Env):
                 self.log += 'TRAINER %s %s\n' % (1, 'Lost' if self.teams[1].fainted() else 'Won')
 
         e0, e1 = [], []
-        encode_game_state(e0, self.game_state[0])
-        encode_game_state(e1, self.game_state[1])
+        partial_encode_game_state(e0, self.game_state[0])
+        partial_encode_game_state(e1, self.game_state[1])
         return [e0, e1], r, finished, self.game_state_view
 
     def reset(self):
@@ -160,8 +160,8 @@ class PkmBattleEnv(gym.Env):
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
         e0, e1 = [], []
-        encode_game_state(e0, self.game_state[0])
-        encode_game_state(e1, self.game_state[1])
+        partial_encode_game_state(e0, self.game_state[0])
+        partial_encode_game_state(e1, self.game_state[1])
         return [e0, e1]
 
     def render(self, mode='human'):

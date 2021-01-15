@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from Framework.Competition.Config import TEAM_SIZE
 from Framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP
-from Framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState
+from Framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move
 from Framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
     WeatherCondition, PkmEntryHazard
 
@@ -70,6 +70,18 @@ def encode_pkm(e, pkm: Pkm):
         encode_move(e, move)
 
 
+def partial_encode_pkm(e, pkm: Pkm):
+    e += [pkm.hp / MAX_HIT_POINTS, pkm.n_turns_asleep / 5]
+    e += one_hot(pkm.type, N_TYPES)
+    e += one_hot(pkm.status, N_STATUS)
+    # Pkm moves
+    for move in pkm.moves:
+        if move.public:
+            encode_move(e, move)
+        else:
+            encode_move(e, null_pkm_move)
+
+
 def decode_pkm(e) -> Pkm:
     hp = e[0] * MAX_HIT_POINTS
     n_turns_asleep = int(e[1] * 5)
@@ -109,6 +121,19 @@ def encode_team(e, team: PkmTeam):
         encode_pkm(e, pkm)
 
 
+def partial_encode_team(e, team: PkmTeam):
+    e += [team.confused]
+    e += team.entry_hazard
+    for stat in range(N_STATS):
+        e += [team.stage[stat] / 5]
+    encode_pkm(e, team.active)
+    for pkm in team.party[:TEAM_SIZE - 1]:
+        if pkm.public:
+            encode_pkm(e, pkm)
+        else:
+            partial_encode_pkm(e, pkm)
+
+
 def decode_team(e) -> PkmTeam:
     confused = e[0]
     _start = 1
@@ -138,6 +163,12 @@ TEAM_ENCODE_LEN = 591
 def encode_game_state(e, game_state: GameState):
     for team in game_state.teams:
         encode_team(e, team)
+    e += one_hot(game_state.weather, N_WEATHER)
+
+
+def partial_encode_game_state(e, game_state: GameState):
+    encode_team(e, game_state.teams[0])
+    partial_encode_team(e, game_state.teams[1])
     e += one_hot(game_state.weather, N_WEATHER)
 
 
