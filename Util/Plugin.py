@@ -1,11 +1,14 @@
 from Framework.Competition.CompetitionObjects import Competitor
 from simple_plugin_loader import Loader
+import pathlib
+print(pathlib.Path().absolute())
 
 # initialize the loader
 loader = Loader()
 
 # load your plugins
-plugins = loader.load_plugins('C:\\Users\\Simon\\PycharmProjects\\pokemon-vgc-engine\\Competitor', Competitor, recursive=True, verbose=True)
+plugins = loader.load_plugins('C:\\Users\\Simon\\PycharmProjects\\pokemon-vgc-engine\\Competitor', Competitor,
+                              recursive=True, verbose=True)
 
 print(plugins)
 c = plugins['competitor1']()

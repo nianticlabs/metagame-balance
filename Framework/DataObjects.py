@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from math import isclose
 from typing import List, Tuple, Set
 from Framework.DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
@@ -48,6 +49,7 @@ class PkmMove:
         self.fixed_damage = fixed_damage
         self.weather = weather
         self.hazard = hazard
+        self.public = False
 
     def __eq__(self, other):
         if self.power != other.power:
@@ -115,6 +117,7 @@ class PkmMove:
         self.pp = self.max_pp
 
     def effect(self, v):
+        self.public = True
         if random.random() < self.prob:
             v.set_recover(self.recover)
             v.set_fixed_damage(self.fixed_damage)
@@ -128,8 +131,67 @@ class PkmMove:
                 v.set_entry_hazard(self.hazard, self.target)
 
 
-def get_move_view(move: PkmMove):
-    class MoveView:
+class MoveView(ABC):
+
+    @abstractmethod
+    def get_power(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_acc(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_pp(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_type(self) -> PkmType:
+        pass
+
+    @abstractmethod
+    def get_priority(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_prob(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_target(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_recover(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_status(self) -> PkmStatus:
+        pass
+
+    @abstractmethod
+    def get_stat(self) -> PkmStat:
+        pass
+
+    @abstractmethod
+    def get_stage(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_fixed_damage(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_weather(self) -> WeatherCondition:
+        pass
+
+    @abstractmethod
+    def get_hazard(self) -> PkmEntryHazard:
+        pass
+
+
+def get_move_view(move: PkmMove) -> MoveView:
+    class MoveViewImpl(MoveView):
 
         def get_power(self) -> float:
             return move.power
@@ -173,7 +235,17 @@ def get_move_view(move: PkmMove):
         def get_hazard(self) -> PkmEntryHazard:
             return move.hazard
 
-    return MoveView()
+    return MoveViewImpl()
+
+
+null_pkm_move = PkmMove()
+
+
+def get_partial_move_view(move: PkmMove) -> MoveView:
+    if move.public:
+        return get_move_view(move)
+    else:
+        return get_move_view(null_pkm_move)
 
 
 PkmMoveRoster = Set[PkmMove]
@@ -201,6 +273,7 @@ class Pkm:
         self.status: PkmStatus = status
         self.n_turns_asleep: int = 0
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
+        self.public = False
 
     def __eq__(self, other):
         return self.type == other.type and isclose(self.max_hp, other.max_hp) and set(self.moves) == set(other.moves)
@@ -312,10 +385,33 @@ class PkmTemplate:
         return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
 
 
-def get_pkm_view(pkm: Pkm):
-    class PkmView:
+class PkmView(ABC):
 
-        def get_move_view(self, idx: int):
+    @abstractmethod
+    def get_move_view(self, idx: int):
+        pass
+
+    @abstractmethod
+    def get_type(self) -> PkmType:
+        pass
+
+    @abstractmethod
+    def get_hp(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_status(self) -> PkmStatus:
+        pass
+
+    @abstractmethod
+    def get_n_turns_asleep(self) -> int:
+        pass
+
+
+def get_pkm_view(pkm: Pkm) -> PkmView:
+    class PkmViewImpl(PkmView):
+
+        def get_move_view(self, idx: int) -> MoveView:
             return get_move_view(pkm.moves[idx])
 
         def get_type(self) -> PkmType:
@@ -330,7 +426,17 @@ def get_pkm_view(pkm: Pkm):
         def get_n_turns_asleep(self) -> int:
             return pkm.n_turns_asleep
 
-    return PkmView()
+    return PkmViewImpl()
+
+
+null_pkm = Pkm()
+
+
+def get_partial_pkm_view(pkm: Pkm) -> PkmView:
+    if pkm.public:
+        return get_pkm_view(pkm)
+    else:
+        return get_pkm_view(null_pkm)
 
 
 PkmRoster = Set[PkmTemplate]
@@ -461,16 +567,49 @@ class PkmTeam:
                 self.stage = [0] * N_STATS
                 self.confused = False
 
+                self.active.public = True
+
         return self.active, self.party[pos]
 
 
-def get_team_view(team: PkmTeam):
-    class PkmTeamView:
+class PkmTeamView(ABC):
 
-        def get_active_pkm_view(self):
+    @abstractmethod
+    def get_active_pkm_view(self) -> PkmView:
+        pass
+
+    @abstractmethod
+    def get_party_pkm_view(self, idx: int) -> PkmView:
+        pass
+
+    @abstractmethod
+    def get_stage(self, stat: PkmStat) -> int:
+        pass
+
+    @abstractmethod
+    def get_confused(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_n_turns_confused(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
+        pass
+
+
+def get_team_view(team: PkmTeam, partial: bool = False) -> PkmTeamView:
+    class PkmTeamViewImpl(PkmTeamView):
+
+        def get_active_pkm_view(self) -> PkmView:
+            if partial:
+                return get_partial_pkm_view(team.active)
             return get_pkm_view(team.active)
 
-        def get_party_pkm_view(self, idx: int):
+        def get_party_pkm_view(self, idx: int) -> PkmView:
+            if partial:
+                return get_partial_pkm_view(team.party[idx])
             return get_pkm_view(team.party[idx])
 
         def get_stage(self, stat: PkmStat) -> int:
@@ -485,7 +624,7 @@ def get_team_view(team: PkmTeam):
         def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
             return team.entry_hazard[hazard]
 
-    return PkmTeamView()
+    return PkmTeamViewImpl()
 
 
 class GameState:
@@ -501,19 +640,30 @@ class GameState:
         return self.weather == other.weather
 
 
-def get_game_state_view(game_state: GameState):
-    class GameStateView:
+class GameStateView(ABC):
+
+    @abstractmethod
+    def get_team_view(self, idx: int) -> PkmTeamView:
+        pass
+
+    @abstractmethod
+    def get_weather_condition(self) -> WeatherCondition:
+        pass
+
+
+def get_game_state_view(game_state: GameState) -> GameStateView:
+    class GameStateViewImpl(GameStateView):
 
         def __init__(self):
-            self._teams = [get_team_view(team) for team in game_state.teams]
+            self._teams = [get_team_view(game_state.teams[0]), get_team_view(game_state.teams[1], partial=True)]
 
-        def get_team_view(self, idx: int):
+        def get_team_view(self, idx: int) -> PkmTeamView:
             return self._teams[idx]
 
         def get_weather_condition(self) -> WeatherCondition:
             return game_state.weather
 
-    return GameStateView()
+    return GameStateViewImpl()
 
 
 class MetaData:

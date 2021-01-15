@@ -2,7 +2,7 @@ from typing import List
 from Behaviour import BattlePolicy
 from Framework.Competition.Config import PARTY_SIZE
 from Framework.DataConstants import TYPE_CHART_MULTIPLIER, N_MOVES, N_DEFAULT_PARTY
-from Framework.DataObjects import PkmMove
+from Framework.DataObjects import PkmMove, GameStateView
 from Framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
 import numpy as np
 import PySimpleGUI as sg
@@ -33,7 +33,7 @@ class SimpleBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g) -> int:
+    def get_action(self, g: GameStateView) -> int:
         """
         Decision step.
 
@@ -103,7 +103,7 @@ class GUIBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g) -> int:
+    def get_action(self, g: GameStateView) -> int:
         """
         Decision step.
 
@@ -199,7 +199,7 @@ class RandomBattlePolicy(BattlePolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g) -> int:
+    def get_action(self, g: GameStateView) -> int:
         """
         Decision step.
 
