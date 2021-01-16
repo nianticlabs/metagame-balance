@@ -1,10 +1,10 @@
 import gym
 
-from Engine.DataObjects import PkmTeam
-from Engine.Process.BattleEngine import PkmBattleEngine
-from Engine.DataConstants import DEFAULT_MATCH_N
-from Engine.Competition.PkmTeamGenerator import RandomGenerator, FixedTeamSelector
-from Behaviour.Abstract.Behaviour import BattlePolicy
+from Behaviour import BattlePolicy
+from Framework.DataConstants import DEFAULT_MATCH_N
+from Framework.DataObjects import PkmTeam
+from Framework.Process.BattleEngine import PkmBattleEnv
+from Util.PkmTeamGenerators import RandomGenerator, FixedTeamSelector
 
 
 class PkmMatchEngine(gym.Env):
@@ -14,7 +14,7 @@ class PkmMatchEngine(gym.Env):
         self.team1 = PkmTeam()
         self.rand_generator = RandomGenerator()
         self.team_selector = FixedTeamSelector(self.team0, self.team1)
-        self.env = PkmBattleEngine(teams=[self.team0, self.team1])
+        self.env = PkmBattleEnv(teams=[self.team0, self.team1])
         self.env.set_team_generator(self.team_selector)
         self.a0 = a0
         self.a1 = a1

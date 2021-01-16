@@ -1,13 +1,22 @@
+import pickle
 from typing import List, Tuple
-from Util import Recorder
+from Framework.DataObjects import Pkm
+
+Frame = Tuple[List, List, int, int, bool]
+Trajectory = List[Frame]
 
 
-class FileRecorder(Recorder):
+class GamePlayRecorder:
 
-    def __init__(self,  buffer_size: int = 2048, name: str = "Agent"):
+    def __init__(self, buffer_size: int = 2048, name: str = "", c0: str = "", c1: str = "", t0: List[Pkm] = None,
+                 t1: List[Pkm] = None):
+        # Data to record
+        self.competitors: List[str] = [c0, c1]
+        self.teams: List[List[Pkm]] = [t0, t1]
+        self.buffer: Trajectory = []
+        # Recorder parameters
         self.buffer_size: int = buffer_size
         self.name: str = "../Data/" + name
-        self.buffer: List[Tuple[List, int, int]] = []
         self.pos: int = 0
         self.f = None
 
@@ -16,6 +25,12 @@ class FileRecorder(Recorder):
         Open recorder for reading.
         """
         self.f = open(self.name, "r")
+
+    def init(self, append=True):
+        with open(self.name, "a+" if append else "w+") as f:
+            f.write(str(self.competitors) + "\n")
+            for team in self.teams:
+                f.write(str([pickle.dumps(pkm) for pkm in team]) + "\n")
 
     def close(self):
         """
@@ -48,21 +63,20 @@ class FileRecorder(Recorder):
 
         :param append: if to append data to EOF
         """
-
         with open(self.name, "a+" if append else "w+") as f:
             for e in self.buffer:
                 f.write(str(e) + "\n")
 
-    def record(self, record: Tuple[List, int, int]):
+    def record(self, frame: Frame):
         """
         Store data row to buffer. If buffer is empty persist all data and empty before.
 
-        :param record: data row (observation: List, action: int, episode: int)
+        :param frame: data row (observation: List, action: int, episode: int)
         """
         if self.full():
             self.save()
             self.clear()
-        self.buffer.append(record)
+        self.buffer.append(frame)
 
     def starved(self) -> bool:
         """
@@ -72,7 +86,7 @@ class FileRecorder(Recorder):
         """
         return self.pos >= len(self.buffer)
 
-    def read(self) -> Tuple[List, int, int]:
+    def read(self) -> Frame:
         """
         Read next element from buffer.
 
@@ -82,8 +96,8 @@ class FileRecorder(Recorder):
             self.clear()
             self.load()
             if self.empty():
-                return [], -1, -1
-        row: Tuple[List, int, int] = self.buffer[self.pos]
+                return [], [], -1, -1, False
+        row: Frame = self.buffer[self.pos]
         self.pos += 1
         print(self.pos)
         return row

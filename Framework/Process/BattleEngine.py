@@ -9,7 +9,6 @@ from Framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState
 from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from Framework.StandardPkmMoves import Struggle
-from Util import Recorder
 from Util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
 import gym
 import random
@@ -539,12 +538,11 @@ class PkmBattleEnv(gym.Env):
 
 class BattleEngine:
 
-    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, rec: Recorder, debug=True,
-                 render=True, n_battles=N_BATTLES):
+    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=True, render=True,
+                 n_battles=N_BATTLES):
         self.env = PkmBattleEnv(teams=[team0, team1], debug=debug)
         self.bp0 = bp0
         self.bp1 = bp1
-        self.rec = rec
         self.ep = 0
         self.step = 0
         self.n_battles = n_battles
@@ -563,7 +561,6 @@ class BattleEngine:
         o0 = self.s[0] if self.bp0.requires_encode() else self.v[0]
         o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
         a = [self.bp0.get_action(o0), self.bp1.get_action(o1)]
-        self.rec.record((self.s[0], a[0], self.ep))  # TODO record both players
         self.s, r, self.t, self.v = self.env.step(a)
         if self.render:
             self.env.render()
@@ -573,6 +570,5 @@ class BattleEngine:
         return self.t and self.ep == self.n_battles
 
     def terminate(self):
-        self.rec.save()
         self.bp0.close()
         self.bp1.close()

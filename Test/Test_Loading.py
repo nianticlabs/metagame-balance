@@ -1,8 +1,8 @@
-from Util.Recorders import Recorder
+from Util.Recording import GamePlayRecorder
 
 
 def main():
-    r = Recorder(name="random_agent")
+    r = GamePlayRecorder(name="random_agent")
     r.open()
     e = r.read()
     while e[1] != -1:

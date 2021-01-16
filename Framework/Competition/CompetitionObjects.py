@@ -14,7 +14,7 @@ from Util.PkmTeamGenerators import TeamSelector
 from Framework.DataConstants import DEFAULT_MATCH_N
 from Framework.DataObjects import PkmTeam, MetaData, Pkm
 from Framework.Process.BattleEngine import PkmBattleEnv
-from Util.Recorders import FileRecorder
+from Util.Recording import FileRecorder
 import random
 
 random_battle_agent = RandomBattlePolicy()

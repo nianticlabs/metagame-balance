@@ -1,7 +1,7 @@
 from Behaviour.BattlePolicies import RandomBattlePolicy
 from Behaviour.SelectorPolicies import GUISelectorPolicy, RandomSelectorPolicy
 from Framework.Competition.PkmMatchEngine import PkmMatchEngine
-from Util.Recorders import Recorder
+from Util.Recording import Recorder
 
 
 def main():
