@@ -1,7 +1,6 @@
-from typing import List, Tuple
+from typing import List
 
-from Framework.Competition.Config import TEAM_SIZE
-from Framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP
+from Framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
 from Framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move
 from Framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
     WeatherCondition, PkmEntryHazard
@@ -117,7 +116,7 @@ def encode_team(e, team: PkmTeam):
     for stat in range(N_STATS):
         e += [team.stage[stat] / 5]
     encode_pkm(e, team.active)
-    for pkm in team.party[:TEAM_SIZE - 1]:
+    for pkm in team.party[:DEFAULT_TEAM_SIZE - 1]:
         encode_pkm(e, pkm)
 
 
@@ -127,7 +126,7 @@ def partial_encode_team(e, team: PkmTeam):
     for stat in range(N_STATS):
         e += [team.stage[stat] / 5]
     encode_pkm(e, team.active)
-    for pkm in team.party[:TEAM_SIZE - 1]:
+    for pkm in team.party[:DEFAULT_TEAM_SIZE - 1]:
         if pkm.public:
             encode_pkm(e, pkm)
         else:
@@ -147,7 +146,7 @@ def decode_team(e) -> PkmTeam:
         stage.append(e[stat] * 5)
         i += 1
     pkms: List[Pkm] = []
-    for _ in range(TEAM_SIZE):
+    for _ in range(DEFAULT_TEAM_SIZE):
         _start = _end
         _end = _start + PKM_ENCODE_LEN
         pkms.append(decode_pkm(e[_start: _end]))

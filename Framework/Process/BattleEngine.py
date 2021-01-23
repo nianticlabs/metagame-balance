@@ -1,10 +1,9 @@
 from gym import spaces
 from typing import List, Tuple
 from Behaviour import BattlePolicy
-from Framework.Competition.Config import N_BATTLES
 from Util.PkmTeamGenerators import PkmTeamGenerator
-from Framework.DataConstants import N_MOVES, N_SWITCHES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
-    TYPE_CHART_MULTIPLIER
+from Framework.DataConstants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
+    TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
 from Framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState
 from Framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
@@ -32,7 +31,7 @@ class PkmBattleEnv(gym.Env):
         self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
         self.debug = debug
         self.log = ''
-        self.action_space = spaces.Discrete(N_MOVES + N_SWITCHES)
+        self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.team_generator = None
         self.winner = -1
@@ -174,7 +173,7 @@ class PkmBattleEnv(gym.Env):
         :return:
         """
         for i, team in enumerate(self.teams):
-            pos = actions[i] - N_MOVES
+            pos = actions[i] - DEFAULT_PKM_N_MOVES
             if 0 <= pos < (team.size() - 1):
                 if not team.party[pos].fainted():
                     new_active, old_active = team.switch(pos)
@@ -304,9 +303,9 @@ class PkmBattleEnv(gym.Env):
         action0 = actions[0]
         action1 = actions[1]
         speed0 = self.teams[0].stage[PkmStat.SPEED] + (
-            self.teams[0].active.moves[action0].priority if action0 < N_MOVES else 0)
+            self.teams[0].active.moves[action0].priority if action0 < DEFAULT_PKM_N_MOVES else 0)
         speed1 = self.teams[1].stage[PkmStat.SPEED] + (
-            self.teams[1].active.moves[action1].priority if action1 < N_MOVES else 0)
+            self.teams[1].active.moves[action1].priority if action1 < DEFAULT_PKM_N_MOVES else 0)
         if speed0 > speed1:
             order = [0, 1]
         elif speed1 < speed0:
@@ -468,7 +467,7 @@ class PkmBattleEnv(gym.Env):
         """
         damage, recover = 0., 0.
 
-        if m_id < N_MOVES:
+        if m_id < DEFAULT_PKM_N_MOVES:
             opponent = not t_id
             pkm = self.teams[t_id].active
             before_hp = pkm.hp
@@ -539,7 +538,7 @@ class PkmBattleEnv(gym.Env):
 class BattleEngine:
 
     def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=True, render=True,
-                 n_battles=N_BATTLES):
+                 n_battles=DEFAULT_MATCH_N_BATTLES):
         self.env = PkmBattleEnv(teams=[team0, team1], debug=debug)
         self.bp0 = bp0
         self.bp1 = bp1

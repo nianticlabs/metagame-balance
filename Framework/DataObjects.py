@@ -571,6 +571,9 @@ class PkmTeam:
 
         return self.active, self.party[pos]
 
+    def get_pkm_list(self):
+        return [self.active] + self.party
+
 
 class PkmTeamView(ABC):
 

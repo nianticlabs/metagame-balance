@@ -4,7 +4,7 @@ import random
 from typing import List
 
 from Util.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
-from Framework.DataConstants import MIN_HIT_POINTS, MOVE_POWER_MIN
+from Framework.DataConstants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM
 from Framework.DataObjects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
 from Framework.DataTypes import PkmType
 from Framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
@@ -13,18 +13,18 @@ from Framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
 class PkmRosterGenerator(ABC):
 
     @abstractmethod
-    def get_pool(self) -> PkmRoster:
+    def gen_roster(self) -> PkmRoster:
         pass
 
 
 class StandardPkmRosterGenerator(PkmRosterGenerator):
 
-    def __init__(self, n_moves_pkm: int, pool_size: int):
-        self.move_pool: PkmMoveRoster = STANDARD_MOVE_ROSTER
+    def __init__(self, n_moves_pkm: int = DEFAULT_N_MOVES_PKM, pool_size: int = DEFAULT_ROSTER_SIZE):
+        self.move_pool: PkmMoveRoster = set(STANDARD_MOVE_ROSTER)
         self.n_moves_pkm = n_moves_pkm
         self.pool_size = pool_size
 
-    def get_pool(self) -> PkmRoster:
+    def gen_roster(self) -> PkmRoster:
         roster: List[PkmTemplate] = []
         for i in range(self.pool_size):
             base_move_roster = self.move_pool.copy()

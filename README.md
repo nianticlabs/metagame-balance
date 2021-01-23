@@ -7,3 +7,6 @@
 * Team hypothesizing
 * Design restriction language
 * Competition/training logic
+* Plugin Security
+* Write Tutorial
+* Make Website

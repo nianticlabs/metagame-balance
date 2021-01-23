@@ -1,7 +1,7 @@
 import gym
 
 from Behaviour import BattlePolicy
-from Framework.DataConstants import DEFAULT_MATCH_N
+from Framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from Framework.DataObjects import PkmTeam
 from Framework.Process.BattleEngine import PkmBattleEnv
 from Util.PkmTeamGenerators import RandomGenerator, FixedTeamSelector
@@ -9,7 +9,7 @@ from Util.PkmTeamGenerators import RandomGenerator, FixedTeamSelector
 
 class PkmMatchEngine(gym.Env):
 
-    def __init__(self, a0: BattlePolicy, a1: BattlePolicy, n_games: int = DEFAULT_MATCH_N, debug: bool = False):
+    def __init__(self, a0: BattlePolicy, a1: BattlePolicy, n_games: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False):
         self.team0 = PkmTeam()
         self.team1 = PkmTeam()
         self.rand_generator = RandomGenerator()

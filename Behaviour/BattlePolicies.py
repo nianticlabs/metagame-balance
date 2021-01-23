@@ -1,7 +1,6 @@
 from typing import List
 from Behaviour import BattlePolicy
-from Framework.Competition.Config import PARTY_SIZE
-from Framework.DataConstants import TYPE_CHART_MULTIPLIER, N_MOVES, N_DEFAULT_PARTY
+from Framework.DataConstants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
 from Framework.DataObjects import PkmMove, GameStateView
 from Framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
 import numpy as np
@@ -48,7 +47,7 @@ class SimpleBattlePolicy(BattlePolicy):
         my_active = my_team.get_active_pkm_view()
         my_active_type = my_active.get_type()
         my_party = [my_team.get_party_pkm_view(0), my_team.get_party_pkm_view(1)]
-        my_active_moves = [my_active.get_move_view(i) for i in range(N_MOVES)]
+        my_active_moves = [my_active.get_move_view(i) for i in range(DEFAULT_PKM_N_MOVES)]
         my_attack_stage = my_team.get_stage(PkmStat.ATTACK)
 
         # get opp team
@@ -80,14 +79,14 @@ class SimpleBattlePolicy(BattlePolicy):
                     effectiveness_to_stay = effectiveness_party
                     best_pkm = i
         if best_pkm > 0:
-            move_id = N_MOVES + best_pkm
+            move_id = DEFAULT_PKM_N_MOVES + best_pkm
 
         return move_id
 
 
 class GUIBattlePolicy(BattlePolicy):
 
-    def __init__(self, n_party: int = N_DEFAULT_PARTY, n_moves: int = N_MOVES):
+    def __init__(self, n_party: int = DEFAULT_PARTY_SIZE, n_moves: int = DEFAULT_PKM_N_MOVES):
         print(n_party)
         self.weather = sg.Text('                                                        ')
         self.opponent = sg.Text('                                                         ')
@@ -163,7 +162,7 @@ class GUIBattlePolicy(BattlePolicy):
             self.party[i][1].Update(party_text)
             self.party[i][0].Update(disabled=(party_hp == 0.0))
         # moves
-        my_active_moves = [my_active.get_move_view(i) for i in range(N_MOVES)]
+        my_active_moves = [my_active.get_move_view(i) for i in range(DEFAULT_PKM_N_MOVES)]
         for i, move in enumerate(my_active_moves):
             move_power = move.get_power()
             move_type = move.get_type()
@@ -177,7 +176,7 @@ class GUIBattlePolicy(BattlePolicy):
                 return i
         for i in range(len(self.party)):
             if event == self.party[i][0].get_text():
-                return i + N_MOVES
+                return i + DEFAULT_PKM_N_MOVES
         return -1
 
     def close(self):
@@ -189,8 +188,8 @@ SWITCH_PROBABILITY = .15
 
 class RandomBattlePolicy(BattlePolicy):
 
-    def __init__(self, switch_probability: float = SWITCH_PROBABILITY, n_moves: int = N_MOVES,
-                 n_switches: int = PARTY_SIZE):
+    def __init__(self, switch_probability: float = SWITCH_PROBABILITY, n_moves: int = DEFAULT_PKM_N_MOVES,
+                 n_switches: int = DEFAULT_PARTY_SIZE):
         super().__init__()
         self.n_actions: int = n_moves + n_switches
         self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (

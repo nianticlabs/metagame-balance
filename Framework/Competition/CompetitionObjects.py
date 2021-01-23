@@ -11,7 +11,7 @@ from Behaviour.TeamHyphotesizers import NullTeamHyphotesizer
 from Behaviour.TeamValuators import NullTeamValuator
 from Util.PkmRosterGenerators import PkmRosterGenerator
 from Util.PkmTeamGenerators import TeamSelector
-from Framework.DataConstants import DEFAULT_MATCH_N
+from Framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from Framework.DataObjects import PkmTeam, MetaData, Pkm
 from Framework.Process.BattleEngine import PkmBattleEnv
 from Util.Recording import FileRecorder
@@ -63,7 +63,7 @@ class Competitor:
 
 class Match:
 
-    def __init__(self, competitor0: Competitor, competitor1: Competitor, n_games: int = DEFAULT_MATCH_N, name="match",
+    def __init__(self, competitor0: Competitor, competitor1: Competitor, n_games: int = DEFAULT_MATCH_N_BATTLES, name="match",
                  debug: bool = False, record: bool = False):
         self.n_games: int = n_games
         self.competitors: Tuple[Competitor, Competitor] = (competitor0, competitor1)
@@ -200,14 +200,14 @@ class TreeChampionship(Championship):
         self.match_tree = MatchHandlerTree(copy_participants, debug)
         self.match_tree.build_tree()
         self.pool_generator = pool_generator
-        self.pool = self.pool_generator.get_pool()
+        self.pool = self.pool_generator.gen_roster()
         self.debug = debug
 
     def register_competitor(self, c: Competitor):
         self.competitors.append(c)
 
     def generate_pool(self):
-        self.pool = self.pool_generator.get_pool()
+        self.pool = self.pool_generator.gen_roster()
 
     def create_tournament_tree(self):
         copy_participants = self.competitors.copy()

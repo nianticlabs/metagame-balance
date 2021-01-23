@@ -4,7 +4,7 @@ from Util.PkmRosterGenerators import StandardPkmRosterGenerator
 
 def main():
     pool_gen = StandardPkmRosterGenerator(10, 100)
-    pool = pool_gen.get_pool()
+    pool = pool_gen.gen_roster()
     for pt in pool:
         print(pt)
         print()

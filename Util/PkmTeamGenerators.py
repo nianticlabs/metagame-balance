@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from Behaviour import SelectorPolicy
-from Framework.Competition.Config import TEAM_SIZE
-from Framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, N_MAX_PARTY, N_MOVES
+from Framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, DEFAULT_TEAM_SIZE, DEFAULT_PKM_N_MOVES
 from Framework.DataObjects import PkmTeam, Pkm, PkmMove
 from Framework.DataTypes import PkmType
 import random
@@ -26,7 +25,7 @@ class PkmTeamGenerator(ABC):
 # Example generators
 class RandomGenerator(PkmTeamGenerator):
 
-    def __init__(self, party_size: int = TEAM_SIZE - 1):
+    def __init__(self, party_size: int = DEFAULT_TEAM_SIZE - 1):
         self.party_size = party_size
 
     def get_team(self, t_id: int = 0) -> PkmTeam:
@@ -35,7 +34,7 @@ class RandomGenerator(PkmTeamGenerator):
             p_type: PkmType = random.choice(LIST_OF_TYPES)
             max_hp: float = round(random.random() * DELTA_HIT_POINTS + MIN_HIT_POINTS)
             moves: List[PkmMove] = []
-            for _ in range(N_MOVES):
+            for _ in range(DEFAULT_PKM_N_MOVES):
                 m_type: PkmType = random.choice(LIST_OF_TYPES)
                 m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
                 moves.append(PkmMove(m_power, 1., m_type))
