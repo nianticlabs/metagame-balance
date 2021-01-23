@@ -1,4 +1,3 @@
-
 # Competition
 DEFAULT_MATCH_N_BATTLES = 3
 
@@ -33,11 +32,7 @@ STATE_DAMAGE = MAX_HIT_POINTS / 8.
 SPIKES_2 = MAX_HIT_POINTS / 6.
 SPIKES_3 = MAX_HIT_POINTS / 4.
 
-# Stage
-MAX_STAT_STAGE = 4
-MIN_STAT_STAGE = -4
-
-# Pkm Type Chart
+# Pkm type chart
 TYPE_CHART_MULTIPLIER = (
     (1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., .5, .0, 1., 1., .5, 1.),  # NORMAL
     (1., .5, .5, 1., 2., 2., 1., 1., 1., 1., 1., 2., .5, 1., .5, 1., 2., 1.),  # FIRE

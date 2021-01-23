@@ -251,6 +251,29 @@ def get_partial_move_view(move: PkmMove) -> MoveView:
 PkmMoveRoster = Set[PkmMove]
 
 
+class MoveRosterView(ABC):
+
+    @abstractmethod
+    def get_move_view(self, idx: int) -> MoveView:
+        pass
+
+    @abstractmethod
+    def get_n_moves(self) -> int:
+        pass
+
+
+def get_pkm_move_roster_view(move_roster: PkmMoveRoster) -> MoveRosterView:
+    class MoveRosterViewImpl(MoveRosterView):
+
+        def get_move_view(self, idx: int) -> MoveView:
+            return get_move_view(list(move_roster)[idx])
+
+        def get_n_moves(self) -> int:
+            return len(move_roster)
+
+    return MoveRosterViewImpl()
+
+
 class Pkm:
 
     def __init__(self, p_type: PkmType = PkmType.NORMAL, max_hp: float = MAX_HIT_POINTS,
@@ -335,60 +358,10 @@ class Pkm:
         return self.status == PkmStatus.FROZEN
 
 
-class PkmTemplate:
-
-    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float):
-        """
-        Pokemon specimen definition data structure.
-
-        :param move_roster: set of available moves for Pokemon of this species
-        :param pkm_type: pokemon type
-        :param max_hp: pokemon max_hp
-        """
-        self.move_roster: PkmMoveRoster = move_roster
-        self.type: PkmType = pkm_type
-        self.max_hp = max_hp
-
-    def __eq__(self, other):
-        return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
-
-    def __hash__(self):
-        return hash((self.type, self.max_hp) + tuple(self.move_roster))
-
-    def __str__(self):
-        s = 'PkmTemplate(Type=%s, Max_HP=%d, Moves={' % (PkmType(self.type).name, self.max_hp)
-        for move in self.move_roster:
-            s += str(move) + ', '
-        return s + '})'
-
-    def gen_pkm(self, moves: List[int]) -> Pkm:
-        """
-        Given the indexes of the moves generate a pokemon of this species.
-
-        :param moves: index list of moves
-        :return: the requested pokemon
-        """
-        move_list = list(self.move_roster)
-        return Pkm(p_type=self.type, max_hp=self.max_hp,
-                   move0=move_list[moves[0]],
-                   move1=move_list[moves[1]],
-                   move2=move_list[moves[2]],
-                   move3=move_list[moves[3]])
-
-    def is_speciman(self, pkm: Pkm) -> bool:
-        """
-        Check if input pokemon is a speciman of this species
-
-        :param pkm: pokemon
-        :return: if pokemon is speciman of this template
-        """
-        return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
-
-
 class PkmView(ABC):
 
     @abstractmethod
-    def get_move_view(self, idx: int):
+    def get_move_view(self, idx: int) -> MoveView:
         pass
 
     @abstractmethod
@@ -439,7 +412,113 @@ def get_partial_pkm_view(pkm: Pkm) -> PkmView:
         return get_pkm_view(null_pkm)
 
 
+class PkmTemplate:
+
+    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float):
+        """
+        Pokemon specimen definition data structure.
+
+        :param move_roster: set of available moves for Pokemon of this species
+        :param pkm_type: pokemon type
+        :param max_hp: pokemon max_hp
+        """
+        self.move_roster: PkmMoveRoster = move_roster
+        self.type: PkmType = pkm_type
+        self.max_hp = max_hp
+
+    def __eq__(self, other):
+        return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
+
+    def __hash__(self):
+        return hash((self.type, self.max_hp) + tuple(self.move_roster))
+
+    def __str__(self):
+        s = 'PkmTemplate(Type=%s, Max_HP=%d, Moves={' % (PkmType(self.type).name, self.max_hp)
+        for move in self.move_roster:
+            s += str(move) + ', '
+        return s + '})'
+
+    def gen_pkm(self, moves: List[int]) -> Pkm:
+        """
+        Given the indexes of the moves generate a pokemon of this species.
+
+        :param moves: index list of moves
+        :return: the requested pokemon
+        """
+        move_list = list(self.move_roster)
+        return Pkm(p_type=self.type, max_hp=self.max_hp,
+                   move0=move_list[moves[0]],
+                   move1=move_list[moves[1]],
+                   move2=move_list[moves[2]],
+                   move3=move_list[moves[3]])
+
+    def is_speciman(self, pkm: Pkm) -> bool:
+        """
+        Check if input pokemon is a speciman of this species
+
+        :param pkm: pokemon
+        :return: if pokemon is speciman of this template
+        """
+        return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
+
+
+class PkmTemplateView(ABC):
+
+    @abstractmethod
+    def get_move_roster_view(self, idx: int) -> MoveRosterView:
+        pass
+
+    @abstractmethod
+    def get_pkm_type(self) -> PkmType:
+        pass
+
+    @abstractmethod
+    def get_max_hp(self) -> float:
+        pass
+
+
+def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
+    class PkmTemplateViewImpl(PkmTemplateView):
+
+        @abstractmethod
+        def get_move_roster_view(self, idx: int) -> MoveRosterView:
+            return get_pkm_move_roster_view(template.move_roster)
+
+        @abstractmethod
+        def get_pkm_type(self) -> PkmType:
+            return template.type
+
+        @abstractmethod
+        def get_max_hp(self) -> float:
+            return template.max_hp
+
+    return PkmTemplateViewImpl()
+
+
 PkmRoster = Set[PkmTemplate]
+
+
+class PkmRosterView(ABC):
+
+    @abstractmethod
+    def get_pkm_template_view(self, idx: int) -> PkmTemplateView:
+        pass
+
+    @abstractmethod
+    def get_n_pkms(self) -> int:
+        pass
+
+
+def get_pkm_roster_view(pkm_roster: PkmRoster) -> PkmRosterView:
+    class PkmRosterViewImpl(PkmRosterView):
+
+        def get_pkm_template_view(self, idx: int) -> PkmTemplateView:
+            return get_pkm_template_view(list(pkm_roster)[idx])
+
+        def get_n_pkms(self) -> int:
+            return len(pkm_roster)
+
+    return PkmRosterViewImpl()
 
 
 class PkmTeam:

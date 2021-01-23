@@ -28,9 +28,9 @@ class PkmType(IntEnum):
 N_TYPES = len(list(map(int, PkmType)))
 
 
-def effective(t: PkmType) -> PkmType:
+def get_effective(t: PkmType) -> PkmType:
     """
-    Get a effective type relative to type t.
+    Get a random effective type relative to type t.
 
     :param t: pokemon type
     :return: a random type that is not very effective against pokemon type t
@@ -42,9 +42,9 @@ def effective(t: PkmType) -> PkmType:
     return PkmType(random.choice(s))
 
 
-def super_effective(t: PkmType) -> PkmType:
+def get_super_effective(t: PkmType) -> PkmType:
     """
-    Get a super effective type relative to type t.
+    Get a random super effective type relative to type t.
 
     :param t: pokemon type
     :return: a random type that is super effective against pokemon type t
@@ -53,13 +53,13 @@ def super_effective(t: PkmType) -> PkmType:
     s = [index for index, value in enumerate(_t) if value == 2.]
     if not s:
         print('Warning: Empty List!')
-        return effective(t)
+        return get_effective(t)
     return PkmType(random.choice(s))
 
 
-def non_very_effective(t: PkmType) -> PkmType:
+def get_non_very_effective(t: PkmType) -> PkmType:
     """
-    Get a non very effective type relative to type t.
+    Get a random non very effective type relative to type t.
 
     :param t: pokemon type
     :return: a random type that is not very effective against pokemon type t
@@ -67,7 +67,7 @@ def non_very_effective(t: PkmType) -> PkmType:
     _t = [t_[t] for t_ in TYPE_CHART_MULTIPLIER]
     s = [index for index, value in enumerate(_t) if value == .5]
     if not s:
-        return effective(t)
+        return get_effective(t)
     return PkmType(random.choice(s))
 
 

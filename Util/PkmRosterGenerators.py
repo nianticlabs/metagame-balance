@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
-
 import random
+from abc import ABC, abstractmethod
 from typing import List
 
 from Util.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
@@ -17,7 +16,7 @@ class PkmRosterGenerator(ABC):
         pass
 
 
-class StandardPkmRosterGenerator(PkmRosterGenerator):
+class RandomPkmRosterGenerator(PkmRosterGenerator):
 
     def __init__(self, n_moves_pkm: int = DEFAULT_N_MOVES_PKM, pool_size: int = DEFAULT_ROSTER_SIZE):
         self.move_pool: PkmMoveRoster = set(STANDARD_MOVE_ROSTER)
@@ -25,6 +24,11 @@ class StandardPkmRosterGenerator(PkmRosterGenerator):
         self.pool_size = pool_size
 
     def gen_roster(self) -> PkmRoster:
+        """
+        Generate a random pokemon roster that follows the generator specifications.
+
+        :return: a random pokemon roster.
+        """
         roster: List[PkmTemplate] = []
         for i in range(self.pool_size):
             base_move_roster = self.move_pool.copy()
