@@ -2,8 +2,6 @@
 
 (Legacy repository: https://gitlab.com/DracoStriker/simplified-pokemon-environment)
 
-
-
 ### TODO
 
 * Team hypothesizing
@@ -107,8 +105,8 @@ idx=0, the opponent is idx=1, and composed by a global weather condition.
 
 ```python
 class GameStateView:
-    def get_team_view(self, idx: int) -> PkmTeamView
-    def get_weather_condition(self) -> WeatherCondition
+    def get_team_view(idx: int) -> PkmTeamView
+    def get_weather_condition() -> WeatherCondition
 ```
 
 A Pokémon Team stores the active Pokémon and party Pokémons. Also stores the active 
@@ -120,12 +118,12 @@ Pokémon exclusive battle stats:
 
 ```python
 class PkmTeamView:
-    def get_active_pkm_view(self) -> PkmView
-    def get_party_pkm_view(self, idx: int) -> PkmView
-    def get_stage(self, stat: PkmStat) -> int
-    def get_confused(self) -> bool
-    def get_n_turns_confused(self) -> int
-    def get_entry_hazard(self, hazard: PkmEntryHazard) -> int
+    def get_active_pkm_view() -> PkmView
+    def get_party_pkm_view(idx: int) -> PkmView
+    def get_stage(stat: PkmStat) -> int
+    def get_confused() -> bool
+    def get_n_turns_confused() -> int
+    def get_entry_hazard(hazard: PkmEntryHazard) -> int
 ```
 
 A Pokémon stores its move set, type, hit points, status (SLEEP, PARALYZED...) and
@@ -133,11 +131,11 @@ how many turns has been asleep.
 
 ```python
 class PkmView:
-    def get_move_view(self, idx: int) -> MoveView
-    def get_type(self) -> PkmType
-    def get_hp(self) -> float
-    def get_status(self) -> PkmStatus
-    def get_n_turns_asleep(self) -> int
+    def get_move_view(idx: int) -> MoveView
+    def get_type() -> PkmType
+    def get_hp() -> float
+    def get_status() -> PkmStatus
+    def get_n_turns_asleep() -> int
 ```
 
 A Pokémon Move is composed by a vast array of attributes, its type, accuracy, 
@@ -154,20 +152,20 @@ power points, power, and many effect attributes:
 
 ```python
 class MoveView:
-    def get_power(self) -> float
-    def get_acc(self) -> float
-    def get_pp(self) -> int
-    def get_type(self) -> PkmType
-    def get_priority(self) -> int
-    def get_prob(self) -> float
-    def get_target(self) -> int
-    def get_recover(self) -> float
-    def get_status(self) -> PkmStatus
-    def get_stat(self) -> PkmStat
-    def get_stage(self) -> int
-    def get_fixed_damage(self) -> float
-    def get_weather(self) -> WeatherCondition
-    def get_hazard(self) -> PkmEntryHazard
+    def get_power() -> float
+    def get_acc() -> float
+    def get_pp() -> int
+    def get_type() -> PkmType
+    def get_priority() -> int
+    def get_prob() -> float
+    def get_target() -> int
+    def get_recover() -> float
+    def get_status() -> PkmStatus
+    def get_stat() -> PkmStat
+    def get_stage() -> int
+    def get_fixed_damage() -> float
+    def get_weather() -> WeatherCondition
+    def get_hazard() -> PkmEntryHazard
 ```
 
 For team building the legal Pokémon roster can be accessed. A Pokémon roster is a
@@ -177,17 +175,17 @@ and output team and accept or reject.
 
 ```python
 class PkmRosterView:
-    def get_pkm_template_view(self, idx: int) -> PkmTemplateView
-    def get_n_pkms(self) -> int
+    def get_pkm_template_view(idx: int) -> PkmTemplateView
+    def get_n_pkms() -> int
 
 class PkmTemplateView:
-    def get_move_roster_view(self, idx: int) -> MoveRosterView
-    def get_pkm_type(self) -> PkmType
-    def get_max_hp(self) -> float
+    def get_move_roster_view(idx: int) -> MoveRosterView
+    def get_pkm_type() -> PkmType
+    def get_max_hp() -> float
 
 class MoveRosterView:
-    def get_move_view(self, idx: int) -> MoveView
-    def get_n_moves(self) -> int
+    def get_move_view(idx: int) -> MoveView
+    def get_n_moves() -> int
 ```
 
 ### Competitor API
@@ -199,25 +197,25 @@ Agents may  receive a view object of the game state or a game state encoding.
 
 ```python
 class BattlePolicy:
-    def get_action(self, s) -> int
+    def get_action(s) -> int
 
 class SelectorPolicy:
-    def get_action(self, s) -> Set[int]
+    def get_action(s) -> Set[int]
 
 class TeamBuilderPolicy:
-    def get_action(self, s) -> PkmTeam
+    def get_action(s) -> PkmTeam
 
 class TeamHyphotesizer:
-    def get_action(self, s) -> PkmTeam
+    def get_action(s) -> PkmTeam
 
 class DataAggregator:
-    def get_action(self, s) -> Any
+    def get_action(s) -> Any
 
 class TeamValuator:
-    def get_action(self, s) -> Any:
+    def get_action(s) -> Any:
 
-class BalancePolicy(Behaviour):
-    def get_action(self, s) -> PkmRoster
+class BalancePolicy:
+    def get_action(s) -> PkmRoster
 
 class Competitor:
     def get_battle_policy(self) -> BattlePolicy
@@ -236,7 +234,3 @@ Each proposed track tackle different complexity problems on the VGC Competition.
 1. The Battle Track agents only compete with battle policies.
 2. The VGC Track, competitors must master the skills of battling,team selection and team building.
 3. The Balance track, the competitor must generate and manage the best roster.
-
-## Project Structure
-
-...

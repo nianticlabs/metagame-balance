@@ -54,6 +54,24 @@ class Competitor:
     def get_battle_policy(self) -> BattlePolicy:
         return self.battle_policy
 
+    def get_selector_policy(self) -> SelectorPolicy:
+        return self.selection_policy
+
+    def get_team_builder_policy(self) -> TeamBuilderPolicy:
+        return self.builder_policy
+
+    def get_team_hyphotesizer_policy(self) -> TeamHyphotesizer:
+        return self.team_hyphotesizer
+
+    def get_data_aggregator_policy(self) -> DataAggregator:
+        return self.data_aggregator
+
+    def get_team_valuator_policy(self) -> TeamValuator:
+        return self.team_valuator
+
+    def get_balance_policy(self) -> BalancePolicy:
+        return self.balance_policy
+
     def __str__(self):
         return str(self.team)
 
