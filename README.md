@@ -106,7 +106,7 @@ idx=0, the opponent is idx=1, and composed by a global weather condition.
 ```python
 class GameStateView:
     def get_team_view(idx: int) -> PkmTeamView
-    def get_weather_condition() -> WeatherCondition
+    def weather_condition -> WeatherCondition
 ```
 
 A Pokémon Team stores the active Pokémon and party Pokémons. Also stores the active 
@@ -118,11 +118,11 @@ Pokémon exclusive battle stats:
 
 ```python
 class PkmTeamView:
-    def get_active_pkm_view() -> PkmView
+    def active_pkm_view -> PkmView
     def get_party_pkm_view(idx: int) -> PkmView
     def get_stage(stat: PkmStat) -> int
-    def get_confused() -> bool
-    def get_n_turns_confused() -> int
+    def confused -> bool
+    def n_turns_confused -> int
     def get_entry_hazard(hazard: PkmEntryHazard) -> int
 ```
 
@@ -132,10 +132,10 @@ how many turns has been asleep.
 ```python
 class PkmView:
     def get_move_view(idx: int) -> MoveView
-    def get_type() -> PkmType
-    def get_hp() -> float
-    def get_status() -> PkmStatus
-    def get_n_turns_asleep() -> int
+    def type -> PkmType
+    def hp -> float
+    def status -> PkmStatus
+    def n_turns_asleep -> int
 ```
 
 A Pokémon Move is composed by a vast array of attributes, its type, accuracy, 
@@ -152,20 +152,20 @@ power points, power, and many effect attributes:
 
 ```python
 class MoveView:
-    def get_power() -> float
-    def get_acc() -> float
-    def get_pp() -> int
-    def get_type() -> PkmType
-    def get_priority() -> int
-    def get_prob() -> float
-    def get_target() -> int
-    def get_recover() -> float
-    def get_status() -> PkmStatus
-    def get_stat() -> PkmStat
-    def get_stage() -> int
-    def get_fixed_damage() -> float
-    def get_weather() -> WeatherCondition
-    def get_hazard() -> PkmEntryHazard
+    def power -> float
+    def acc -> float
+    def pp -> int
+    def type -> PkmType
+    def priority -> int
+    def prob -> float
+    def target -> int
+    def recover -> float
+    def status -> PkmStatus
+    def stat -> PkmStat
+    def stage -> int
+    def fixed_damage -> float
+    def weather -> WeatherCondition
+    def hazard -> PkmEntryHazard
 ```
 
 For team building the legal Pokémon roster can be accessed. A Pokémon roster is a
@@ -176,16 +176,16 @@ and output team and accept or reject.
 ```python
 class PkmRosterView:
     def get_pkm_template_view(idx: int) -> PkmTemplateView
-    def get_n_pkms() -> int
+    def n_pkms -> int
 
 class PkmTemplateView:
     def get_move_roster_view(idx: int) -> MoveRosterView
-    def get_pkm_type() -> PkmType
-    def get_max_hp() -> float
+    def pkm_type -> PkmType
+    def max_hp -> float
 
 class MoveRosterView:
     def get_move_view(idx: int) -> MoveView
-    def get_n_moves() -> int
+    def n_moves -> int
 ```
 
 ### Competitor API
@@ -193,38 +193,43 @@ class MoveRosterView:
 A competitor must implement the desired behaviours to compete. The engine will fetch agent
 implementation asa plugin by detecting modules that follow the competitor API. It depends
 on the role of Player or Balance agent, they only needs certain implemented modules. 
-Agents may  receive a view object of the game state or a game state encoding.
+Agents may receive a view object of the game state or a game state encoding.
 
 ```python
-class BattlePolicy:
+class Behaviour(ABC):
+    def get_action(s) -> Any
+    def requires_encode() -> bool
+    def close()
+
+class BattlePolicy(Behaviour):
     def get_action(s) -> int
 
-class SelectorPolicy:
+class SelectorPolicy(Behaviour):
     def get_action(s) -> Set[int]
 
-class TeamBuilderPolicy:
+class TeamBuilderPolicy(Behaviour):
     def get_action(s) -> PkmTeam
 
-class TeamHyphotesizer:
+class TeamHyphotesizer(Behaviour):
     def get_action(s) -> PkmTeam
 
-class DataAggregator:
+class DataAggregator(Behaviour):
     def get_action(s) -> Any
 
-class TeamValuator:
+class TeamValuator(Behaviour):
     def get_action(s) -> Any:
 
-class BalancePolicy:
+class BalancePolicy(Behaviour):
     def get_action(s) -> PkmRoster
 
 class Competitor:
-    def get_battle_policy(self) -> BattlePolicy
-    def get_selector_policy(self) -> SelectorPolicy
-    def get_team_builder_policy(self) -> TeamBuilderPolicy
-    def get_team_hyphotesizer_policy(self) -> TeamHyphotesizer
-    def get_data_aggregator_policy(self) -> DataAggregator
-    def get_team_valautor_policy(self) -> TeamValuator
-    def get_balance_policy(self) -> BalancePolicy
+    def battle_policy -> BattlePolicy
+    def selector_policy -> SelectorPolicy
+    def team_builder_policy -> TeamBuilderPolicy
+    def team_hyphotesizer_policy -> TeamHyphotesizer
+    def data_aggregator_policy -> DataAggregator
+    def team_valautor_policy -> TeamValuator
+    def balance_policy -> BalancePolicy
 ```
 
 ## Competition Tracks
