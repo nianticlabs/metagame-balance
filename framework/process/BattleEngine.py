@@ -9,11 +9,10 @@ from framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmSt
     MIN_STAGE, MAX_STAGE
 from framework.StandardPkmMoves import Struggle
 from framework.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
+from framework.util.Recording import GamePlayRecorder
 import gym
 import random
 import numpy as np
-
-from framework.util.Recording import GamePlayRecorder
 
 
 class PkmBattleEnv(gym.Env):
@@ -543,7 +542,7 @@ class PkmBattleEnv(gym.Env):
 
 class BattleEngine:
 
-    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=True, render=True,
+    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=False, render=True,
                  n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None,
                  team_hypothesis: List[PkmTeamHypothesis] = None):
         self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_hypothesis=team_hypothesis)
@@ -561,6 +560,8 @@ class BattleEngine:
     def run_a_turn(self):
         if self.t:
             self.s = self.env.reset()
+            if self.rec is not None:
+                self.rec.record((self.s[0], self.s[1], -1, -1, False))
             self.v = self.env.game_state_view
             self.ep += 1
             if self.render:
@@ -569,7 +570,8 @@ class BattleEngine:
         o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
         a = [self.bp0.get_action(o0), self.bp1.get_action(o1)]
         self.s, r, self.t, self.v = self.env.step(a)
-        self.rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
+        if self.rec is not None:
+            self.rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
         if self.render:
             self.env.render()
         return r

@@ -1,5 +1,5 @@
 from typing import Set, Tuple
-from framework.DataObjects import GameStateView, PkmTeamView
+from framework.DataObjects import MetaData, PkmFullTeamView
 from framework.behaviour import SelectorPolicy
 from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
@@ -26,7 +26,7 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, team_views: Tuple[PkmTeamView, PkmTeamView]) -> Set[int]:
+    def get_action(self, team_views: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
         """
 
         :param team_views: (self, opponent)
@@ -35,34 +35,16 @@ class GUISelectorPolicy(SelectorPolicy):
         selected = []
         for item in self.team:
             item[1].Update(value=False)
-        # opponent active
-        opp_team = team_views[1]
-        opp_active = opp_team.active_pkm_view
-        opp_active_type = opp_active.type
-        opp_active_hp = opp_active.hp
-        opp_text = opp_active_type.name + ' ' + str(opp_active_hp) + ' HP'
-        self.opp[0][0].Update(opp_text)
         # opponent party
-        opp_party = [opp_team.get_party_pkm_view(0), opp_team.get_party_pkm_view(1)]
-        for i, pkm in enumerate(opp_party):
-            party_type = pkm.type
-            party_hp = pkm.hp
-            party_text = party_type.name + ' ' + str(party_hp) + ' HP'
-            self.opp[i + 1][0].Update(party_text)
-        # active
+        opp_team = team_views[1]
+        for i in range(opp_team.n_pkms):
+            pkm = opp_team.get_pkm_view(i)
+            self.opp[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
+        # my party
         my_team = team_views[0]
-        my_active = my_team.active_pkm_view
-        my_active_type = my_active.type
-        my_active_hp = my_active.hp
-        active_text = my_active_type.name + ' ' + str(my_active_hp) + ' HP'
-        self.team[0][0].Update(active_text)
-        # party
-        my_party = [my_team.get_party_pkm_view(0), my_team.get_party_pkm_view(1)]
-        for i, pkm in enumerate(my_party):
-            party_type = pkm.type
-            party_hp = pkm.hp
-            party_text = party_type.name + ' ' + str(party_hp) + ' HP'
-            self.team[i + 1][0].Update(party_text)
+        for i in range(my_team.n_pkms):
+            pkm = my_team.get_pkm_view(i)
+            self.team[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
         event, values = self.window.read()
         while event != self.select.get_text():
             if event not in selected:
@@ -86,7 +68,7 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, team_views: Tuple[PkmTeamView, PkmTeamView]) -> Set[int]:
+    def get_action(self, team_views: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)
         return set(ids[:self.selection_size])

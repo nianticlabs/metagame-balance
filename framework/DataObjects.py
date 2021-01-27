@@ -812,6 +812,61 @@ def get_team_view(team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None, part
     return PkmTeamViewImpl()
 
 
+class PkmFullTeam:
+
+    def __init__(self, pkm_list: List[Pkm] = None):
+        if pkm_list is None:
+            pkm_list = [deepcopy(null_pkm) for _ in range(6)]
+        self.pkm_list = pkm_list[:6]
+
+    def __str__(self):
+        team = ''
+        for i in range(0, len(self.pkm_list)):
+            team += str(self.pkm_list[i]) + '\n'
+        return 'Team:\n%s' % team
+
+    def get_battle_team(self, idx: List[int]) -> PkmTeam:
+        return PkmTeam([self.pkm_list[i] for i in idx])
+
+    def reset(self):
+        for pkm in self.pkm_list:
+            pkm.reset()
+
+
+class PkmFullTeamView(ABC):
+
+    @abstractmethod
+    def get_pkm_view(self, idx: int) -> PkmView:
+        pass
+
+    @property
+    @abstractmethod
+    def n_pkms(self) -> int:
+        pass
+
+
+def get_full_team_view(full_team: PkmFullTeam, team_hypothesis: PkmTeamHypothesis = None,
+                       partial: bool = False) -> PkmFullTeamView:
+    class PkmFullTeamViewImpl(PkmFullTeamView):
+
+        def get_pkm_view(self, idx: int) -> PkmView:
+            pkm = full_team.pkm_list[idx]
+            if partial:
+                if team_hypothesis is None:
+                    # get partial information without any hypothesis
+                    return get_partial_pkm_view(pkm)
+                # get partial information with an hypothesis
+                return get_partial_pkm_view(pkm, team_hypothesis.active)
+            # get self active pkm information
+            return get_pkm_view(pkm)
+
+        @property
+        def n_pkms(self) -> int:
+            return len(full_team.pkm_list)
+
+    return PkmFullTeamViewImpl()
+
+
 class Weather:
 
     def __init__(self):
