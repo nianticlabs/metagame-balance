@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from math import isclose
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Union
 from DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
 from DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, PkmEntryHazard
 import random
@@ -269,11 +269,12 @@ def get_move_view(move: PkmMove) -> MoveView:
 null_pkm_move = PkmMove()
 
 
-def get_partial_move_view(move: PkmMove) -> MoveView:
+def get_partial_move_view(move: PkmMove, move_hypothesis: Union[PkmMove, None] = None) -> MoveView:
     if move.public:
         return get_move_view(move)
-    else:
-        return get_move_view(null_pkm_move)
+    elif move_hypothesis is not None:
+        return get_move_view(move_hypothesis)
+    return get_move_view(null_pkm_move)
 
 
 PkmMoveRoster = Set[PkmMove]
@@ -414,19 +415,34 @@ class PkmView(ABC):
     def n_turns_asleep(self) -> int:
         pass
 
+    @abstractmethod
+    def get_copy(self) -> Pkm:
+        pass
 
-def get_pkm_view(pkm: Pkm) -> PkmView:
+
+def get_pkm_view(pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None, partial=False) -> PkmView:
     class PkmViewImpl(PkmView):
 
         def get_move_view(self, idx: int) -> MoveView:
+            if partial:
+                # get opponent pokemon move information with an hypothesis
+                if pkm_hypothesis is not None and pkm.moves[idx] is not None:
+                    return get_partial_move_view(pkm.moves[idx], pkm_hypothesis.moves[idx])
+                # get opponent pokemon move information
+                return get_partial_move_view(pkm.moves[idx])
+            # get self pokemon move information
             return get_move_view(pkm.moves[idx])
 
         @property
         def type(self) -> PkmType:
+            if pkm_hypothesis is not None:
+                return pkm_hypothesis.type
             return pkm.type
 
         @property
         def hp(self) -> float:
+            if pkm_hypothesis is not None:
+                return pkm_hypothesis.hp
             return pkm.hp
 
         @property
@@ -437,17 +453,24 @@ def get_pkm_view(pkm: Pkm) -> PkmView:
         def n_turns_asleep(self) -> int:
             return pkm.n_turns_asleep
 
+        def get_copy(self) -> Pkm:
+            move0 = pkm.moves[0] if pkm.moves[0].public else null_pkm_move
+            move1 = pkm.moves[1] if pkm.moves[1].public else null_pkm_move
+            move2 = pkm.moves[2] if pkm.moves[2].public else null_pkm_move
+            move3 = pkm.moves[3] if pkm.moves[3].public else null_pkm_move
+            return deepcopy(pkm) if not partial or pkm.public else Pkm(pkm.type, pkm.max_hp, pkm.status, move0, move1,
+                                                                       move2, move3)
+
     return PkmViewImpl()
 
 
 null_pkm = Pkm()
 
 
-def get_partial_pkm_view(pkm: Pkm) -> PkmView:
+def get_partial_pkm_view(pkm: Pkm, pkm_hypothesis: Pkm = None) -> PkmView:
     if pkm.public:
-        return get_pkm_view(pkm)
-    else:
-        return get_pkm_view(null_pkm)
+        return get_pkm_view(pkm, pkm_hypothesis, partial=True)
+    return get_pkm_view(null_pkm, pkm_hypothesis)
 
 
 class PkmTemplate:
@@ -740,18 +763,36 @@ class PkmTeamView(ABC):
         pass
 
 
-def get_team_view(team: PkmTeam, partial: bool = False) -> PkmTeamView:
+class PkmTeamHypothesis:
+
+    def __init__(self, team_view: PkmTeamView = None):
+        self.team_view = team_view
+        self.active: Union[Pkm, None] = None
+        self.party: List[Union[Pkm, None]] = [None, None]
+
+
+def get_team_view(team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None, partial: bool = False) -> PkmTeamView:
     class PkmTeamViewImpl(PkmTeamView):
 
         @property
         def active_pkm_view(self) -> PkmView:
             if partial:
-                return get_partial_pkm_view(team.active)
+                if team_hypothesis is None:
+                    # get partial information without any hypothesis
+                    return get_partial_pkm_view(team.active)
+                # get partial information with an hypothesis
+                return get_partial_pkm_view(team.active, team_hypothesis.active)
+            # get self active pkm information
             return get_pkm_view(team.active)
 
         def get_party_pkm_view(self, idx: int) -> PkmView:
             if partial:
-                return get_partial_pkm_view(team.party[idx])
+                if team_hypothesis is None:
+                    # get partial information without any hypothesis
+                    return get_partial_pkm_view(team.party[idx])
+                # get partial information with an hypothesis
+                return get_partial_pkm_view(team.party[idx], team_hypothesis.party[idx])
+            # get self party pkm information
             return get_pkm_view(team.party[idx])
 
         def get_stage(self, stat: PkmStat) -> int:
@@ -796,11 +837,12 @@ class GameStateView(ABC):
         pass
 
 
-def get_game_state_view(game_state: GameState) -> GameStateView:
+def get_game_state_view(game_state: GameState, team_hypothesis: PkmTeamHypothesis = None) -> GameStateView:
     class GameStateViewImpl(GameStateView):
 
         def __init__(self):
-            self._teams = [get_team_view(game_state.teams[0]), get_team_view(game_state.teams[1], partial=True)]
+            self._teams = [get_team_view(game_state.teams[0]),
+                           get_team_view(game_state.teams[1], team_hypothesis, partial=True)]
 
         def get_team_view(self, idx: int) -> PkmTeamView:
             return self._teams[idx]

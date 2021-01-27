@@ -4,7 +4,6 @@
 
 ### TODO
 
-* Team hypothesizing
 * Design restriction language
 * Competition/training logic
 * Plugin Security
@@ -182,6 +181,7 @@ class PkmTemplateView:
     def get_move_roster_view(idx: int) -> MoveRosterView
     def pkm_type -> PkmType
     def max_hp -> float
+    def get_copy() -> PkmTemplate
 
 class MoveRosterView:
     def get_move_view(idx: int) -> MoveView
@@ -211,7 +211,7 @@ class TeamBuilderPolicy(Behaviour):
     def get_action(s) -> PkmTeam
 
 class TeamHyphotesizer(Behaviour):
-    def get_action(s) -> PkmTeam
+    def get_action(s) -> PkmTeamHypothesis
 
 class DataAggregator(Behaviour):
     def get_action(s) -> Any

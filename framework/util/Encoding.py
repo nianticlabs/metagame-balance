@@ -1,7 +1,7 @@
 from typing import List
 
 from framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
-from framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move
+from framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamHypothesis, null_pkm
 from framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
     WeatherCondition, PkmEntryHazard
 
@@ -69,14 +69,22 @@ def encode_pkm(e, pkm: Pkm):
         encode_move(e, move)
 
 
-def partial_encode_pkm(e, pkm: Pkm):
-    e += [pkm.hp / MAX_HIT_POINTS, pkm.n_turns_asleep / 5]
-    e += one_hot(pkm.type, N_TYPES)
-    e += one_hot(pkm.status, N_STATUS)
+def partial_encode_pkm(e, pkm: Pkm, pkm_hypothesis: Pkm = None):
+    if pkm.public:
+        _pkm = pkm
+    elif pkm_hypothesis is not None:
+        _pkm = pkm_hypothesis
+    else:
+        _pkm = null_pkm
+    e += [_pkm.hp / MAX_HIT_POINTS, _pkm.n_turns_asleep / 5]
+    e += one_hot(_pkm.type, N_TYPES)
+    e += one_hot(_pkm.status, N_STATUS)
     # Pkm moves
-    for move in pkm.moves:
+    for i, move in enumerate(pkm.moves):
         if move.public:
             encode_move(e, move)
+        elif pkm_hypothesis is not None and pkm_hypothesis.moves[i] is not None:
+            encode_move(e, pkm_hypothesis.moves[i])
         else:
             encode_move(e, null_pkm_move)
 
@@ -120,17 +128,14 @@ def encode_team(e, team: PkmTeam):
         encode_pkm(e, pkm)
 
 
-def partial_encode_team(e, team: PkmTeam):
+def partial_encode_team(e, team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None):
     e += [team.confused]
     e += team.entry_hazard
     for stat in range(N_STATS):
         e += [team.stage[stat] / 5]
-    encode_pkm(e, team.active)
-    for pkm in team.party[:DEFAULT_TEAM_SIZE - 1]:
-        if pkm.public:
-            encode_pkm(e, pkm)
-        else:
-            partial_encode_pkm(e, pkm)
+    partial_encode_pkm(e, team.active, team_hypothesis.active)
+    for i, pkm in enumerate(team.party):
+        partial_encode_pkm(e, pkm, team_hypothesis.party[i])
 
 
 def decode_team(e) -> PkmTeam:
@@ -165,9 +170,9 @@ def encode_game_state(e, game_state: GameState):
     e += one_hot(game_state.weather, N_WEATHER)
 
 
-def partial_encode_game_state(e, game_state: GameState):
+def partial_encode_game_state(e, game_state: GameState, team_hypothesis: PkmTeamHypothesis = None):
     encode_team(e, game_state.teams[0])
-    partial_encode_team(e, game_state.teams[1])
+    partial_encode_team(e, game_state.teams[1], team_hypothesis)
     e += one_hot(game_state.weather, N_WEATHER)
 
 

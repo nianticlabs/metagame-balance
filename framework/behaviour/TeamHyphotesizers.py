@@ -1,5 +1,5 @@
 from framework.behaviour import TeamHyphotesizer
-from framework.DataObjects import PkmTeam
+from framework.DataObjects import PkmTeamHypothesis
 
 
 class NullTeamHyphotesizer(TeamHyphotesizer):
@@ -10,7 +10,7 @@ class NullTeamHyphotesizer(TeamHyphotesizer):
     def close(self):
         pass
 
-    null_team = PkmTeam()
+    null_team_hypothesis = PkmTeamHypothesis()
 
-    def get_action(self, s) -> PkmTeam:
-        return NullTeamHyphotesizer.null_team
+    def get_action(self, s) -> PkmTeamHypothesis:
+        return NullTeamHyphotesizer.null_team_hypothesis
