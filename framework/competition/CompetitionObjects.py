@@ -58,7 +58,12 @@ class Competitor(ABC):
 
     @property
     @abstractmethod
-    def name(self):
+    def team(self) -> PkmTeam:
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
         pass
 
     @abstractmethod
@@ -80,13 +85,13 @@ class Match:
     def run(self):
         c0 = self.competitors[0]
         c1 = self.competitors[1]
-        team_selector = TeamSelector(c0.team, c1.team, c0.selection_policy, c1.selection_policy)
+        team_selector = TeamSelector(c0.team, c1.team, c0.selector_policy, c1.selector_policy)
         env = PkmBattleEnv(debug=self.debug, teams=[c0.team, c1.team])
         env.set_team_generator(team_selector)
         t = False
         a0 = c0.battle_policy
         a1 = c1.battle_policy
-        r = GamePlayRecorder(name="random_agent")
+        r = GamePlayRecorder(name=self.name)
         game = 0
         while game < self.n_games:
             game += 1
@@ -100,9 +105,9 @@ class Match:
                 o0 = s[0] if a0.requires_encode() else v[0]
                 o1 = s[1] if a1.requires_encode() else v[1]
                 a = [a0.get_action(o0), a1.get_action(o1)]
-                if self.record:
-                    r.record((s[0], a[0], game))
                 s, _, t, v = env.step(a)
+                if self.record:
+                    r.record((s[0], s[1], a[0], a[1], t))
                 if self.debug:
                     env.render()
             t = False
@@ -222,5 +227,5 @@ class TreeChampionship(Championship):
 
     def run(self):
         for competitor in self.competitors:
-            competitor.team = competitor.builder_policy.get_action(self.pool)
+            competitor.team = competitor.team_builder_policy.get_action(self.pool)
         self.match_tree.run_matches(self.debug)

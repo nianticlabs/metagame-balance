@@ -5,7 +5,6 @@
 ### TODO
 
 * Design restriction language
-* Competition/training logic
 * Plugin Security
 
 ## Introduction
@@ -106,6 +105,7 @@ idx=0, the opponent is idx=1, and composed by a global weather condition.
 class GameStateView:
     def get_team_view(idx: int) -> PkmTeamView
     def weather_condition -> WeatherCondition
+    def n_turns_no_clear -> int
 ```
 
 A Pokémon Team stores the active Pokémon and party Pokémons. Also stores the active 

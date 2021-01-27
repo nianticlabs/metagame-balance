@@ -1,5 +1,5 @@
-from DataObjects import PkmMove
-from DataTypes import PkmType, PkmStatus, WeatherCondition, PkmStat, PkmEntryHazard
+from framework.DataObjects import PkmMove
+from framework.DataTypes import PkmType, PkmStatus, WeatherCondition, PkmStat, PkmEntryHazard
 
 # Struggle
 Struggle = PkmMove(max_pp=0, name="Struggle")

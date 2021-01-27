@@ -3,7 +3,7 @@ import random
 import unittest
 from copy import deepcopy
 from framework.DataConstants import MIN_HIT_POINTS, MAX_HIT_POINTS
-from framework.DataObjects import PkmTemplate, PkmTeam, GameState
+from framework.DataObjects import PkmTemplate, PkmTeam, GameState, Weather
 from framework.DataTypes import PkmType
 from framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from framework.util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, \
@@ -60,7 +60,7 @@ class TestEncodingMethods(unittest.TestCase):
             for idx in random.sample(list(move_combinations), 3):
                 pkms.append(template.gen_pkm(moves=list(idx)))
             team = PkmTeam(pkms)
-            game_state = GameState([team, team])
+            game_state = GameState([team, team], Weather())
             e = []
             encode_game_state(e, game_state)
             d = decode_game_state(e)

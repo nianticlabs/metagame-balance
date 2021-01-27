@@ -1,5 +1,5 @@
-from typing import Set
-from framework.DataObjects import GameStateView
+from typing import Set, Tuple
+from framework.DataObjects import GameStateView, PkmTeamView
 from framework.behaviour import SelectorPolicy
 from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
@@ -26,17 +26,17 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g: GameStateView) -> Set[int]:
+    def get_action(self, team_views: Tuple[PkmTeamView, PkmTeamView]) -> Set[int]:
         """
 
-        :param g: game state view
-        :return: action
+        :param team_views: (self, opponent)
+        :return: idx list of selected pokemons
         """
         selected = []
         for item in self.team:
             item[1].Update(value=False)
         # opponent active
-        opp_team = g.get_team_view(1)
+        opp_team = team_views[1]
         opp_active = opp_team.active_pkm_view
         opp_active_type = opp_active.type
         opp_active_hp = opp_active.hp
@@ -50,7 +50,7 @@ class GUISelectorPolicy(SelectorPolicy):
             party_text = party_type.name + ' ' + str(party_hp) + ' HP'
             self.opp[i + 1][0].Update(party_text)
         # active
-        my_team = g.get_team_view(0)
+        my_team = team_views[0]
         my_active = my_team.active_pkm_view
         my_active_type = my_active.type
         my_active_hp = my_active.hp
@@ -86,7 +86,7 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, g) -> Set[int]:
+    def get_action(self, team_views: Tuple[PkmTeamView, PkmTeamView]) -> Set[int]:
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)
         return set(ids[:self.selection_size])

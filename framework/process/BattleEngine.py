@@ -4,7 +4,7 @@ from framework.behaviour import BattlePolicy
 from framework.util.PkmTeamGenerators import PkmTeamGenerator
 from framework.DataConstants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
-from framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState
+from framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState, PkmTeamHypothesis, Weather
 from framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from framework.StandardPkmMoves import Struggle
@@ -13,22 +13,27 @@ import gym
 import random
 import numpy as np
 
+from framework.util.Recording import GamePlayRecorder
+
 
 class PkmBattleEnv(gym.Env):
 
-    def __init__(self, teams: List[PkmTeam] = None, debug: bool = False):
+    def __init__(self, teams: List[PkmTeam] = None, debug: bool = False,
+                 team_hypothesis: List[PkmTeamHypothesis] = None):
         # random active pokemon
         if teams is None:
             self.teams: List[PkmTeam] = [PkmTeam(), PkmTeam()]
         else:
             self.teams: List[PkmTeam] = teams
-        self.weather: WeatherCondition = WeatherCondition.CLEAR
-        self.n_turns_no_clear: int = 0
+        self.team_hypothesis = team_hypothesis
+        self.weather = Weather()
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
-        self.game_state = [GameState([self.teams[0], self.teams[1]]), GameState([self.teams[1], self.teams[0]])]
-        self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
+        self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
+                           GameState([self.teams[1], self.teams[0]], self.weather)]
+        self.game_state_view = [get_game_state_view(self.game_state[0], team_hypothesis=self.team_hypothesis[0]),
+                                get_game_state_view(self.game_state[1], team_hypothesis=self.team_hypothesis[1])]
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
@@ -138,8 +143,8 @@ class PkmBattleEnv(gym.Env):
         return [e0, e1], r, finished, self.game_state_view
 
     def reset(self):
-        self.weather = WeatherCondition.CLEAR
-        self.n_turns_no_clear = 0
+        self.weather.condition = WeatherCondition.CLEAR
+        self.weather.n_turns_no_clear = 0
         self.turn = 0
         self.winner = -1
         self.switched = [False, False]
@@ -147,7 +152,8 @@ class PkmBattleEnv(gym.Env):
         if self.team_generator is not None:
             self.teams[0] = self.team_generator.get_team(0)
             self.teams[1] = self.team_generator.get_team(1)
-            self.game_state = [GameState([self.teams[0], self.teams[1]]), GameState([self.teams[1], self.teams[0]])]
+            self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
+                               GameState([self.teams[1], self.teams[0]], self.weather)]
             self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
 
         for team in self.teams:
@@ -244,12 +250,12 @@ class PkmBattleEnv(gym.Env):
         Process all post battle effects.
 
         """
-        if self.weather != WeatherCondition.CLEAR:
+        if self.weather.condition != WeatherCondition.CLEAR:
             self.n_turns_no_clear += 1
 
             # clear weather if appropriated
             if self.n_turns_no_clear > 5:
-                self.weather = WeatherCondition.CLEAR
+                self.weather.condition = WeatherCondition.CLEAR
                 self.n_turns_no_clear = 0
                 if self.debug:
                     self.log += 'STATE: The weather is clear\n'
@@ -264,10 +270,10 @@ class PkmBattleEnv(gym.Env):
         pkm = self.teams[t_id].active
         state_damage = 0.
 
-        if self.weather == WeatherCondition.SANDSTORM and (
+        if self.weather.condition == WeatherCondition.SANDSTORM and (
                 pkm.type != PkmType.ROCK and pkm.type != PkmType.GROUND and pkm.type != PkmType.STEEL):
             state_damage = STATE_DAMAGE
-        elif self.weather == WeatherCondition.HAIL and (pkm.type != PkmType.ICE):
+        elif self.weather.condition == WeatherCondition.HAIL and (pkm.type != PkmType.ICE):
             state_damage = STATE_DAMAGE
 
         before_hp = pkm.hp
@@ -327,8 +333,8 @@ class PkmBattleEnv(gym.Env):
             self._active: List[Pkm] = []
 
         def set_weather(self, weather: WeatherCondition):
-            if weather != self.__engine.weather:
-                self.__engine.weather = weather
+            if weather != self.__engine.weather.condition:
+                self.__engine.weather.condition = weather
                 self.__engine.n_turns_no_clear = 0
                 if self.__engine.debug:
                     self.__engine.log += 'STATE: The weather is now %s\n' % weather.name
@@ -443,11 +449,11 @@ class PkmBattleEnv(gym.Env):
             damage = fixed_damage
         else:
             stab = 1.5 if move.type == pkm.type else 1.
-            if (move.type == PkmType.WATER and self.weather == WeatherCondition.RAIN) or (
-                    move.type == PkmType.FIRE and self.weather == WeatherCondition.SUNNY):
+            if (move.type == PkmType.WATER and self.weather.condition == WeatherCondition.RAIN) or (
+                    move.type == PkmType.FIRE and self.weather.condition == WeatherCondition.SUNNY):
                 weather = 1.5
-            elif (move.type == PkmType.WATER and self.weather == WeatherCondition.SUNNY) or (
-                    move.type == PkmType.FIRE and self.weather == WeatherCondition.RAIN):
+            elif (move.type == PkmType.WATER and self.weather.condition == WeatherCondition.SUNNY) or (
+                    move.type == PkmType.FIRE and self.weather.condition == WeatherCondition.RAIN):
                 weather = .5
             else:
                 weather = 1.
@@ -538,8 +544,9 @@ class PkmBattleEnv(gym.Env):
 class BattleEngine:
 
     def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=True, render=True,
-                 n_battles=DEFAULT_MATCH_N_BATTLES):
-        self.env = PkmBattleEnv(teams=[team0, team1], debug=debug)
+                 n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None,
+                 team_hypothesis: List[PkmTeamHypothesis] = None):
+        self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_hypothesis=team_hypothesis)
         self.bp0 = bp0
         self.bp1 = bp1
         self.ep = 0
@@ -549,8 +556,9 @@ class BattleEngine:
         self.s = None
         self.v = None
         self.t = True
+        self.rec = rec
 
-    def run_step(self):  # TODO return type
+    def run_a_turn(self):
         if self.t:
             self.s = self.env.reset()
             self.v = self.env.game_state_view
@@ -561,6 +569,7 @@ class BattleEngine:
         o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
         a = [self.bp0.get_action(o0), self.bp1.get_action(o1)]
         self.s, r, self.t, self.v = self.env.step(a)
+        self.rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
         if self.render:
             self.env.render()
         return r

@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from math import isclose
 from typing import List, Tuple, Set, Union
-from DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
-from DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, PkmEntryHazard
+from framework.DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
+from framework.DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, PkmEntryHazard
 import random
 import numpy as np
 
@@ -812,17 +812,24 @@ def get_team_view(team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None, part
     return PkmTeamViewImpl()
 
 
+class Weather:
+
+    def __init__(self):
+        self.condition: WeatherCondition = WeatherCondition.CLEAR
+        self.n_turns_no_clear: int = 0
+
+
 class GameState:
 
-    def __init__(self, teams: List[PkmTeam]):
+    def __init__(self, teams: List[PkmTeam], weather: Weather):
         self.teams = teams
-        self.weather = WeatherCondition.CLEAR
+        self.weather = weather
 
     def __eq__(self, other):
         for i, team in enumerate(self.teams):
             if team != other.teams[i]:
                 return False
-        return self.weather == other.weather
+        return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.n_turns_no_clear
 
 
 class GameStateView(ABC):
@@ -834,6 +841,11 @@ class GameStateView(ABC):
     @property
     @abstractmethod
     def weather_condition(self) -> WeatherCondition:
+        pass
+
+    @property
+    @abstractmethod
+    def n_turns_no_clear(self) -> int:
         pass
 
 
@@ -849,7 +861,11 @@ def get_game_state_view(game_state: GameState, team_hypothesis: PkmTeamHypothesi
 
         @property
         def weather_condition(self) -> WeatherCondition:
-            return game_state.weather
+            return game_state.weather.condition
+
+        @property
+        def n_turns_no_clear(self) -> int:
+            return game_state.weather.n_turns_no_clear
 
     return GameStateViewImpl()
 

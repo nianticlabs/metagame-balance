@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from framework.behaviour import SelectorPolicy
-from framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, DEFAULT_TEAM_SIZE, DEFAULT_PKM_N_MOVES
-from framework.DataObjects import PkmTeam, Pkm, PkmMove
+from framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, DEFAULT_TEAM_SIZE, \
+    DEFAULT_PKM_N_MOVES
+from framework.DataObjects import PkmTeam, Pkm, PkmMove, get_team_view
 from framework.DataTypes import PkmType
 import random
 
@@ -64,9 +65,9 @@ class TeamSelector(PkmTeamGenerator):
 
     def __init__(self, team0: PkmTeam, team1: PkmTeam, selector_0: SelectorPolicy, selector_1: SelectorPolicy):
         self.teams = team0, team1
-        team_view_0 = self.teams[0].create_team_view()
-        team_view_1 = self.teams[1].create_team_view()
-        self.team_views = (team_view_1[0], team_view_0[1]), (team_view_0[0], team_view_1[1])
+        self.player0_team_views = get_team_view(self.teams[0]), get_team_view(self.teams[1], partial=True)
+        self.player1_team_views = get_team_view(self.teams[1]), get_team_view(self.teams[0], partial=True)
+        self.team_views = self.player0_team_views, self.player1_team_views
         self.selector: Tuple[SelectorPolicy, SelectorPolicy] = (selector_0, selector_1)
 
     def get_team(self, t_id: int = 0) -> PkmTeam:
@@ -81,9 +82,9 @@ class FixedTeamSelector(PkmTeamGenerator):
 
     def __init__(self, team0: PkmTeam, team1: PkmTeam):
         self.teams = team0, team1
-        team_view_0 = self.teams[0].create_team_view()
-        team_view_1 = self.teams[1].create_team_view()
-        self.team_views = (team_view_1[0], team_view_0[1]), (team_view_0[0], team_view_1[1])
+        self.player0_team_views = get_team_view(self.teams[0]), get_team_view(self.teams[1], partial=True)
+        self.player1_team_views = get_team_view(self.teams[1]), get_team_view(self.teams[0], partial=True)
+        self.team_views = self.player0_team_views, self.player1_team_views
         self.selected_teams = PkmTeam(), PkmTeam()
 
     def set_teams(self, pkm_ids_0: List[int], pkm_ids_1: List[int]):

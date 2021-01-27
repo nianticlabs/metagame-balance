@@ -1,7 +1,6 @@
-from typing import List
-
+from typing import List, Union
 from framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
-from framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamHypothesis, null_pkm
+from framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamHypothesis, null_pkm, Weather
 from framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
     WeatherCondition, PkmEntryHazard
 
@@ -69,7 +68,7 @@ def encode_pkm(e, pkm: Pkm):
         encode_move(e, move)
 
 
-def partial_encode_pkm(e, pkm: Pkm, pkm_hypothesis: Pkm = None):
+def partial_encode_pkm(e, pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None):
     if pkm.public:
         _pkm = pkm
     elif pkm_hypothesis is not None:
@@ -128,7 +127,7 @@ def encode_team(e, team: PkmTeam):
         encode_pkm(e, pkm)
 
 
-def partial_encode_team(e, team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None):
+def partial_encode_team(e, team: PkmTeam, team_hypothesis: Union[PkmTeamHypothesis, None] = None):
     e += [team.confused]
     e += team.entry_hazard
     for stat in range(N_STATS):
@@ -167,22 +166,25 @@ TEAM_ENCODE_LEN = 591
 def encode_game_state(e, game_state: GameState):
     for team in game_state.teams:
         encode_team(e, team)
-    e += one_hot(game_state.weather, N_WEATHER)
+    e += one_hot(game_state.weather.condition, N_WEATHER)
+    e += [game_state.weather.n_turns_no_clear / 5]
 
 
 def partial_encode_game_state(e, game_state: GameState, team_hypothesis: PkmTeamHypothesis = None):
     encode_team(e, game_state.teams[0])
     partial_encode_team(e, game_state.teams[1], team_hypothesis)
-    e += one_hot(game_state.weather, N_WEATHER)
+    e += one_hot(game_state.weather.condition, N_WEATHER)
+    e += [game_state.weather.n_turns_no_clear / 5]
 
 
 def decode_game_state(e) -> GameState:
     teams = [decode_team(e[:TEAM_ENCODE_LEN]), decode_team(e[TEAM_ENCODE_LEN:TEAM_ENCODE_LEN * 2])]
-    game_state = GameState(teams)
+    game_state = GameState(teams, Weather())
     _start = TEAM_ENCODE_LEN * 2
     _end = _start + N_WEATHER
-    game_state.weather = WeatherCondition(e.index(1, _start, _end) - _start)
+    game_state.weather.condition = WeatherCondition(e.index(1, _start, _end) - _start)
+    game_state.weather.n_turns_no_clear = e[_end] * 5
     return game_state
 
 
-GAME_STATE_ENCODE_LEN = 1187
+GAME_STATE_ENCODE_LEN = 1188

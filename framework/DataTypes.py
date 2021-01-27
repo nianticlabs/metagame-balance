@@ -1,6 +1,6 @@
 import random
 from enum import IntEnum
-from DataConstants import TYPE_CHART_MULTIPLIER
+from framework.DataConstants import TYPE_CHART_MULTIPLIER
 
 
 class PkmType(IntEnum):

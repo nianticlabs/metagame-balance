@@ -17,7 +17,7 @@ class BattlePhase:
         be = BattleEngine(self.c0.battle_policy, self.c1.battle_policy, self.t0, self.t1, rec)
 
         while not be.match_completed():
-            be.run_step()
+            be.run_a_turn()
             oth0 = OponentTeamHyphotesizing(self.c0.team_hyphotesizer, self.c0.meta_data, opp0, None)
             oth1 = OponentTeamHyphotesizing(self.c1.team_hyphotesizer, self.c1.meta_data, opp1, None)
 
