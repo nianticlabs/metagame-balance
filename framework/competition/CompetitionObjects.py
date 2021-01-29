@@ -63,7 +63,7 @@ class Competitor(ABC):
 
     @property
     @abstractmethod
-    def meta_info(self) -> MetaData:
+    def meta_data(self) -> MetaData:
         pass
 
     @property

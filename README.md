@@ -214,7 +214,7 @@ class TeamPredictor(Behaviour):
     def get_action(s) -> PkmTeamPrediction
 
 class DataAggregator(Behaviour):
-    def get_action(s) -> Any
+    def get_action(s) -> MetaData
 
 class TeamValuator(Behaviour):
     def get_action(s) -> TeamValue:
@@ -230,6 +230,8 @@ class Competitor:
     def data_aggregator_policy -> DataAggregator
     def team_valautor_policy -> TeamValuator
     def balance_policy -> BalancePolicy
+    def team -> PkmFullTeam
+    def meta_data -> MetaData
 ```
 
 ## Competition Tracks

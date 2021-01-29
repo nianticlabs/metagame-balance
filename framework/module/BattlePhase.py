@@ -14,12 +14,12 @@ class BattlePhase:
                  rec: GamePlayRecorder = None):
         self.be = BattleEngine(c0.battle_policy, c1.battle_policy, team0, team1, debug, render, n_battles, rec,
                                [t0_prediction, t1_prediction])
-        self.otp0 = OpponentTeamPrediction(c0.team_prediction_policy, c0.meta_info,
+        self.otp0 = OpponentTeamPrediction(c0.team_prediction_policy, c0.meta_data,
                                            get_full_team_view(c1.team, partial=True))
-        self.otp1 = OpponentTeamPrediction(c1.team_prediction_policy, c1.meta_info,
+        self.otp1 = OpponentTeamPrediction(c1.team_prediction_policy, c1.meta_data,
                                            get_full_team_view(c0.team, partial=True))
-        self.da0 = DataAggregation(c0.data_aggregator_policy, c0.meta_info, rec)
-        self.da1 = DataAggregation(c1.data_aggregator_policy, c1.meta_info, rec)
+        self.da0 = DataAggregation(c0.data_aggregator_policy, c0.meta_data, rec)
+        self.da1 = DataAggregation(c1.data_aggregator_policy, c1.meta_data, rec)
 
     def run(self):
         while not self.be.battle_completed():

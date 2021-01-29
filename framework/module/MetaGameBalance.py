@@ -7,7 +7,7 @@ class MetaGameBalance:
 
     def __init__(self, c: Competitor, roster: PkmRoster, constraints: DesignConstraints):
         self.c = c
-        self.rb = RosterBalance(self.c.balance_policy, self.c.meta_info, roster, constraints)
+        self.rb = RosterBalance(self.c.balance_policy, self.c.meta_data, roster, constraints)
 
     def run(self):
         self.rb.run()
