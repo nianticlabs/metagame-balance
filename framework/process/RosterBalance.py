@@ -13,10 +13,8 @@ class RosterBalance:
         self.roster = roster
 
     def get_roster(self) -> Any:
-        meta_data = deepcopy(self.meta_data)
-        roster = deepcopy(self.roster)
         try:
-            roster = self.bp.get_action((meta_data, roster))
+            roster = self.bp.get_action((self.meta_data, self.roster))
         except:
             return self.roster
         return roster

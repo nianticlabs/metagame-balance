@@ -763,7 +763,7 @@ class PkmTeamView(ABC):
         pass
 
 
-class PkmTeamHypothesis:
+class PkmTeamPrediction:
 
     def __init__(self, team_view: PkmTeamView = None):
         self.team_view = team_view
@@ -771,27 +771,27 @@ class PkmTeamHypothesis:
         self.party: List[Union[Pkm, None]] = [None, None]
 
 
-def get_team_view(team: PkmTeam, team_hypothesis: PkmTeamHypothesis = None, partial: bool = False) -> PkmTeamView:
+def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, partial: bool = False) -> PkmTeamView:
     class PkmTeamViewImpl(PkmTeamView):
 
         @property
         def active_pkm_view(self) -> PkmView:
             if partial:
-                if team_hypothesis is None:
+                if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(team.active)
                 # get partial information with an hypothesis
-                return get_partial_pkm_view(team.active, team_hypothesis.active)
+                return get_partial_pkm_view(team.active, team_prediction.active)
             # get self active pkm information
             return get_pkm_view(team.active)
 
         def get_party_pkm_view(self, idx: int) -> PkmView:
             if partial:
-                if team_hypothesis is None:
+                if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(team.party[idx])
                 # get partial information with an hypothesis
-                return get_partial_pkm_view(team.party[idx], team_hypothesis.party[idx])
+                return get_partial_pkm_view(team.party[idx], team_prediction.party[idx])
             # get self party pkm information
             return get_pkm_view(team.party[idx])
 
@@ -845,18 +845,18 @@ class PkmFullTeamView(ABC):
         pass
 
 
-def get_full_team_view(full_team: PkmFullTeam, team_hypothesis: PkmTeamHypothesis = None,
+def get_full_team_view(full_team: PkmFullTeam, team_prediction: PkmTeamPrediction = None,
                        partial: bool = False) -> PkmFullTeamView:
     class PkmFullTeamViewImpl(PkmFullTeamView):
 
         def get_pkm_view(self, idx: int) -> PkmView:
             pkm = full_team.pkm_list[idx]
             if partial:
-                if team_hypothesis is None:
+                if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(pkm)
                 # get partial information with an hypothesis
-                return get_partial_pkm_view(pkm, team_hypothesis.active)
+                return get_partial_pkm_view(pkm, team_prediction.active)
             # get self active pkm information
             return get_pkm_view(pkm)
 
@@ -904,12 +904,12 @@ class GameStateView(ABC):
         pass
 
 
-def get_game_state_view(game_state: GameState, team_hypothesis: PkmTeamHypothesis = None) -> GameStateView:
+def get_game_state_view(game_state: GameState, team_prediction: PkmTeamPrediction = None) -> GameStateView:
     class GameStateViewImpl(GameStateView):
 
         def __init__(self):
             self._teams = [get_team_view(game_state.teams[0]),
-                           get_team_view(game_state.teams[1], team_hypothesis, partial=True)]
+                           get_team_view(game_state.teams[1], team_prediction, partial=True)]
 
         def get_team_view(self, idx: int) -> PkmTeamView:
             return self._teams[idx]
@@ -929,5 +929,5 @@ class MetaData:
     pass
 
 
-class TeamValuation:
+class TeamValue:
     pass

@@ -210,14 +210,14 @@ class SelectorPolicy(Behaviour):
 class TeamBuilderPolicy(Behaviour):
     def get_action(s) -> PkmFullTeam
 
-class TeamHyphotesizer(Behaviour):
-    def get_action(s) -> PkmTeamHypothesis
+class TeamPredictor(Behaviour):
+    def get_action(s) -> PkmTeamPrediction
 
 class DataAggregator(Behaviour):
     def get_action(s) -> Any
 
 class TeamValuator(Behaviour):
-    def get_action(s) -> TeamValuation:
+    def get_action(s) -> TeamValue:
 
 class BalancePolicy(Behaviour):
     def get_action(s) -> PkmRoster
@@ -226,7 +226,7 @@ class Competitor:
     def battle_policy -> BattlePolicy
     def selector_policy -> SelectorPolicy
     def team_builder_policy -> TeamBuilderPolicy
-    def team_hyphotesizer_policy -> TeamHyphotesizer
+    def team_hyphotesizer_policy -> TeamPredictor
     def data_aggregator_policy -> DataAggregator
     def team_valautor_policy -> TeamValuator
     def balance_policy -> BalancePolicy

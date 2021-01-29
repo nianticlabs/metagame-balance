@@ -1,3 +1,4 @@
+from framework.DataObjects import PkmTeam
 from framework.behaviour import BattlePolicy
 from framework.competition.CompetitionObjects import Competitor
 
@@ -15,6 +16,10 @@ class ExampleBattlePolicy(BattlePolicy):
 
 
 class Example(Competitor):
+
+    @property
+    def team(self) -> PkmTeam:
+        pass
 
     def __init__(self):
         self._name = "Example"

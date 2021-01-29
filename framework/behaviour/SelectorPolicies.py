@@ -1,5 +1,5 @@
 from typing import Set, Tuple
-from framework.DataObjects import MetaData, PkmFullTeamView
+from framework.DataObjects import PkmFullTeamView
 from framework.behaviour import SelectorPolicy
 from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
 import PySimpleGUI as sg
@@ -26,10 +26,10 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
         """
 
-        :param d: (self, opponent, metadata)
+        :param d: (self, opponent)
         :return: idx list of selected pokemons
         """
         selected = []
@@ -68,10 +68,10 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
         """
 
-        :param d: (self, opponent, metadata)
+        :param d: (self, opponent)
         :return: idx list of selected pokemons
         """
         ids = [i for i in range(self.teams_size)]

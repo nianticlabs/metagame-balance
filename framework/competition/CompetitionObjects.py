@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
-from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamHyphotesizer, \
+from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamPredictor, \
     TeamValuator, BalancePolicy
 from framework.behaviour.BalancePolicies import IdleBalancePolicy
 from framework.behaviour.BattlePolicies import RandomBattlePolicy
 from framework.behaviour.DataAggregators import NullDataAggregator
 from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from framework.behaviour.SelectorPolicies import RandomSelectorPolicy
-from framework.behaviour.TeamHyphotesizers import NullTeamHyphotesizer
+from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.util.PkmRosterGenerators import PkmRosterGenerator
 from framework.util.PkmTeamGenerators import TeamSelector
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmTeam, MetaData, Pkm
+from framework.DataObjects import PkmTeam
 from framework.process.BattleEngine import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder
 import random
@@ -22,7 +22,7 @@ random_selector_policy = RandomSelectorPolicy()
 random_builder_policy = RandomTeamBuilderPolicy()
 idle_balance_policy = IdleBalancePolicy()
 null_data_aggregator = NullDataAggregator()
-null_team_hyphotesizer = NullTeamHyphotesizer()
+null_team_predictor = NullTeamPredictor()
 null_team_valuator = NullTeamValuator()
 
 
@@ -41,8 +41,8 @@ class Competitor(ABC):
         return random_builder_policy
 
     @property
-    def team_hyphotesizer_policy(self) -> TeamHyphotesizer:
-        return null_team_hyphotesizer
+    def team_prediction_policy(self) -> TeamPredictor:
+        return null_team_predictor
 
     @property
     def data_aggregator_policy(self) -> DataAggregator:

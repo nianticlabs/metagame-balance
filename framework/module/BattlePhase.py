@@ -1,7 +1,7 @@
 from framework.competition.CompetitionObjects import Competitor
 from framework.DataObjects import PkmTeam, MetaData
 from framework.process.BattleEngine import BattleEngine
-from framework.process.OpponentTeamHyphotesizing import OponentTeamHyphotesizing
+from framework.process.OpponentTeamPrediction import OpponentTeamPrediction
 
 
 class BattlePhase:
@@ -18,8 +18,8 @@ class BattlePhase:
 
         while not be.match_completed():
             be.run_a_turn()
-            oth0 = OponentTeamHyphotesizing(self.c0.team_hyphotesizer, self.c0.meta_data, opp0, None)
-            oth1 = OponentTeamHyphotesizing(self.c1.team_hyphotesizer, self.c1.meta_data, opp1, None)
+            oth0 = OpponentTeamPrediction(self.c0.team_hyphotesizer, self.c0.meta_data, opp0, None)
+            oth1 = OpponentTeamPrediction(self.c1.team_hyphotesizer, self.c1.meta_data, opp1, None)
 
             opp_h0 = oth0.get_team_hyphothesis()
             opp_h1 = oth1.get_team_hyphothesis()

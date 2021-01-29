@@ -1,7 +1,7 @@
 from framework.competition.CompetitionObjects import Competitor
 from framework.DataObjects import MetaData, PkmRoster
 from framework.process.TeamBuilding import TeamBuilding
-from framework.process.TeamValuation import TeamValuation
+from framework.process.TeamValuation import TeamValue
 
 
 class TeamBuildingProcess:
@@ -12,7 +12,7 @@ class TeamBuildingProcess:
         self.team = None
 
     def run(self):
-        tv = TeamValuation(self.c.team_valuator, self.c.meta_data)
+        tv = TeamValue(self.c.team_valuator, self.c.meta_data)
         val = tv.get_team_valuation()
         tb = TeamBuilding(self.c.builder_policy, self.c.team, self.c.meta_data, self.roster, val)
         self.team = tb.get_team()

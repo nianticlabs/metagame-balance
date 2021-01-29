@@ -4,7 +4,7 @@ from framework.behaviour import BattlePolicy
 from framework.util.PkmTeamGenerators import PkmTeamGenerator
 from framework.DataConstants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
-from framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState, PkmTeamHypothesis, Weather
+from framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState, PkmTeamPrediction, Weather
 from framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from framework.StandardPkmMoves import Struggle
@@ -18,21 +18,21 @@ import numpy as np
 class PkmBattleEnv(gym.Env):
 
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False,
-                 team_hypothesis: List[PkmTeamHypothesis] = None):
+                 team_prediction: List[PkmTeamPrediction] = None):
         # random active pokemon
         if teams is None:
             self.teams: List[PkmTeam] = [PkmTeam(), PkmTeam()]
         else:
             self.teams: List[PkmTeam] = teams
-        self.team_hypothesis = team_hypothesis
+        self.team_prediction = team_prediction
         self.weather = Weather()
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
         self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
                            GameState([self.teams[1], self.teams[0]], self.weather)]
-        self.game_state_view = [get_game_state_view(self.game_state[0], team_hypothesis=self.team_hypothesis[0]),
-                                get_game_state_view(self.game_state[1], team_hypothesis=self.team_hypothesis[1])]
+        self.game_state_view = [get_game_state_view(self.game_state[0], team_prediction=self.team_prediction[0]),
+                                get_game_state_view(self.game_state[1], team_prediction=self.team_prediction[1])]
         self.debug = debug
         self.log = ''
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
@@ -544,8 +544,8 @@ class BattleEngine:
 
     def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=False, render=True,
                  n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None,
-                 team_hypothesis: List[PkmTeamHypothesis] = None):
-        self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_hypothesis=team_hypothesis)
+                 team_prediction: List[PkmTeamPrediction] = None):
+        self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_prediction=team_prediction)
         self.bp0 = bp0
         self.bp1 = bp1
         self.ep = 0
