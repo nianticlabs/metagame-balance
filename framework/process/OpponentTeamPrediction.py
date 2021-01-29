@@ -5,13 +5,18 @@ from framework.DataObjects import MetaData, PkmTeamPrediction, PkmFullTeamView
 class OpponentTeamPrediction:
 
     def __init__(self, tp: TeamPredictor, meta_data: MetaData, opp_view: PkmFullTeamView):
-        self.tp = tp
-        self.meta_data = meta_data
-        self.opp_view = opp_view
+        self.__tp = tp
+        self.__meta_data = meta_data
+        self.__opp_view = opp_view
+        # output
+        self.__team_prediction = NullTeamPredictor.null_team_prediction
 
-    def get_team_hyphothesis(self) -> PkmTeamPrediction:
+    def run(self):
         try:
-            h = self.tp.get_action((self.opp_view, self.meta_data))
+            self.__team_prediction = self.__tp.get_action((self.__opp_view, self.__meta_data))
         except:
-            return NullTeamPredictor.null_team_hypothesis
-        return h
+            self.__team_prediction = NullTeamPredictor.null_team_prediction
+
+    @property
+    def team_prediction(self) -> PkmTeamPrediction:
+        return self.__team_prediction

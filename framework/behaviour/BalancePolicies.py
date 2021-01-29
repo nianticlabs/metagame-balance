@@ -1,6 +1,6 @@
 from typing import Tuple
 from framework.behaviour import BalancePolicy
-from framework.DataObjects import PkmRoster, MetaData
+from framework.DataObjects import PkmRoster, MetaData, DesignConstraints
 
 
 class IdleBalancePolicy(BalancePolicy):
@@ -11,5 +11,5 @@ class IdleBalancePolicy(BalancePolicy):
     def close(self):
         pass
 
-    def get_action(self, d: Tuple[PkmRoster, MetaData]) -> PkmRoster:
+    def get_action(self, d: Tuple[PkmRoster, MetaData, DesignConstraints]) -> PkmRoster:
         return d[0]

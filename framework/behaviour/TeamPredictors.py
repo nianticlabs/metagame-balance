@@ -5,7 +5,7 @@ from framework.DataObjects import PkmTeamPrediction, PkmTeamView, MetaData
 
 class NullTeamPredictor(TeamPredictor):
 
-    null_team_hypothesis = PkmTeamPrediction()
+    null_team_prediction = PkmTeamPrediction()
 
     def requires_encode(self) -> bool:
         return False
@@ -14,4 +14,4 @@ class NullTeamPredictor(TeamPredictor):
         pass
 
     def get_action(self, d: Tuple[PkmTeamView, MetaData]) -> PkmTeamPrediction:
-        return NullTeamPredictor.null_team_hypothesis
+        return NullTeamPredictor.null_team_prediction

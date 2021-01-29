@@ -931,3 +931,8 @@ class MetaData:
 
 class TeamValue:
     pass
+
+
+class DesignConstraints:
+    pass
+

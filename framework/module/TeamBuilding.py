@@ -1,18 +1,19 @@
 from framework.competition.CompetitionObjects import Competitor
-from framework.DataObjects import MetaData, PkmRoster
+from framework.DataObjects import PkmRoster, PkmFullTeam
 from framework.process.TeamBuilding import TeamBuilding
-from framework.process.TeamValuation import TeamValue
+from framework.process.TeamValuation import TeamValuation
 
 
 class TeamBuildingProcess:
 
     def __init__(self, c: Competitor, roster: PkmRoster):
-        self.c = c
-        self.roster = roster
-        self.team = None
+        self.tv = TeamValuation(c.team_valuator_policy, c.team, c.meta_info)
+        # TODO self.tv.team_value
+        self.tb = TeamBuilding(c.team_builder_policy, c.team, c.meta_info, roster, self.tv.team_value)
 
     def run(self):
-        tv = TeamValue(self.c.team_valuator, self.c.meta_data)
-        val = tv.get_team_valuation()
-        tb = TeamBuilding(self.c.builder_policy, self.c.team, self.c.meta_data, self.roster, val)
-        self.team = tb.get_team()
+        self.tv.run()
+        self.tb.run()
+
+    def output(self) -> PkmFullTeam:
+        return self.tb.team

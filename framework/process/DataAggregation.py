@@ -1,22 +1,17 @@
-from copy import deepcopy
-from typing import Any
-
 from framework.behaviour import DataAggregator
 from framework.DataObjects import MetaData
+from framework.util.Recording import GamePlayRecorder
 
 
 class DataAggregation:
 
-    def __init__(self, da: DataAggregator, meta_data: MetaData, traj):
+    def __init__(self, da: DataAggregator, meta_data: MetaData, rec: GamePlayRecorder):
         self.da = da
         self.meta_data = meta_data
-        self.traj = traj
+        self.rec = rec
 
-    def get_team_hyphothesis(self) -> Any:
-        meta_data = deepcopy(self.meta_data)
-        traj = deepcopy(self.traj)
+    def run(self):
         try:
-            h = self.da.get_action((meta_data, traj))
+            self.da.get_action((self.meta_data, self.rec))
         except:
-            return None
-        return h
+            pass

@@ -1,15 +1,16 @@
 from framework.competition.CompetitionObjects import Competitor
-from framework.DataObjects import MetaData, PkmRoster
+from framework.DataObjects import PkmRoster, DesignConstraints
 from framework.process.RosterBalance import RosterBalance
 
 
 class MetaGameBalance:
 
-    def __init__(self, c: Competitor, roster: PkmRoster):
+    def __init__(self, c: Competitor, roster: PkmRoster, constraints: DesignConstraints):
         self.c = c
-        self.roster = roster
-        self.out_roster = None
+        self.rb = RosterBalance(self.c.balance_policy, self.c.meta_info, roster, constraints)
 
     def run(self):
-        rb = RosterBalance(self.c.balance_policy, self.c.meta_data, self.roster)
-        self.out_roster = rb.get_roster()
+        self.rb.run()
+
+    def output(self) -> PkmRoster:
+        return self.rb.roster

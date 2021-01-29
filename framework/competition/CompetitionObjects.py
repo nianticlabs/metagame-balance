@@ -12,7 +12,7 @@ from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.util.PkmRosterGenerators import PkmRosterGenerator
 from framework.util.PkmTeamGenerators import TeamSelector
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmTeam
+from framework.DataObjects import PkmTeam, PkmFullTeam, MetaData
 from framework.process.BattleEngine import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder
 import random
@@ -58,7 +58,12 @@ class Competitor(ABC):
 
     @property
     @abstractmethod
-    def team(self) -> PkmTeam:
+    def team(self) -> PkmFullTeam:
+        pass
+
+    @property
+    @abstractmethod
+    def meta_info(self) -> MetaData:
         pass
 
     @property

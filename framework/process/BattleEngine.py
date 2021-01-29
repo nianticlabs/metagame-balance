@@ -548,7 +548,6 @@ class BattleEngine:
         self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_prediction=team_prediction)
         self.bp0 = bp0
         self.bp1 = bp1
-        self.ep = 0
         self.step = 0
         self.n_battles = n_battles
         self.render = render
@@ -563,7 +562,6 @@ class BattleEngine:
             if self.rec is not None:
                 self.rec.record((self.s[0], self.s[1], -1, -1, False))
             self.v = self.env.game_state_view
-            self.ep += 1
             if self.render:
                 self.env.render()
         o0 = self.s[0] if self.bp0.requires_encode() else self.v[0]
@@ -576,8 +574,8 @@ class BattleEngine:
             self.env.render()
         return r
 
-    def match_completed(self) -> bool:
-        return self.t and self.ep == self.n_battles
+    def battle_completed(self) -> bool:
+        return self.t
 
     def terminate(self):
         self.bp0.close()
