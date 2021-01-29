@@ -26,22 +26,22 @@ class GUISelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, team_views: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
         """
 
-        :param team_views: (self, opponent)
+        :param d: (self, opponent, metadata)
         :return: idx list of selected pokemons
         """
         selected = []
         for item in self.team:
             item[1].Update(value=False)
         # opponent party
-        opp_team = team_views[1]
+        opp_team = d[1]
         for i in range(opp_team.n_pkms):
             pkm = opp_team.get_pkm_view(i)
             self.opp[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
         # my party
-        my_team = team_views[0]
+        my_team = d[0]
         for i in range(my_team.n_pkms):
             pkm = my_team.get_pkm_view(i)
             self.team[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
@@ -68,7 +68,12 @@ class RandomSelectorPolicy(SelectorPolicy):
     def requires_encode(self) -> bool:
         return False
 
-    def get_action(self, team_views: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView, MetaData]) -> Set[int]:
+        """
+
+        :param d: (self, opponent, metadata)
+        :return: idx list of selected pokemons
+        """
         ids = [i for i in range(self.teams_size)]
         random.shuffle(ids)
         return set(ids[:self.selection_size])

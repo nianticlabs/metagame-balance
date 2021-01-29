@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Set
-from framework.DataObjects import PkmRoster, PkmTeamHypothesis, PkmTeam
+from framework.DataObjects import PkmRoster, PkmTeamHypothesis, PkmFullTeam, TeamValuation
 
 
 class Behaviour(ABC):
@@ -35,7 +35,7 @@ class SelectorPolicy(Behaviour):
 class TeamBuilderPolicy(Behaviour):
 
     @abstractmethod
-    def get_action(self, s) -> PkmTeam:
+    def get_action(self, s) -> PkmFullTeam:
         pass
 
 
@@ -56,7 +56,7 @@ class DataAggregator(Behaviour):
 class TeamValuator(Behaviour):
 
     @abstractmethod
-    def get_action(self, s) -> Any:
+    def get_action(self, s) -> TeamValuation:
         pass
 
 

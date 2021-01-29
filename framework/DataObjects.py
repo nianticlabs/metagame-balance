@@ -927,3 +927,7 @@ def get_game_state_view(game_state: GameState, team_hypothesis: PkmTeamHypothesi
 
 class MetaData:
     pass
+
+
+class TeamValuation:
+    pass

@@ -208,7 +208,7 @@ class SelectorPolicy(Behaviour):
     def get_action(s) -> Set[int]
 
 class TeamBuilderPolicy(Behaviour):
-    def get_action(s) -> PkmTeam
+    def get_action(s) -> PkmFullTeam
 
 class TeamHyphotesizer(Behaviour):
     def get_action(s) -> PkmTeamHypothesis
@@ -217,7 +217,7 @@ class DataAggregator(Behaviour):
     def get_action(s) -> Any
 
 class TeamValuator(Behaviour):
-    def get_action(s) -> Any:
+    def get_action(s) -> TeamValuation:
 
 class BalancePolicy(Behaviour):
     def get_action(s) -> PkmRoster
