@@ -50,6 +50,7 @@ class PkmMove:
         self.weather = weather
         self.hazard = hazard
         self.public = False
+        self.owner = None
 
     def __eq__(self, other):
         if self.power != other.power:
@@ -113,11 +114,14 @@ class PkmMove:
                 name += ", Hazard=%s" % self.hazard.name
         return name + ")"
 
+    def set_owner(self, pkm):
+        self.owner = pkm
+
     def reset(self):
         self.pp = self.max_pp
 
     def effect(self, v):
-        self.public = True
+        self.reveal()
         if random.random() < self.prob:
             v.set_recover(self.recover)
             v.set_fixed_damage(self.fixed_damage)
@@ -129,6 +133,18 @@ class PkmMove:
                 v.set_weather(self.weather)
             if self.hazard != PkmEntryHazard.NONE:
                 v.set_entry_hazard(self.hazard, self.target)
+
+    def reveal(self):
+        self.public = True
+
+    def hide(self):
+        self.public = False
+
+    @property
+    def revealed(self) -> bool:
+        if self.owner is not None:
+            return self.owner.revealed and self.public
+        return self.public
 
 
 class MoveView(ABC):
@@ -270,7 +286,7 @@ null_pkm_move = PkmMove()
 
 
 def get_partial_move_view(move: PkmMove, move_hypothesis: Union[PkmMove, None] = None) -> MoveView:
-    if move.public:
+    if move.revealed:
         return get_move_view(move)
     elif move_hypothesis is not None:
         return get_move_view(move_hypothesis)
@@ -327,6 +343,8 @@ class Pkm:
         self.status: PkmStatus = status
         self.n_turns_asleep: int = 0
         self.moves: List[PkmMove] = [move0, move1, move2, move3]
+        for move in self.moves:
+            move.set_owner(self)
         self.public = False
 
     def __eq__(self, other):
@@ -387,6 +405,21 @@ class Pkm:
         :return: true if pkm is frozen and cannot move
         """
         return self.status == PkmStatus.FROZEN
+
+    def reveal(self):
+        self.public = True
+
+    def hide_pkm(self):
+        self.public = False
+
+    def hide(self):
+        self.public = False
+        for move in self.moves:
+            move.hide()
+
+    @property
+    def revealed(self):
+        return self.public
 
 
 class PkmView(ABC):
@@ -454,12 +487,12 @@ def get_pkm_view(pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None, partial=Fals
             return pkm.n_turns_asleep
 
         def get_copy(self) -> Pkm:
-            move0 = pkm.moves[0] if pkm.moves[0].public else null_pkm_move
-            move1 = pkm.moves[1] if pkm.moves[1].public else null_pkm_move
-            move2 = pkm.moves[2] if pkm.moves[2].public else null_pkm_move
-            move3 = pkm.moves[3] if pkm.moves[3].public else null_pkm_move
-            return deepcopy(pkm) if not partial or pkm.public else Pkm(pkm.type, pkm.max_hp, pkm.status, move0, move1,
-                                                                       move2, move3)
+            move0 = pkm.moves[0] if pkm.moves[0].revealed else null_pkm_move
+            move1 = pkm.moves[1] if pkm.moves[1].revealed else null_pkm_move
+            move2 = pkm.moves[2] if pkm.moves[2].revealed else null_pkm_move
+            move3 = pkm.moves[3] if pkm.moves[3].revealed else null_pkm_move
+            return deepcopy(pkm) if not partial or pkm.revealed else Pkm(pkm.type, pkm.max_hp, pkm.status, move0, move1,
+                                                                         move2, move3)
 
     return PkmViewImpl()
 
@@ -468,7 +501,7 @@ null_pkm = Pkm()
 
 
 def get_partial_pkm_view(pkm: Pkm, pkm_hypothesis: Pkm = None) -> PkmView:
-    if pkm.public:
+    if pkm.revealed:
         return get_pkm_view(pkm, pkm_hypothesis, partial=True)
     return get_pkm_view(null_pkm, pkm_hypothesis)
 
@@ -611,6 +644,7 @@ class PkmTeam:
         if pkms is None:
             pkms = [Pkm(), Pkm(), Pkm()]
         self.active: Pkm = pkms.pop(0)
+        self.active.reveal()
         self.party: List[Pkm] = pkms
         self.stage: List[int] = [0] * N_STATS
         self.confused: bool = False
@@ -725,7 +759,7 @@ class PkmTeam:
                 self.stage = [0] * N_STATS
                 self.confused = False
 
-                self.active.public = True
+                self.active.reveal()
 
         return self.active, self.party[pos]
 
@@ -832,6 +866,18 @@ class PkmFullTeam:
         for pkm in self.pkm_list:
             pkm.reset()
 
+    def hide(self):
+        for pkm in self.pkm_list:
+            pkm.hide()
+
+    def hide_pkms(self):
+        for pkm in self.pkm_list:
+            pkm.hide_pkm()
+
+    def reveal(self):
+        for pkm in self.pkm_list:
+            pkm.reveal()
+
 
 class PkmFullTeamView(ABC):
 
@@ -935,4 +981,3 @@ class TeamValue:
 
 class DesignConstraints:
     pass
-

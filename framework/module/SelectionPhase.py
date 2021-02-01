@@ -11,11 +11,14 @@ class SelectionPhase:
         self.otp = OpponentTeamPrediction(c.team_prediction_policy, c.meta_data,
                                           get_full_team_view(opp_full_team, partial=True))
         # TODO self.otp.team_prediction
+        self.opp_full_team = opp_full_team
         self.ts = TeamSelection(c.selector_policy, c.team, opp_full_team, self.otp.team_prediction)
 
     def run(self):
+        self.opp_full_team.reveal()
         self.otp.run()
         self.ts.run()
+        self.opp_full_team.hide_pkms()
 
     def output(self) -> Tuple[PkmTeam, PkmTeamPrediction]:
         return self.ts.selected_team, self.otp.team_prediction

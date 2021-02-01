@@ -69,7 +69,7 @@ def encode_pkm(e, pkm: Pkm):
 
 
 def partial_encode_pkm(e, pkm: Pkm, pkm_prediction: Union[Pkm, None] = None):
-    if pkm.public:
+    if pkm.revealed:
         _pkm = pkm
     elif pkm_prediction is not None:
         _pkm = pkm_prediction
@@ -80,7 +80,7 @@ def partial_encode_pkm(e, pkm: Pkm, pkm_prediction: Union[Pkm, None] = None):
     e += one_hot(_pkm.status, N_STATUS)
     # Pkm moves
     for i, move in enumerate(pkm.moves):
-        if move.public:
+        if move.revealed:
             encode_move(e, move)
         elif pkm_prediction is not None and pkm_prediction.moves[i] is not None:
             encode_move(e, pkm_prediction.moves[i])
