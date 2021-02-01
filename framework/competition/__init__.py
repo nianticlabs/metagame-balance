@@ -1,4 +1,4 @@
-from framework.DataObjects import PkmTeam, PkmRoster, Pkm, PkmTemplate
+from framework.DataObjects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam
 
 
 def legal_move_set(pkm: Pkm, template: PkmTemplate):
@@ -13,8 +13,8 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate):
     return True
 
 
-def legal_team(team: PkmTeam, roster: PkmRoster) -> bool:
-    for pkm in team.get_pkm_list():
+def legal_team(team: PkmFullTeam, roster: PkmRoster) -> bool:
+    for pkm in team.pkm_list:
         valid = False
         for template in roster:
             valid = pkm.type == template.type and pkm.max_hp == template.max_hp and legal_move_set(pkm, template)

@@ -1,7 +1,6 @@
 from gym import spaces
 from typing import List, Tuple
 from framework.behaviour import BattlePolicy
-from framework.util.PkmTeamGenerators import PkmTeamGenerator
 from framework.DataConstants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
 from framework.DataObjects import PkmTeam, Pkm, get_game_state_view, GameState, PkmTeamPrediction, Weather
@@ -37,11 +36,7 @@ class PkmBattleEnv(gym.Env):
         self.log = ''
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
-        self.team_generator = None
         self.winner = -1
-
-    def set_team_generator(self, team_generator: PkmTeamGenerator):
-        self.team_generator = team_generator
 
     def step(self, actions):
 
@@ -141,19 +136,19 @@ class PkmBattleEnv(gym.Env):
         partial_encode_game_state(e1, self.game_state[1])
         return [e0, e1], r, finished, self.game_state_view
 
+    def set_new_teams(self, teams: List[PkmTeam]):
+        self.teams[0] = teams[0]
+        self.teams[1] = teams[1]
+        self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
+                           GameState([self.teams[1], self.teams[0]], self.weather)]
+        self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
+
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
         self.weather.n_turns_no_clear = 0
         self.turn = 0
         self.winner = -1
         self.switched = [False, False]
-
-        if self.team_generator is not None:
-            self.teams[0] = self.team_generator.get_team(0)
-            self.teams[1] = self.team_generator.get_team(1)
-            self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
-                               GameState([self.teams[1], self.teams[0]], self.weather)]
-            self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
 
         for team in self.teams:
             team.reset()

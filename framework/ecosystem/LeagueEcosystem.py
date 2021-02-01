@@ -22,10 +22,10 @@ class LeagueEcosystem:
     def unregister(self, c: Competitor):
         self.__competitors.remove(c)
 
-    def schedule(self):
+    def schedule(self):  # TODO
         pass
 
-    def run_epoch(self):
+    def run_epoch(self):  # TODO
         pass
 
     def __run_match(self, c0: Competitor, c1: Competitor):

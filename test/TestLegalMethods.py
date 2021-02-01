@@ -2,7 +2,7 @@ import unittest
 from random import sample
 from typing import List
 from framework.competition import legal_move_set, legal_team
-from framework.DataObjects import PkmTemplate, PkmTeam, Pkm
+from framework.DataObjects import PkmTemplate, Pkm, PkmFullTeam
 from framework.DataTypes import PkmType
 from framework.util.PkmRosterGenerators import RandomMoveRosterGenerator, RandomPkmRosterGenerator
 
@@ -29,15 +29,15 @@ class TestEncodingMethods(unittest.TestCase):
         pkm_roster_generator = RandomPkmRosterGenerator()
         roster = pkm_roster_generator.gen_roster()
         for _ in range(10):
-            pkms: List[Pkm] = [template.gen_pkm(sample(range(pkm_roster_generator.n_moves_pkm), 4)) for template in
+            pkms: List[Pkm] = [template.gen_pkm(sample(range(pkm_roster_generator.n_moves_pkm), 6)) for template in
                                sample(roster, 6)]
-            team = PkmTeam(pkms)
+            team = PkmFullTeam(pkms)
             self.assertTrue(legal_team(team, roster))
         roster_2 = pkm_roster_generator.gen_roster()
         for _ in range(10):
-            pkms: List[Pkm] = [template.gen_pkm(sample(range(pkm_roster_generator.n_moves_pkm), 4)) for template in
+            pkms: List[Pkm] = [template.gen_pkm(sample(range(pkm_roster_generator.n_moves_pkm), 6)) for template in
                                sample(roster, 6)]
-            team = PkmTeam(pkms)
+            team = PkmFullTeam(pkms)
             self.assertFalse(legal_team(team, roster_2))
 
 

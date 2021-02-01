@@ -10,9 +10,8 @@ from framework.behaviour.SelectorPolicies import RandomSelectorPolicy
 from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.util.PkmRosterGenerators import PkmRosterGenerator
-from framework.util.PkmTeamGenerators import TeamSelector
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmTeam, PkmFullTeam, MetaData
+from framework.DataObjects import PkmFullTeam, MetaData, get_full_team_view
 from framework.process.BattleEngine import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder
 import random
@@ -61,6 +60,11 @@ class Competitor(ABC):
     def team(self) -> PkmFullTeam:
         pass
 
+    @team.setter
+    @abstractmethod
+    def team(self, team):
+        pass
+
     @property
     @abstractmethod
     def meta_data(self) -> MetaData:
@@ -75,24 +79,31 @@ class Competitor(ABC):
     def reset(self):
         pass
 
+    @abstractmethod
+    def want_to_change_team(self):
+        return False
+
 
 class Match:
 
     def __init__(self, competitor0: Competitor, competitor1: Competitor, n_games: int = DEFAULT_MATCH_N_BATTLES,
-                 name="match", debug: bool = False, record: bool = False):
+                 name="match", debug: bool = False):
         self.n_games: int = n_games
         self.competitors: Tuple[Competitor, Competitor] = (competitor0, competitor1)
         self.debug: bool = debug
         self.name: str = name
         self.wins: List[int] = [0, 0]
-        self.record: bool = record
 
     def run(self):
         c0 = self.competitors[0]
         c1 = self.competitors[1]
-        team_selector = TeamSelector(c0.team, c1.team, c0.selector_policy, c1.selector_policy)
-        env = PkmBattleEnv(debug=self.debug, teams=[c0.team, c1.team])
-        env.set_team_generator(team_selector)
+        team0_view0 = get_full_team_view(c0.team)
+        team0_view1 = get_full_team_view(c1.team, partial=True)
+        team1_view1 = get_full_team_view(c1.team)
+        team1_view0 = get_full_team_view(c0.team, partial=True)
+        team0 = c0.team.get_battle_team(list(c0.selector_policy.get_action([team0_view0, team0_view1])))
+        team1 = c1.team.get_battle_team(list(c1.selector_policy.get_action([team1_view1, team1_view0])))
+        env = PkmBattleEnv(debug=self.debug, teams=[team0, team1])
         t = False
         a0 = c0.battle_policy
         a1 = c1.battle_policy
@@ -111,8 +122,6 @@ class Match:
                 o1 = s[1] if a1.requires_encode() else v[1]
                 a = [a0.get_action(o0), a1.get_action(o1)]
                 s, _, t, v = env.step(a)
-                if self.record:
-                    r.record((s[0], s[1], a[0], a[1], t))
                 if self.debug:
                     env.render()
             t = False
@@ -121,8 +130,6 @@ class Match:
                 break
         if self.debug:
             print('MATCH RESULTS ' + str(self.wins) + '\n')
-        if self.record:
-            r.save()
         a0.close()
 
     def records(self) -> List[int]:
