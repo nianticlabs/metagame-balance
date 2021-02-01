@@ -7,7 +7,7 @@ from framework.module.TeamBuilding import TeamBuildingProcess
 from framework.util.Recording import GamePlayRecorder
 
 
-class VGCEcosystem:
+class VGCEcosystem:  # TODO
 
     def __init__(self, roster: PkmRoster, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES,
                  rec: GamePlayRecorder = None):

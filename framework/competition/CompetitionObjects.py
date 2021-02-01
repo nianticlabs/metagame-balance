@@ -3,15 +3,15 @@ from typing import Tuple, List
 from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamPredictor, \
     TeamValuator, BalancePolicy
 from framework.behaviour.BalancePolicies import IdleBalancePolicy
-from framework.behaviour.BattlePolicies import RandomBattlePolicy
+from framework.behaviour.BattlePolicies import RandomBattlePolicy, GUIBattlePolicy
 from framework.behaviour.DataAggregators import NullDataAggregator
 from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
-from framework.behaviour.SelectorPolicies import RandomSelectorPolicy
+from framework.behaviour.SelectorPolicies import RandomSelectorPolicy, GUISelectorPolicy
 from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.util.PkmRosterGenerators import PkmRosterGenerator
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmFullTeam, MetaData, get_full_team_view
+from framework.DataObjects import PkmFullTeam, MetaData, get_full_team_view, PkmRoster, get_pkm_roster_view, TeamValue
 from framework.process.BattleEngine import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder
 import random
@@ -84,6 +84,48 @@ class Competitor(ABC):
         return False
 
 
+null_metadata = MetaData()
+
+
+class ExampleCompetitor(Competitor):
+
+    def __init__(self, team: PkmFullTeam, name=""):
+        self.__team = team
+        self.__name = name
+
+    @property
+    def team(self) -> PkmFullTeam:
+        return self.__team
+
+    @property
+    def meta_data(self) -> MetaData:
+        return null_metadata
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    def reset(self):
+        pass
+
+    def want_to_change_team(self):
+        return False
+
+
+class GUIExampleCompetitor(ExampleCompetitor):
+
+    def __init__(self, team: PkmFullTeam, name: str = ""):
+        super().__init__(team, name)
+
+    @property
+    def selector_policy(self) -> SelectorPolicy:
+        return GUISelectorPolicy()
+
+    @property
+    def battle_policy(self) -> BattlePolicy:
+        return GUIBattlePolicy()
+
+
 class Match:
 
     def __init__(self, competitor0: Competitor, competitor1: Competitor, n_games: int = DEFAULT_MATCH_N_BATTLES,
@@ -107,7 +149,6 @@ class Match:
         t = False
         a0 = c0.battle_policy
         a1 = c1.battle_policy
-        r = GamePlayRecorder(name=self.name)
         game = 0
         while game < self.n_games:
             game += 1
@@ -211,9 +252,12 @@ class MatchHandlerTree:
             handler.run_match(enable_debug)
 
 
+null_team_value = TeamValue()
+
+
 class TreeChampionship(Championship):
 
-    def __init__(self, pool_generator: PkmRosterGenerator, competitors: List[Competitor] = None,
+    def __init__(self, roster: PkmRoster, competitors: List[Competitor] = None,
                  name: str = "Championship", debug: bool = False):
         self.name = name
         self.competitors: List[Competitor] = competitors
@@ -221,15 +265,12 @@ class TreeChampionship(Championship):
         random.shuffle(copy_participants)
         self.match_tree = MatchHandlerTree(copy_participants, debug)
         self.match_tree.build_tree()
-        self.pool_generator = pool_generator
-        self.pool = self.pool_generator.gen_roster()
+        self.roster = roster
+        self.roster_view = get_pkm_roster_view(self.roster)
         self.debug = debug
 
     def register_competitor(self, c: Competitor):
         self.competitors.append(c)
-
-    def generate_pool(self):
-        self.pool = self.pool_generator.gen_roster()
 
     def create_tournament_tree(self):
         copy_participants = self.competitors.copy()
@@ -238,6 +279,6 @@ class TreeChampionship(Championship):
         self.match_tree.build_tree()
 
     def run(self):
-        for competitor in self.competitors:
-            competitor.team = competitor.team_builder_policy.get_action(self.pool)
+        for c in self.competitors:
+            c.team = c.team_builder_policy.get_action((c.meta_data, c.team, self.roster_view, null_team_value))
         self.match_tree.run_matches(self.debug)

@@ -6,7 +6,7 @@ Frame = Tuple[List, List, int, int, bool]
 Trajectory = List[Frame]
 
 
-class GamePlayRecorder:
+class GamePlayRecorder:  # TODO
 
     def __init__(self, buffer_size: int = 2048, name: str = "", c0: str = "", c1: str = "", t0: List[Pkm] = None,
                  t1: List[Pkm] = None):
