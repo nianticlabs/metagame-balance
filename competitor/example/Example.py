@@ -1,6 +1,6 @@
-from framework.DataObjects import PkmTeam
+from framework.DataObjects import PkmTeam, MetaData
 from framework.behaviour import BattlePolicy
-from framework.competition.CompetitionObjects import Competitor
+from framework.competition.CompetitionObjects import Competitor, null_metadata
 
 
 class ExampleBattlePolicy(BattlePolicy):
@@ -17,13 +17,10 @@ class ExampleBattlePolicy(BattlePolicy):
 
 class Example(Competitor):
 
-    @property
-    def team(self) -> PkmTeam:
-        pass
-
     def __init__(self):
         self._name = "Example"
         self._battle_policy = ExampleBattlePolicy()
+        self._team = None
 
     @property
     def name(self):
@@ -35,3 +32,18 @@ class Example(Competitor):
     @property
     def battle_policy(self) -> BattlePolicy:
         return self._battle_policy
+
+    @property
+    def meta_data(self) -> MetaData:
+        return null_metadata
+
+    def want_to_change_team(self):
+        pass
+
+    @property
+    def team(self) -> PkmTeam:
+        return self._team
+
+    @team.setter
+    def team(self, team):
+        self._team = team

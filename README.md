@@ -4,8 +4,8 @@
 
 ### TODO
 
-* Design restriction language
-* Plugin Security
+* Design Restriction Language
+* Plugin System/Remote Access
 
 ## Introduction
 
@@ -241,3 +241,7 @@ Each proposed track tackle different complexity problems on the VGC Competition.
 1. The Battle Track agents only compete with battle policies.
 2. The VGC Track, competitors must master the skills of battling,team selection and team building.
 3. The Balance track, the competitor must generate and manage the best roster.
+
+### Competition Rules
+
+To be written...

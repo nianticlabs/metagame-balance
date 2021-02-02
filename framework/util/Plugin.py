@@ -16,3 +16,5 @@ print(bp.get_action(None))
 c = plugins['competitor2']()
 bp = c.get_battle_policy()
 print(bp.get_action(None))
+
+# TODO
