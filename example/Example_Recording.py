@@ -1,12 +1,10 @@
-from framework.behaviour import RandomBattlePolicy, SimpleBattlePolicy
-from framework.util.PkmTeamGenerators import RandomGenerator
+from framework.behaviour.BattlePolicies import SimpleBattlePolicy, RandomBattlePolicy
 from framework.process.BattleEngine import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder
 
 
 def main():
     env = PkmBattleEnv(debug=True)
-    env.set_team_generator(RandomGenerator())
     env.reset()
     t = False
     a0 = SimpleBattlePolicy()

@@ -1,4 +1,4 @@
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Union
 from framework.behaviour import TeamBuilderPolicy
 from framework.DataConstants import MAX_TEAM_SIZE, DEFAULT_PKM_N_MOVES
 from framework.DataObjects import Pkm, PkmTemplate, PkmRosterView, PkmFullTeam, MetaData, TeamValue

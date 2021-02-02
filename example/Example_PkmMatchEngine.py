@@ -1,7 +1,6 @@
-from framework.behaviour import RandomBattlePolicy
+from framework.behaviour.BattlePolicies import RandomBattlePolicy
 from framework.behaviour.SelectorPolicies import GUISelectorPolicy, RandomSelectorPolicy
 from framework.competition.PkmMatchEngine import PkmMatchEngine
-from framework.util.Recording import Recorder
 
 
 def main():
@@ -10,7 +9,6 @@ def main():
     t = False
     a0 = GUISelectorPolicy()
     a1 = RandomSelectorPolicy()
-    r = Recorder(name="random_agent")
     ep = 0
     n_matches = 3
     while ep < n_matches:
@@ -24,7 +22,6 @@ def main():
             s, _, t, v = env.step(a)
             env.render()
         t = False
-    r.save()
     a0.close()
 
 
