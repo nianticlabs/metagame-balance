@@ -11,6 +11,7 @@ class OpponentTeamPrediction:
         # output
         self.__team_prediction = NullTeamPredictor.null_team_prediction
 
+    # noinspection PyBroadException
     def run(self):
         try:
             self.__team_prediction = self.__tp.get_action((self.__opp_view, self.__meta_data))

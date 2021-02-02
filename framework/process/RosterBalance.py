@@ -12,6 +12,7 @@ class RosterBalance:
         self.__constraints = constraints
         self.__roster = roster
 
+    # noinspection PyBroadException
     def run(self) -> Any:
         try:
             self.__roster = self.__bp.get_action((self.__meta_data, self.__roster, self.__constraints))

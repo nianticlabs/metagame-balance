@@ -10,6 +10,7 @@ class DataAggregation:
         self.__meta_data = meta_data
         self.__rec = rec
 
+    # noinspection PyBroadException
     def run(self):
         try:
             self.__da.get_action((self.__meta_data, self.__rec))

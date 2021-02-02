@@ -25,7 +25,7 @@ class LeagueEcosystem:
     def schedule(self):  # TODO
         pass
 
-    def run_epoch(self):  # TODO
+    def run_epoch(self):
         pass
 
     def __run_match(self, c0: Competitor, c1: Competitor):

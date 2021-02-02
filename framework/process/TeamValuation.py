@@ -12,6 +12,7 @@ class TeamValuation:
         # output
         self.__value = TeamValuation.null_team_value
 
+    # noinspection PyBroadException
     def run(self):
         try:
             self.__value = self.__tv.get_action((self.__pkm_full_team, self.__meta_data))

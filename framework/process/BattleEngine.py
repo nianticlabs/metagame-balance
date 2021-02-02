@@ -553,6 +553,7 @@ class BattleEngine:
         self.t = True
         self.rec = rec
 
+    # noinspection PyBroadException
     def run_a_turn(self):
         if self.t:
             self.s = self.env.reset()
@@ -563,7 +564,15 @@ class BattleEngine:
                 self.env.render()
         o0 = self.s[0] if self.bp0.requires_encode() else self.v[0]
         o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
-        a = [self.bp0.get_action(o0), self.bp1.get_action(o1)]
+        try:
+            a0 = self.bp0.get_action(o0)
+        except:
+            a0 = random.randint(0, 4)
+        try:
+            a1 = self.bp0.get_action(o1)
+        except:
+            a1 = random.randint(0, 4)
+        a = [a0, a1]
         self.s, r, self.t, self.v = self.env.step(a)
         if self.rec is not None:
             self.rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
