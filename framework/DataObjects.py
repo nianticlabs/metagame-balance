@@ -580,17 +580,14 @@ class PkmTemplateView(ABC):
 def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
     class PkmTemplateViewImpl(PkmTemplateView):
 
-        @abstractmethod
         def get_move_roster_view(self, idx: int) -> MoveRosterView:
             return get_pkm_move_roster_view(template.move_roster)
 
         @property
-        @abstractmethod
         def pkm_type(self) -> PkmType:
             return template.type
 
         @property
-        @abstractmethod
         def max_hp(self) -> float:
             return template.max_hp
 

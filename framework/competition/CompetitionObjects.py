@@ -9,11 +9,9 @@ from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from framework.behaviour.SelectorPolicies import RandomSelectorPolicy, GUISelectorPolicy
 from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamValuators import NullTeamValuator
-from framework.util.PkmRosterGenerators import PkmRosterGenerator
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.DataObjects import PkmFullTeam, MetaData, get_full_team_view, PkmRoster, get_pkm_roster_view, TeamValue
 from framework.process.BattleEngine import PkmBattleEnv
-from framework.util.Recording import GamePlayRecorder
 import random
 
 random_battle_policy = RandomBattlePolicy()
@@ -84,7 +82,7 @@ class Competitor(ABC):
         return False
 
 
-null_metadata = MetaData()
+null_metadata: MetaData = MetaData()
 
 
 class ExampleCompetitor(Competitor):
@@ -96,6 +94,10 @@ class ExampleCompetitor(Competitor):
     @property
     def team(self) -> PkmFullTeam:
         return self.__team
+
+    @team.setter
+    def team(self, team):
+        self.__team = team
 
     @property
     def meta_data(self) -> MetaData:
@@ -252,7 +254,7 @@ class MatchHandlerTree:
             handler.run_match(enable_debug)
 
 
-null_team_value = TeamValue()
+null_team_value: TeamValue = TeamValue()
 
 
 class TreeChampionship(Championship):

@@ -132,9 +132,9 @@ def partial_encode_team(e, team: PkmTeam, team_prediction: Union[PkmTeamPredicti
     e += team.entry_hazard
     for stat in range(N_STATS):
         e += [team.stage[stat] / 5]
-    partial_encode_pkm(e, team.active, team_prediction.active)
+    partial_encode_pkm(e, team.active, team_prediction.active if team_prediction is not None else None)
     for i, pkm in enumerate(team.party):
-        partial_encode_pkm(e, pkm, team_prediction.party[i])
+        partial_encode_pkm(e, pkm, team_prediction.party[i] if team_prediction is not None else None)
 
 
 def decode_team(e) -> PkmTeam:

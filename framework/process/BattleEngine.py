@@ -17,8 +17,10 @@ import numpy as np
 class PkmBattleEnv(gym.Env):
 
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False,
-                 team_prediction: List[PkmTeamPrediction] = None):
+                 team_prediction=None):
         # random active pokemon
+        if team_prediction is None:
+            team_prediction = [None, None]
         if teams is None:
             self.teams: List[PkmTeam] = [PkmTeam(), PkmTeam()]
         else:
@@ -158,8 +160,8 @@ class PkmBattleEnv(gym.Env):
             self.log += '\nTRAINER 1\n' + str(self.teams[1])
 
         e0, e1 = [], []
-        partial_encode_game_state(e0, self.game_state[0])
-        partial_encode_game_state(e1, self.game_state[1])
+        partial_encode_game_state(e0, self.game_state[0], self.team_prediction[0])
+        partial_encode_game_state(e1, self.game_state[1], self.team_prediction[1])
         return [e0, e1]
 
     def render(self, mode='human'):
@@ -363,13 +365,13 @@ class PkmBattleEnv(gym.Env):
                     self.__engine.log += 'STATUS: %s is now confused\n' % (str(pkm))
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
-            assert delta_stage != 0
-            team = self._team[t_id]
-            if MIN_STAGE < team.stage[stat] < MAX_STAGE:
-                team.stage[stat] += delta_stage
-                if self.__engine.debug:
-                    self.__engine.log += 'STAGE: %s %s %s\n' % (
-                        str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
+            if delta_stage != 0:
+                team = self._team[t_id]
+                if MIN_STAGE < team.stage[stat] < MAX_STAGE:
+                    team.stage[stat] += delta_stage
+                    if self.__engine.debug:
+                        self.__engine.log += 'STAGE: %s %s %s\n' % (
+                            str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
 
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
             team = self.__engine.teams[t_id]

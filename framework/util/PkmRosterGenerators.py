@@ -1,5 +1,6 @@
 import random
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import List
 from framework.util.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
 from framework.DataConstants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM
@@ -24,7 +25,7 @@ class RandomMoveRosterGenerator(MoveRosterGenerator):
         self.n_moves_pkm = n_moves_pkm
 
     def gen_roster(self) -> PkmMoveRoster:
-        base_move_roster = self.base_roster.copy()
+        base_move_roster = deepcopy(self.base_roster)
         moves = random.sample(list(filter(lambda _m: _m.type == self.pkm_type, base_move_roster)), 2)
         for m in moves:
             base_move_roster.remove(m)
