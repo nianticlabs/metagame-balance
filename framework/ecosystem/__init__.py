@@ -1,5 +1,6 @@
 from copy import deepcopy
 from typing import List
+from elo import INITIAL
 from framework.DataObjects import PkmFullTeam
 from framework.competition.CompetitionObjects import Competitor
 
@@ -10,6 +11,7 @@ class CompetitorManager:
         self.__c = c
         self.__teams: List[PkmFullTeam] = []
         self.__n_battles = 0
+        self.__elo = INITIAL
 
     @property
     def competitor(self) -> Competitor:
@@ -27,6 +29,14 @@ class CompetitorManager:
 
     def add_n_battles(self):
         self.__n_battles += 1
+
+    @property
+    def elo(self) -> float:
+        return self.__elo
+
+    @elo.setter
+    def elo(self, elo):
+        self.__elo = elo
 
     @property
     def n_battles(self) -> int:

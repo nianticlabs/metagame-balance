@@ -28,3 +28,7 @@ class BattlePhase:
             self.otp1.run()
         self.da0.run()
         self.da1.run()
+
+    @property
+    def winner(self):
+        return self.be.winner

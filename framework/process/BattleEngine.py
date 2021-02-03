@@ -583,6 +583,10 @@ class BattleEngine:
     def battle_completed(self) -> bool:
         return self.t
 
+    @property
+    def winner(self):
+        return self.env.winner
+
     def terminate(self):
         self.bp0.close()
         self.bp1.close()
