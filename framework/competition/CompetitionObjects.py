@@ -77,8 +77,9 @@ class Competitor(ABC):
     def reset(self):
         pass
 
+    @property
     @abstractmethod
-    def want_to_change_team(self):
+    def want_to_change_team(self) -> bool:
         return False
 
 

@@ -1,6 +1,5 @@
 from enum import Enum
 from random import shuffle
-
 from elo import rate_1vs1
 from typing import List, Tuple
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
@@ -70,3 +69,5 @@ class LeagueEcosystem:
             cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)
         elif bp.winner == 1:
             cm1.elo, cm0.elo = rate_1vs1(cm1.elo, cm0.elo)
+        cm0.increment_n_battles()
+        cm1.increment_n_battles()

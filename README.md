@@ -232,6 +232,7 @@ class Competitor:
     def balance_policy -> BalancePolicy
     def team -> PkmFullTeam
     def meta_data -> MetaData
+    def want_to_change_team -> bool
 ```
 
 ## Competition Tracks
