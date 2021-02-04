@@ -14,10 +14,14 @@ class RosterBalance:
 
     # noinspection PyBroadException
     def run(self) -> Any:
+        roster = self.__roster
         try:
             self.__roster = self.__bp.get_action((self.__meta_data, self.__roster, self.__constraints))
         except:
             pass
+        if self.__roster != roster:
+            roster = self.__roster
+        return roster
 
     @property
     def roster(self):

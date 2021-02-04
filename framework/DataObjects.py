@@ -977,4 +977,8 @@ class TeamValue:
 
 
 class DesignConstraints:
-    pass
+
+    @abstractmethod
+    def base_roster(self) -> PkmRosterView:
+        pass
+

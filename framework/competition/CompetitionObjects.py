@@ -80,7 +80,7 @@ class Competitor(ABC):
     @property
     @abstractmethod
     def want_to_change_team(self) -> bool:
-        return False
+        pass
 
 
 null_metadata: MetaData = MetaData()
