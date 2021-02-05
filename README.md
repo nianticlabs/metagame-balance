@@ -2,11 +2,6 @@
 
 (Legacy repository: https://gitlab.com/DracoStriker/simplified-pokemon-environment)
 
-### TODO
-
-* Design Restriction Language
-* Plugin System/Remote Access
-
 ## Introduction
 
 Meta Game Balance is a challenging task for human designers, they must perform exhaustive 

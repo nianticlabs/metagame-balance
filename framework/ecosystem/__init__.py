@@ -1,5 +1,7 @@
-from copy import deepcopy
-from typing import List
+import codecs
+import pickle
+from datetime import datetime
+
 from elo import INITIAL
 from framework.DataObjects import PkmFullTeam, PkmRoster
 from framework.competition.CompetitionObjects import Competitor
@@ -10,7 +12,8 @@ class CompetitorManager:
 
     def __init__(self, c: Competitor, roster: PkmRoster):
         self.__c = c
-        self.__teams: List[PkmFullTeam] = []
+        self.__path = str(datetime.now()) + '_' + self.__c.name
+        self.__n_teams = 0
         self.__n_battles = 0
         self.__elo = INITIAL
         self.tbp = TeamBuildingProcess(c, roster)
@@ -20,14 +23,26 @@ class CompetitorManager:
         return self.__c
 
     def get_team(self, idx: int) -> PkmFullTeam:
-        return self.__teams[idx]
+        index = 0
+        with open(self.__path, "r") as f:
+            while index < idx:
+                line = f.readline()
+                if not line:
+                    return PkmFullTeam()
+                index += 1
+            line = f.readline()
+            if not line:
+                return PkmFullTeam()
+            return pickle.loads(codecs.decode(line.encode(), "base64"))
 
-    def add_team(self, team: PkmFullTeam):
-        self.__teams.append(deepcopy(team))
+    def record_team(self, team: PkmFullTeam):
+        with open(self.__path, "a+") as f:
+            f.writelines([codecs.encode(pickle.dumps(self.__c.team), "base64").decode()])
+        self.__n_teams += 1
 
     @property
     def n_teams(self) -> int:
-        return len(self.__teams)
+        return self.__n_teams
 
     def increment_n_battles(self):
         self.__n_battles += 1

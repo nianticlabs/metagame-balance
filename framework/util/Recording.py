@@ -107,7 +107,7 @@ class GamePlayRecorder:  # TODO
         Load next chuck from file to buffer.
         """
         index = 0
-        while True and index < self.buffer_size:
+        while index < self.buffer_size:
             line = self.f.readline()
             if not line:
                 break
