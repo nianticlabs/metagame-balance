@@ -83,9 +83,6 @@ class Competitor(ABC):
         pass
 
 
-null_metadata: MetaData = MetaData()
-
-
 class ExampleCompetitor(Competitor):
 
     def __init__(self, team: PkmFullTeam, name=""):
@@ -102,7 +99,7 @@ class ExampleCompetitor(Competitor):
 
     @property
     def meta_data(self) -> MetaData:
-        return null_metadata
+        return NullDataAggregator.null_metadata
 
     @property
     def name(self) -> str:
@@ -255,9 +252,6 @@ class MatchHandlerTree:
             handler.run_match(enable_debug)
 
 
-null_team_value: TeamValue = TeamValue()
-
-
 class TreeChampionship(Championship):
 
     def __init__(self, roster: PkmRoster, competitors: List[Competitor] = None,
@@ -283,5 +277,6 @@ class TreeChampionship(Championship):
 
     def run(self):
         for c in self.competitors:
-            c.team = c.team_builder_policy.get_action((c.meta_data, c.team, self.roster_view, null_team_value))
+            c.team = c.team_builder_policy.get_action(
+                (c.meta_data, c.team, self.roster_view, NullTeamValuator.null_team_value))
         self.match_tree.run_matches(self.debug)

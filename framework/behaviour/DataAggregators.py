@@ -6,7 +6,10 @@ from framework.behaviour import DataAggregator
 
 class NullDataAggregator(DataAggregator):
 
-    null_meta_data = MetaData()
+    class NullMetaData(MetaData):
+        pass
+
+    null_metadata = NullMetaData()
 
     def requires_encode(self) -> bool:
         return False
@@ -15,4 +18,4 @@ class NullDataAggregator(DataAggregator):
         pass
 
     def get_action(self, s) -> MetaData:
-        return NullDataAggregator.null_meta_data
+        return NullDataAggregator.null_metadata

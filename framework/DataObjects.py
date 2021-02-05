@@ -968,17 +968,19 @@ def get_game_state_view(game_state: GameState, team_prediction: PkmTeamPredictio
     return GameStateViewImpl()
 
 
-class MetaData:
+class MetaData(ABC):
     pass
 
 
-class TeamValue:
-    pass
+class TeamValue(ABC):
+
+    @abstractmethod
+    def compare_to(self, value) -> int:
+        pass
 
 
-class DesignConstraints:
+class DesignConstraints(ABC):
 
     @abstractmethod
     def base_roster(self) -> PkmRosterView:
         pass
-

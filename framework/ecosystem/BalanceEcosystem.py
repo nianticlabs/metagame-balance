@@ -1,5 +1,4 @@
 from copy import deepcopy
-
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.DataObjects import DesignConstraints, PkmRoster
 from framework.competition.CompetitionObjects import Competitor
@@ -23,4 +22,3 @@ class BalanceEcosystem:
     def run(self, n_vgc_epochs: int, n_league_epochs: int, strategy: Strategy = Strategy.RANDOM_PAIRING):
         self.__vgc.run(n_vgc_epochs, n_league_epochs, strategy)
         self.__mgb.run()
-

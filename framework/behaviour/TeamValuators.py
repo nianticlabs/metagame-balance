@@ -5,7 +5,12 @@ from framework.behaviour import TeamValuator
 
 class NullTeamValuator(TeamValuator):
 
-    null_team_valuation = TeamValue()
+    class NullTeamValue(TeamValue):
+
+        def compare_to(self, value) -> int:
+            return 0
+
+    null_team_value = NullTeamValue()
 
     def requires_encode(self) -> bool:
         return False
@@ -14,4 +19,4 @@ class NullTeamValuator(TeamValuator):
         pass
 
     def get_action(self, d: Tuple[PkmFullTeam, MetaData]) -> TeamValue:
-        return NullTeamValuator.null_team_valuation
+        return NullTeamValuator.null_team_value
