@@ -35,6 +35,7 @@ class BattlePhase:
             self.be.run_a_turn(rec)
             self.otp0.run()
             self.otp1.run()
+        rec.save()
         self.ddm.signal_concluded_battle(rec.name)
         self.da0.run()
         self.da1.run()
