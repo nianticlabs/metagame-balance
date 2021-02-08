@@ -1,3 +1,5 @@
+import ast
+import codecs
 import pickle
 from typing import List, Tuple
 from framework.DataObjects import Pkm
@@ -6,7 +8,7 @@ Frame = Tuple[List, List, int, int, bool]
 Trajectory = List[Frame]
 
 
-class GamePlayRecorder:  # TODO
+class GamePlayRecorder:
 
     def __init__(self, buffer_size: int = 2048, name: str = "", c0: str = "", c1: str = "", t0: List[Pkm] = None,
                  t1: List[Pkm] = None):
@@ -25,12 +27,25 @@ class GamePlayRecorder:  # TODO
         Open recorder for reading.
         """
         self.f = open(self.name, "r")
+        self.competitors = ast.literal_eval(self.f.readline())
+        self.teams = [[], []]
+        idx = 0
+        while idx < len(self.teams):
+            raw = self.f.readline()
+            while raw != '\n':
+                self.teams[idx].append(pickle.loads(bytes.fromhex(raw[:-1])))
+                raw = self.f.readline()
+            idx += 1
 
-    def init(self, append=True):
+    def init(self, name: str = None, append=True):
+        if name is not None:
+            self.name = "../Data/" + name
         with open(self.name, "a+" if append else "w+") as f:
             f.write(str(self.competitors) + "\n")
             for team in self.teams:
-                f.write(str([pickle.dumps(pkm) for pkm in team]) + "\n")
+                for pkm in team:
+                    f.write(codecs.encode(pickle.dumps(pkm), "hex").decode() + '\n')
+                f.write('\n')
 
     def close(self):
         """
@@ -99,7 +114,6 @@ class GamePlayRecorder:  # TODO
                 return [], [], -1, -1, False
         row: Frame = self.buffer[self.pos]
         self.pos += 1
-        print(self.pos)
         return row
 
     def load(self):

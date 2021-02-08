@@ -1,7 +1,6 @@
 import codecs
 import pickle
-from datetime import datetime
-
+import time
 from elo import INITIAL
 from framework.DataObjects import PkmFullTeam, PkmRoster
 from framework.competition.CompetitionObjects import Competitor
@@ -12,7 +11,7 @@ class CompetitorManager:
 
     def __init__(self, c: Competitor, roster: PkmRoster):
         self.__c = c
-        self.__path = str(datetime.now()) + '_' + self.__c.name
+        self.__path = time.strftime("%Y%m%d-%H%M%S") + '_' + self.__c.name
         self.__n_teams = 0
         self.__n_battles = 0
         self.__elo = INITIAL
@@ -35,7 +34,7 @@ class CompetitorManager:
                 return PkmFullTeam()
             return pickle.loads(codecs.decode(line.encode(), "base64"))
 
-    def record_team(self, team: PkmFullTeam):
+    def record_team(self):
         with open(self.__path, "a+") as f:
             f.writelines([codecs.encode(pickle.dumps(self.__c.team), "base64").decode()])
         self.__n_teams += 1

@@ -1,6 +1,7 @@
+import time
 from framework.behaviour.BattlePolicies import SimpleBattlePolicy, RandomBattlePolicy
 from framework.process.BattleEngine import PkmBattleEnv
-from framework.util.Recording import GamePlayRecorder
+from framework.util.Recording import GamePlayRecorder, Frame
 
 
 def main():
@@ -11,7 +12,8 @@ def main():
     a1 = RandomBattlePolicy()
     ep = 0
     n_battles = 3
-    r = GamePlayRecorder(name="test", c0="Player0", c1="Player1", t0=[env.teams[0].active] + env.teams[0].party,
+    name = time.strftime("%Y%m%d-%H%M%S") + "_test"
+    r = GamePlayRecorder(name=name, c0="Player0", c1="Player1", t0=[env.teams[0].active] + env.teams[0].party,
                          t1=[env.teams[1].active] + env.teams[1].party)
     r.init()
     while ep < n_battles:
@@ -29,6 +31,16 @@ def main():
         t = False
     a0.close()
     r.save()
+
+    # test loading
+    r = GamePlayRecorder(name=name)
+    r.open()
+
+    frame: Frame = r.read()
+    print(frame)
+    while len(frame[0]) != 0:
+        frame = r.read()
+        print(frame)
 
 
 if __name__ == '__main__':
