@@ -38,6 +38,9 @@ class GamePlayRecorder:
             idx += 1
 
     def init(self, name: str = None, append=True):
+        """
+        Init recorder for writing.
+        """
         if name is not None:
             self.name = "../Data/" + name
         with open(self.name, "a+" if append else "w+") as f:
@@ -127,3 +130,34 @@ class GamePlayRecorder:
                 break
             self.buffer.append(eval(line))
             index += 1
+
+
+class MetaGameSubscriber:
+
+    def __init__(self):
+        self.__games: List[str] = []
+
+    def schedule(self, name):
+        self.__games.append(name)
+
+    def get_next(self) -> GamePlayRecorder:
+        """
+
+        :return: opened  GamePlayRecorder
+        """
+        rec = GamePlayRecorder(name=self.__games.pop(0))
+        rec.open()
+        return rec
+
+
+class DataDistributionManager:
+
+    def __init__(self):
+        self.__subscribers: List[MetaGameSubscriber] = []
+
+    def signal_concluded_battle(self, name: str):
+        for sub in self.__subscribers:
+            sub.schedule(name)
+
+    def subscribe(self, sub):
+        self.__subscribers.append(sub)

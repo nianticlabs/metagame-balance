@@ -4,16 +4,16 @@ from framework.DataObjects import PkmRoster
 from framework.competition.CompetitionObjects import Competitor
 from framework.ecosystem import CompetitorManager
 from framework.ecosystem.LeagueEcosystem import LeagueEcosystem, Strategy
-from framework.util.Recording import GamePlayRecorder
+from framework.util.Recording import DataDistributionManager
 
 
 class VGCEcosystem:
 
     def __init__(self, roster: PkmRoster, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES,
-                 rec: GamePlayRecorder = None):
+                 ddm: DataDistributionManager = None):
         self.__roster = roster
         self.__competitors: List[CompetitorManager] = []
-        self.__league: LeagueEcosystem = LeagueEcosystem(debug, render, n_battles, rec)
+        self.__league: LeagueEcosystem = LeagueEcosystem(debug, render, n_battles, ddm)
 
     def register(self, c: Competitor):
         if c not in list(map(lambda x: x.competitor, self.__competitors)):

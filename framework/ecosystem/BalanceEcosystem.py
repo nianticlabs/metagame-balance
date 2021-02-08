@@ -5,17 +5,17 @@ from framework.competition.CompetitionObjects import Competitor
 from framework.ecosystem.LeagueEcosystem import Strategy
 from framework.ecosystem.VGCEcosystem import VGCEcosystem
 from framework.module.MetaGameBalance import MetaGameBalance
-from framework.util.Recording import GamePlayRecorder
+from framework.util.Recording import DataDistributionManager
 
 
 class BalanceEcosystem:
 
     def __init__(self, c: Competitor, battle_c: Competitor, constraints: DesignConstraints, debug=False, render=True,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None, n_competitors: int = 16):
+                 n_battles=DEFAULT_MATCH_N_BATTLES, ddm: DataDistributionManager = None, n_competitors: int = 16):
         self.__roster = PkmRoster()
         self.__mgb = MetaGameBalance(c, self.__roster, constraints)
         self.__mgb.run()
-        self.__vgc: VGCEcosystem = VGCEcosystem(self.__roster, debug, render, n_battles, rec)
+        self.__vgc: VGCEcosystem = VGCEcosystem(self.__roster, debug, render, n_battles, ddm)
         for competitor in range(n_competitors):
             self.__vgc.register(deepcopy(battle_c))
 

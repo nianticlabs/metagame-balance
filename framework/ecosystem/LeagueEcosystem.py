@@ -6,7 +6,7 @@ from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.ecosystem import CompetitorManager
 from framework.module.BattlePhase import BattlePhase
 from framework.module.SelectionPhase import SelectionPhase
-from framework.util.Recording import GamePlayRecorder
+from framework.util.Recording import DataDistributionManager
 
 
 class Strategy(Enum):
@@ -16,16 +16,18 @@ class Strategy(Enum):
 
 class LeagueEcosystem:
 
-    def __init__(self, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None):
+    def __init__(self, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES,
+                 ddm: DataDistributionManager = None):
         self.__competitors: List[CompetitorManager] = []
         self.__debug = debug
         self.__render = render
         self.__n_battles = n_battles
-        self.__rec = rec
+        self.__ddm = ddm
 
     def register(self, cm: CompetitorManager):
         if cm not in self.__competitors:
             self.__competitors.append(cm)
+            self.__ddm.subscribe(cm.mgs)
 
     def unregister(self, cm: CompetitorManager):
         self.__competitors.remove(cm)
@@ -59,8 +61,9 @@ class LeagueEcosystem:
         sp1 = SelectionPhase(c1, c0.team)
         team0, prediction0 = sp0.output()  # output empty containers
         team1, prediction1 = sp0.output()  # output empty containers
-        bp = BattlePhase(c0, c1, team0, team1, prediction0, prediction1, debug=self.__debug, render=self.__render,
-                         n_battles=self.__n_battles, rec=self.__rec)
+        bp = BattlePhase(c0, c1, team0, team1, prediction0, prediction1, cm0.mgs, cm1.mgs, self.__ddm,
+                         debug=self.__debug,
+                         render=self.__render, n_battles=self.__n_battles)
         for i in range(self.__n_battles):
             sp0.run()
             sp1.run()

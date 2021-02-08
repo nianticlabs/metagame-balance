@@ -8,7 +8,6 @@ from framework.DataTypes import WeatherCondition, PkmEntryHazard, PkmType, PkmSt
     MIN_STAGE, MAX_STAGE
 from framework.StandardPkmMoves import Struggle
 from framework.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
-from framework.util.Recording import GamePlayRecorder
 import gym
 import random
 import numpy as np
@@ -540,8 +539,7 @@ class PkmBattleEnv(gym.Env):
 class BattleEngine:
 
     def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=False, render=True,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, rec: GamePlayRecorder = None,
-                 team_prediction: List[PkmTeamPrediction] = None):
+                 n_battles=DEFAULT_MATCH_N_BATTLES, team_prediction: List[PkmTeamPrediction] = None):
         self.env = PkmBattleEnv(teams=[team0, team1], debug=debug, team_prediction=team_prediction)
         self.bp0 = bp0
         self.bp1 = bp1
@@ -551,14 +549,13 @@ class BattleEngine:
         self.s = None
         self.v = None
         self.t = True
-        self.rec = rec
 
     # noinspection PyBroadException
-    def run_a_turn(self):
+    def run_a_turn(self, rec=None):
         if self.t:
             self.s = self.env.reset()
-            if self.rec is not None:
-                self.rec.record((self.s[0], self.s[1], -1, -1, False))
+            if rec is not None:
+                rec.record((self.s[0], self.s[1], -1, -1, False))
             self.v = self.env.game_state_view
             if self.render:
                 self.env.render()
@@ -574,8 +571,8 @@ class BattleEngine:
             a1 = random.randint(0, 4)
         a = [a0, a1]
         self.s, r, self.t, self.v = self.env.step(a)
-        if self.rec is not None:
-            self.rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
+        if rec is not None:
+            rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
         if self.render:
             self.env.render()
         return r

@@ -5,6 +5,7 @@ from elo import INITIAL
 from framework.DataObjects import PkmFullTeam, PkmRoster
 from framework.competition.CompetitionObjects import Competitor
 from framework.module.TeamBuilding import TeamBuildingProcess
+from framework.util.Recording import MetaGameSubscriber
 
 
 class CompetitorManager:
@@ -16,6 +17,7 @@ class CompetitorManager:
         self.__n_battles = 0
         self.__elo = INITIAL
         self.tbp = TeamBuildingProcess(c, roster)
+        self.mgs = MetaGameSubscriber()
 
     @property
     def competitor(self) -> Competitor:
