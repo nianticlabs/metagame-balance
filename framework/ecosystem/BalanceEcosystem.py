@@ -10,9 +10,10 @@ from framework.util.Recording import DataDistributionManager
 
 class BalanceEcosystem:
 
-    def __init__(self, c: Competitor, battle_c: Competitor, constraints: DesignConstraints, debug=False, render=True,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, ddm: DataDistributionManager = None, n_competitors: int = 16):
-        self.__roster = PkmRoster()
+    def __init__(self, c: Competitor, battle_c: Competitor, constraints: DesignConstraints, base_roster: PkmRoster,
+                 debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES, ddm: DataDistributionManager = None,
+                 n_competitors: int = 16):
+        self.__roster = base_roster
         self.__mgb = MetaGameBalance(c, self.__roster, constraints)
         self.__mgb.run()
         self.__vgc: VGCEcosystem = VGCEcosystem(self.__roster, debug, render, n_battles, ddm)
