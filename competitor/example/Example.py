@@ -1,5 +1,5 @@
 from random import sample
-from framework.DataObjects import PkmTeam, MetaData, PkmFullTeam
+from framework.DataObjects import MetaData, PkmFullTeam
 from framework.behaviour import BattlePolicy
 from framework.behaviour.DataAggregators import NullDataAggregator
 from framework.competition.CompetitionObjects import Competitor
@@ -40,7 +40,7 @@ class Example(Competitor):
         return NullDataAggregator.null_metadata
 
     def want_to_change_team(self):
-        pass
+        return True
 
     @property
     def team(self) -> PkmFullTeam:

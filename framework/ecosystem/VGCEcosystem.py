@@ -21,6 +21,7 @@ class VGCEcosystem:
             cm.tbp.run()
             c.team = cm.tbp.output()
             self.__competitors.append(cm)
+            self.__league.register(cm)
 
     def run(self, n_epochs: int, n_league_epochs: int, strategy: Strategy = Strategy.RANDOM_PAIRING):
         epoch = 0
@@ -29,5 +30,6 @@ class VGCEcosystem:
                 if cm.competitor.want_to_change_team:
                     cm.tbp.run()
                     cm.competitor.team = cm.tbp.output()
+            print("LEAGUE")
             self.__league.run(n_league_epochs, strategy)
             epoch += 1
