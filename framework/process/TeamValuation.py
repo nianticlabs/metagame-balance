@@ -2,8 +2,14 @@ from framework.behaviour import TeamValuator
 from framework.DataObjects import MetaData, PkmFullTeam, TeamValue
 
 
+class NullTeamValue(TeamValue):
+
+    def compare_to(self, value) -> int:
+        return 0
+
+
 class TeamValuation:
-    null_team_value = TeamValue()
+    null_team_value = NullTeamValue()
 
     def __init__(self, tv: TeamValuator, pkm_full_team: PkmFullTeam, meta_data: MetaData):
         self.__tv = tv

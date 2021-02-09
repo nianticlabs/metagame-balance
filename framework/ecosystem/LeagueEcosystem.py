@@ -32,7 +32,7 @@ class LeagueEcosystem:
     def unregister(self, cm: CompetitorManager):
         self.__competitors.remove(cm)
 
-    def run(self, n_epochs: int, strategy: Strategy):
+    def run(self, n_epochs: int, strategy: Strategy = Strategy.RANDOM_PAIRING):
         epoch = 0
         n_matches = len(self.__competitors) // 2
         while epoch < n_epochs:

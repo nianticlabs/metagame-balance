@@ -1,6 +1,8 @@
-from framework.DataObjects import PkmTeam, MetaData
+from random import sample
+from framework.DataObjects import PkmTeam, MetaData, PkmFullTeam
 from framework.behaviour import BattlePolicy
-from framework.competition.CompetitionObjects import Competitor, null_metadata
+from framework.behaviour.DataAggregators import NullDataAggregator
+from framework.competition.CompetitionObjects import Competitor
 
 
 class ExampleBattlePolicy(BattlePolicy):
@@ -12,15 +14,15 @@ class ExampleBattlePolicy(BattlePolicy):
         pass
 
     def get_action(self, s) -> int:
-        return 1000
+        return sample(range(4 + 3), 1)[0]
 
 
 class Example(Competitor):
 
-    def __init__(self):
-        self._name = "Example"
+    def __init__(self, name: str = "Example", team: PkmFullTeam = None):
+        self._name = name
         self._battle_policy = ExampleBattlePolicy()
-        self._team = None
+        self._team = team
 
     @property
     def name(self):
@@ -35,15 +37,15 @@ class Example(Competitor):
 
     @property
     def meta_data(self) -> MetaData:
-        return null_metadata
+        return NullDataAggregator.null_metadata
 
     def want_to_change_team(self):
         pass
 
     @property
-    def team(self) -> PkmTeam:
+    def team(self) -> PkmFullTeam:
         return self._team
 
     @team.setter
-    def team(self, team):
+    def team(self, team: PkmFullTeam):
         self._team = team

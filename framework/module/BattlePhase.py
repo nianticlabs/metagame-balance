@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.competition.CompetitionObjects import Competitor
 from framework.DataObjects import PkmTeam, PkmTeamPrediction, get_full_team_view
@@ -30,11 +30,13 @@ class BattlePhase:
     def run(self):
         rec = GamePlayRecorder(c0=self.c0.name, c1=self.c1.name, t0=self.team0.get_pkm_list(),
                                t1=self.team1.get_pkm_list())
-        rec.init(name=time.strftime("%Y%m%d-%H%M%S") + "_" + self.c0.name + "_" + self.c1.name)
-        while not self.be.battle_completed():
+        rec.init(name=datetime.now().strftime("%Y%m%d-%H%M%S.%f") + "_" + self.c0.name + "_" + self.c1.name)
+        completed = False
+        while not completed:
             self.be.run_a_turn(rec)
             self.otp0.run()
             self.otp1.run()
+            completed = self.be.battle_completed()
         rec.save()
         self.ddm.signal_concluded_battle(rec.name)
         self.da0.run()

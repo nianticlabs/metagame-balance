@@ -638,7 +638,7 @@ class PkmTeam:
 
         :param pkms: Chosen pokemon. The first stays the active pokemon.
         """
-        if pkms is None:
+        if pkms is None or pkms == []:
             pkms = [Pkm(), Pkm(), Pkm()]
         self.active: Pkm = pkms.pop(0)
         self.active.reveal()
