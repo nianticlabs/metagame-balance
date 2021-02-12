@@ -230,14 +230,63 @@ class Competitor:
     def want_to_change_team -> bool
 ```
 
-## Competition Tracks
+## Competition Tracks and Rules
 
-Each proposed track tackle different complexity problems on the VGC Competition.
+Each proposed track tackle different complexity problems on the VGC Competition. An entrant must 
+submit a Competitor module which implements one or more of the defined above behaviours.
+
+The three main tracks are bellow. Any contestant may register for one or more tracks.
 
 1. The Battle Track agents only compete with battle policies.
-2. The VGC Track, competitors must master the skills of battling,team selection and team building.
+2. The VGC Track, competitors must master the skills of battling, team selection and team building.
 3. The Balance track, the competitor must generate and manage the best roster.
 
-### Competition Rules
+In the Battle Track, the winner is determined by the outcome of isolated sequential battles. Teams
+are randomly generated at each round for each match. The matches are schedule as binary tree. To 
+assert fairness generated teams are interchanged between a match so both player can compete under 
+the same conditions. The Competitor agent is required only to implement a BattlePolicy.
 
-To be written...
+In this track, agents must be able to compete in a full VGC, where they must build their teams, 
+do meta game analysis and battle. A fixed roster is generated at the beginning of the competition. 
+It must implement all behaviours with exception a BalancePolicy. Each participant must also define 
+their concrete implementation of the MetaData and TeamValue. MetaData are analytics about the 
+current state of the Meta Game. TeamValue is an n-dimensional evaluation given to a team, which can 
+be used to compare different generated teams. There is a first preparation phase, where agents can
+engage battle as many times as they want and may adapt regularly their team. Agents are paired with 
+opponents in epochs where they are only able to fight, after which players enter a new epoch with
+the opportunity to use new teams. By the end, there is the final tournament where agents compete 
+in a tree like tournament like in the Battle Track. Competitor agents may only choose one of the
+teams they used in the preliminary stage. The aim is to incentive agents to perform well during 
+the preparation phase and contribute to enrich the meta-game data. The team selected is the one
+where the TeamValuator behavior of the agent give the greatest evaluation.
+
+In this track a competitor enters with a balance agent constituted by a balance policy, TeamValuator
+and DataAggregator behaviors. Each competitor is assigned to design the roster for a full 
+VGC Ecosystem. The roster closer to the design constraints and aims wins the competition. Each
+competitor is given the same number of epochs, and points are accumulated by the end of each epoch.
+
+### Specifications
+
+* There are 18 types.
+* In battle teams are composed of three members.
+* Full teams are composed of four members for the VGC and Balance tracks.
+* Roster size is 151 for the VGC track.
+* For deep solutions we have encoding of size:
+  * MOVE_ENCODE_LEN = 42
+  * PKM_ENCODE_LEN = 195
+  * TEAM_ENCODE_LEN = 591
+  * GAME_STATE_ENCODE_LEN = 1188
+
+The PkmBattleEnv complies to the OpenAI Gym standard. In the observation field is returned the game
+state encoding for each player. In the info field is returned the game state view for each player.
+The returned reward is equal to the damage given and taken differential, with an extra bonus
+if an opponent Pokémon was knocked out and another extra bonus if the players wins the battle.
+Terminal field is true when the battle ends.
+
+## Contact us
+
+For any information, os issue report contact the organization team.
+
+Organization team:
+
+* Simão Reis (simao.reis@outlook.pt)
