@@ -283,6 +283,10 @@ The returned reward is equal to the damage given and taken differential, with an
 if an opponent Pokémon was knocked out and another extra bonus if the players wins the battle.
 Terminal field is true when the battle ends.
 
+## TODO
+
+* Design Restriction Constraints Language
+
 ## Contact us
 
 For any information or issue report, contact the organization team.
