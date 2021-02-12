@@ -285,7 +285,7 @@ Terminal field is true when the battle ends.
 
 ## Contact us
 
-For any information, os issue report contact the organization team.
+For any information or issue report, contact the organization team.
 
 Organization team:
 
