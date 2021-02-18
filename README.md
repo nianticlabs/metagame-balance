@@ -39,7 +39,7 @@ their models in the same environment where the competition itself is run.
 
 ### Data Model
 
-![](Images/DataModel.png)
+![](Pictures/DataModel.png)
 
 A Pokémon Template defines the possible moves a Pokémon may have, what are the range of 
 values their attributes can have, an so on. A Pokémon is an instance of a template and has
@@ -50,7 +50,7 @@ contains analytics about the history of battles and team/individual Pokémon usa
 
 ### Selection Phase
 
-![](Images/Selection.png)
+![](Pictures/Selection.png)
 
 Given the player team, a partial view of the opponent team and meta-game data the aim is 
 to choose the most optimal sub-team selection. This is done in two steps. First using 
@@ -59,7 +59,7 @@ After this preprocessing, we choose the best team that best suits against the op
 
 ### Battle Phase
 
-![](Images/Battle.png)
+![](Pictures/Battle.png)
 
 Each player observes the current game state and choose their action for this turn. Turns 
 snapshots are stores in the form of trajectories that used both to update knowledge we 
@@ -68,7 +68,7 @@ battle finishes.
 
 ### Team Build Phase
 
-![](Images/Build.png)
+![](Pictures/Build.png)
 
 Between battles each player is given the opportunity to analyse the meta-game and
 restructure their team. First team performance is evaluated giving their current team 
@@ -80,7 +80,7 @@ in any battle and re-evaluate immediately its newer team.
 
 ### Meta-Game Balance Phase
 
-![](Images/Balance.png)
+![](Pictures/Balance.png)
 
 By running a full VGC Ecosystem of players building teams and battling, the Meta-Game 
 data is updated over time. Using that information, and restricted to some design 
