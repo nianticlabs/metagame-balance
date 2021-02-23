@@ -24,5 +24,8 @@ RUN apt install git
 # pokemon vgc engine repository clone
 RUN git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git
 
+# install requirements
+
+
 # Run SSH
 CMD service ssh start -D
