@@ -44,4 +44,6 @@ RUN echo "root:vgc"|chpasswd
 
 # Run SSH
 CMD service ssh start -D
+
+# Add vgc framework to python path
 CMD export PYTHONPATH="${PYTHONPATH}:/vgc-ai/"
