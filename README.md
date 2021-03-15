@@ -12,7 +12,9 @@
 
 4. Use you preferred Interactive Development Environment.
 
-Alternatively you may use the Dockerfile to create a ready to run container.
+Alternatively you may use the Dockerfile to create a ready to run container. All dependencies
+are installed in the venv vgc-env and project is found in the /vgc-ai folder. User root has
+vgc as password.
 
 ## Project Organization
 
