@@ -29,14 +29,19 @@ RUN git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git vgc-ai
 
 # install requirements
 RUN . vgc-env/bin/activate &&\
+    export PYTHONPATH="${PYTHONPATH}:/vgc-ai/" &&\
     python3.8 -m pip install -r vgc-ai/requirements.txt
 
-# ssh remote access
+# SSH
 EXPOSE 22
-RUN apt-get -y install sudo openssh-server &&\
-	adduser --shell /bin/bash --ingroup sudo --gecos '' --disabled-password trainer &&\
-	echo 'trainer:pkm' | chpasswd &&\
-	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config
+RUN apt-get -y install openssh-server
+RUN mkdir -p /var/run/sshd
+
+# authorize SSH connection with root account
+RUN sed -i '/^#/!s/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# change password root
+RUN echo "root:vgc"|chpasswd
 
 # Run SSH
 CMD service ssh start -D
