@@ -14,7 +14,7 @@
 
 ## Docker Installation
 
-Run Dockerfile in Docker folder.
+Use the Dockerfile.
 
 ## Project Organization
 
