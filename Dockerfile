@@ -29,7 +29,6 @@ RUN git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git vgc-ai
 
 # install requirements
 RUN . vgc-env/bin/activate &&\
-    export PYTHONPATH="${PYTHONPATH}:/vgc-ai/" &&\
     python3.8 -m pip install -r vgc-ai/requirements.txt
 
 # SSH
@@ -45,3 +44,4 @@ RUN echo "root:vgc"|chpasswd
 
 # Run SSH
 CMD service ssh start -D
+CMD export PYTHONPATH="${PYTHONPATH}:/vgc-ai/"
