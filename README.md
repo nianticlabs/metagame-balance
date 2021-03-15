@@ -12,9 +12,7 @@
 
 4. Use you preferred Interactive Development Environment.
 
-## Docker Installation
-
-Use the Dockerfile.
+Alternatively you may use the Dockerfile to create a ready to run container.
 
 ## Project Organization
 
@@ -32,3 +30,8 @@ In the test module is contained some unit tests from the core framework modules.
 
 All the documentation from Applicational Programming Interface and Framework architecture can be
 found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
+
+## TODO
+
+* Plugin Loading
+* Design Restriction Language
