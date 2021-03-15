@@ -1,9 +1,11 @@
+import random
 from typing import Set, Tuple
+
+import PySimpleGUI as sg
+
+from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
 from framework.DataObjects import PkmFullTeamView
 from framework.behaviour import SelectorPolicy
-from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
-import PySimpleGUI as sg
-import random
 
 
 class GUISelectorPolicy(SelectorPolicy):

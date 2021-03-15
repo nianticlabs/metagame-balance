@@ -1,10 +1,12 @@
 from typing import List
-from framework.behaviour import BattlePolicy
+
+import PySimpleGUI as sg
+import numpy as np
+
 from framework.DataConstants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
 from framework.DataObjects import PkmMove, GameStateView
 from framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
-import numpy as np
-import PySimpleGUI as sg
+from framework.behaviour import BattlePolicy
 
 
 def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, opp_pkm_type: PkmType,

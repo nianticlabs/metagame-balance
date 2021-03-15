@@ -1,4 +1,5 @@
 from typing import List
+
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.DataObjects import PkmRoster
 from framework.competition.CompetitionObjects import Competitor

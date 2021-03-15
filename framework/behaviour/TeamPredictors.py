@@ -1,6 +1,7 @@
 from typing import Tuple
-from framework.behaviour import TeamPredictor
+
 from framework.DataObjects import PkmTeamPrediction, PkmTeamView, MetaData
+from framework.behaviour import TeamPredictor
 
 
 class NullTeamPredictor(TeamPredictor):

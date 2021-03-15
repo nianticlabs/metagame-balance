@@ -1,5 +1,5 @@
-from framework.behaviour.TeamPredictors import TeamPredictor, NullTeamPredictor
 from framework.DataObjects import MetaData, PkmTeamPrediction, PkmFullTeamView
+from framework.behaviour.TeamPredictors import TeamPredictor, NullTeamPredictor
 
 
 class OpponentTeamPrediction:

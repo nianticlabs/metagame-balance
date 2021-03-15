@@ -1,7 +1,9 @@
 from enum import Enum
 from random import shuffle
-from elo import rate_1vs1
 from typing import List, Tuple
+
+from elo import rate_1vs1
+
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.ecosystem import CompetitorManager
 from framework.module.BattlePhase import BattlePhase

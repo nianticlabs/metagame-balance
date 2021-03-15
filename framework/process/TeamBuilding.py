@@ -1,5 +1,5 @@
-from framework.behaviour import TeamBuilderPolicy
 from framework.DataObjects import MetaData, PkmFullTeam, PkmRoster, get_pkm_roster_view, TeamValue
+from framework.behaviour import TeamBuilderPolicy
 from framework.competition import legal_team
 from framework.util.PkmTeamGenerators import RandomGeneratorRoster
 

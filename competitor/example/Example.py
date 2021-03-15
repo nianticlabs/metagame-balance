@@ -1,4 +1,5 @@
 from random import sample
+
 from framework.DataObjects import MetaData, PkmFullTeam
 from framework.behaviour import BattlePolicy
 from framework.behaviour.DataAggregators import NullDataAggregator

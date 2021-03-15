@@ -1,5 +1,5 @@
-from framework.competition.CompetitionObjects import Competitor
 from framework.DataObjects import PkmRoster, PkmFullTeam
+from framework.competition.CompetitionObjects import Competitor
 from framework.process.TeamBuilding import TeamBuilding
 from framework.process.TeamValuation import TeamValuation
 

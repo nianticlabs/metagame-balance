@@ -1,13 +1,15 @@
+import itertools
+import random
+import unittest
 from copy import deepcopy
 from random import sample
+
+import numpy as np
+
 from framework.DataConstants import MIN_HIT_POINTS, MAX_HIT_POINTS
 from framework.DataObjects import PkmTemplate
 from framework.DataTypes import PkmType
 from framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
-import unittest
-import random
-import numpy as np
-import itertools
 
 
 class TestEncodingMethods(unittest.TestCase):

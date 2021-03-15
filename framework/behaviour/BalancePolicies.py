@@ -1,6 +1,7 @@
 from typing import Tuple
-from framework.behaviour import BalancePolicy
+
 from framework.DataObjects import PkmRoster, MetaData, DesignConstraints
+from framework.behaviour import BalancePolicy
 
 
 class IdleBalancePolicy(BalancePolicy):

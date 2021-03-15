@@ -1,7 +1,8 @@
 from random import sample
-from framework.behaviour import SelectorPolicy
+
 from framework.DataConstants import DEFAULT_TEAM_SIZE
 from framework.DataObjects import PkmTeam, PkmTeamPrediction, PkmFullTeam, get_full_team_view
+from framework.behaviour import SelectorPolicy
 
 
 class TeamSelection:

@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
 from framework.DataObjects import DesignConstraints, PkmRoster
 from framework.competition.CompetitionObjects import Competitor

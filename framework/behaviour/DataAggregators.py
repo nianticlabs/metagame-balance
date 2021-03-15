@@ -1,5 +1,3 @@
-from typing import Any
-
 from framework.DataObjects import MetaData
 from framework.behaviour import DataAggregator
 

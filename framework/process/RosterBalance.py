@@ -1,7 +1,7 @@
 from typing import Any
 
-from framework.behaviour import BalancePolicy
 from framework.DataObjects import MetaData, PkmRoster, DesignConstraints
+from framework.behaviour import BalancePolicy
 
 
 class RosterBalance:

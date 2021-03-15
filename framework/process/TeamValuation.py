@@ -1,5 +1,5 @@
-from framework.behaviour import TeamValuator
 from framework.DataObjects import MetaData, PkmFullTeam, TeamValue
+from framework.behaviour import TeamValuator
 
 
 class NullTeamValue(TeamValue):

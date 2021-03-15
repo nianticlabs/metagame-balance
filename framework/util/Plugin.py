@@ -1,6 +1,9 @@
-from framework.competition.CompetitionObjects import Competitor
-from simple_plugin_loader import Loader
 import pathlib
+
+from simple_plugin_loader import Loader
+
+from framework.competition.CompetitionObjects import Competitor
+
 print(pathlib.Path().absolute())
 
 # initialize the loader

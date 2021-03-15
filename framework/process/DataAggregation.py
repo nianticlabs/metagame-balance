@@ -1,5 +1,5 @@
-from framework.behaviour import DataAggregator
 from framework.DataObjects import MetaData
+from framework.behaviour import DataAggregator
 from framework.util.Recording import MetaGameSubscriber
 
 

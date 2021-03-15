@@ -1,10 +1,11 @@
+import random
 from abc import ABC, abstractmethod
 from typing import List
+
 from framework.DataConstants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, \
     DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE
 from framework.DataObjects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate
 from framework.DataTypes import PkmType
-import random
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS

@@ -1,5 +1,6 @@
 import random
 from enum import IntEnum
+
 from framework.DataConstants import TYPE_CHART_MULTIPLIER
 
 

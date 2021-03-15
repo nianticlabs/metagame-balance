@@ -1,9 +1,10 @@
 import unittest
 from random import sample
 from typing import List
-from framework.competition import legal_move_set, legal_team
+
 from framework.DataObjects import PkmTemplate, Pkm, PkmFullTeam
 from framework.DataTypes import PkmType
+from framework.competition import legal_move_set, legal_team
 from framework.util.PkmRosterGenerators import RandomMoveRosterGenerator, RandomPkmRosterGenerator
 
 

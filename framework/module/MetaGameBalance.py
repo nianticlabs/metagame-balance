@@ -1,5 +1,5 @@
-from framework.competition.CompetitionObjects import Competitor
 from framework.DataObjects import PkmRoster, DesignConstraints
+from framework.competition.CompetitionObjects import Competitor
 from framework.process.RosterBalance import RosterBalance
 
 
