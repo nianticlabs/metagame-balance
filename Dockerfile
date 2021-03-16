@@ -37,7 +37,7 @@ RUN apt-get -y install openssh-server &&\
     mkdir -p /var/run/sshd
 
 # authorize SSH connection with root account
-RUN sed -i 's/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # change password root
 RUN echo "root:vgc"|chpasswd
