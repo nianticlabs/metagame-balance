@@ -7,7 +7,7 @@ RUN apt-get -y update &&\
     apt-get -y install software-properties-common
 
 # python3 install
-RUN add-apt-repository ppa:deadsnakes/ppa &&\
+RUN add-apt-repository -y ppa:deadsnakes/ppa &&\
     apt-get -y update &&\
     apt-get -y install python3.8 &&\
     apt-get -y install python3.8-venv &&\
@@ -22,7 +22,7 @@ RUN python3.8 -m pip install --user virtualenv &&\
     python3.8 -m venv vgc-env
 
 # git install
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git-all
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git
 
 # vgc ai framework repository clone
 RUN git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git vgc-ai
@@ -33,11 +33,11 @@ RUN . vgc-env/bin/activate &&\
 
 # SSH
 EXPOSE 22
-RUN apt-get -y install openssh-server
-RUN mkdir -p /var/run/sshd
+RUN apt-get -y install openssh-server &&\
+    mkdir -p /var/run/sshd
 
 # authorize SSH connection with root account
-RUN sed -i '/^#/!s/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # change password root
 RUN echo "root:vgc"|chpasswd
