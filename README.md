@@ -14,7 +14,7 @@
 
 Alternatively you may use the Dockerfile to create a ready to run container. All dependencies
 are installed in the venv vgc-env and project is found in the /vgc-ai folder. User root has
-vgc as password.
+vgc as password. A SSH server is installed and run on the container boot.
 
 ## Project Organization
 
