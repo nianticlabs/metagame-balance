@@ -36,4 +36,3 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 ## TODO
 
 * Plugin Loading
-* Design Restriction Language

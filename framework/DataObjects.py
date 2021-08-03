@@ -981,8 +981,38 @@ class TeamValue(ABC):
         pass
 
 
+class Rule(ABC):
+
+    @abstractmethod
+    def check(self, roster: PkmRosterView) -> bool:
+        pass
+
+
+class Target(ABC):
+
+    @abstractmethod
+    def check(self, meta_game: MetaData) -> bool:
+        pass
+
+
 class DesignConstraints(ABC):
 
     @abstractmethod
-    def base_roster(self) -> PkmRosterView:
+    def get_base_roster(self) -> PkmRosterView:
+        pass
+
+    @abstractmethod
+    def get_allpkm_rule_set(self) -> List[Rule]:
+        pass
+
+    @abstractmethod
+    def get_pkm_rule_set(self, template: PkmTemplate) -> List[Rule]:
+        pass
+
+    @abstractmethod
+    def get_global_rule_set(self) -> List[Rule]:
+        pass
+
+    @abstractmethod
+    def get_target_set(self) -> List[Target]:
         pass
