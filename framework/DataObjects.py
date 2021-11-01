@@ -168,6 +168,11 @@ class MoveView(ABC):
 
     @property
     @abstractmethod
+    def max_pp(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
     def type(self) -> PkmType:
         pass
 
@@ -238,6 +243,10 @@ def get_move_view(move: PkmMove) -> MoveView:
             return move.pp
 
         @property
+        def max_pp(self) -> int:
+            return move.max_pp
+
+        @property
         def type(self) -> PkmType:
             return move.type
 
@@ -281,6 +290,45 @@ def get_move_view(move: PkmMove) -> MoveView:
         def hazard(self) -> PkmEntryHazard:
             return move.hazard
 
+        def __eq__(self, other):
+            if self.power != other.power:
+                return False
+            if self.acc != other.acc:
+                return False
+            if self.max_pp != other.max_pp:
+                return False
+            if self.type != other.type:
+                return False
+            if self.priority != other.priority:
+                return False
+            if self.prob > 0.:
+                if self.prob != other.prob:
+                    return False
+                if self.target != self.target:
+                    return False
+                if self.recover != self.recover:
+                    return False
+                if self.status != self.status:
+                    return False
+                if self.stat != self.stat:
+                    return False
+                if self.stage != self.stage:
+                    return False
+                if self.fixed_damage != self.fixed_damage:
+                    return False
+                if self.weather != self.weather:
+                    return False
+                if self.hazard != self.hazard:
+                    return False
+            return True
+
+        def __hash__(self):
+            if self.prob == 0.:
+                return hash((self.power, self.acc, self.max_pp, self.type, self.priority))
+            return hash(
+                (self.power, self.acc, self.max_pp, self.type, self.priority, self.prob, self.target, self.recover,
+                 self.status, self.stat, self.stage, self.fixed_damage, self.weather, self.hazard))
+
     return MoveViewImpl()
 
 
@@ -319,6 +367,16 @@ def get_pkm_move_roster_view(move_roster: PkmMoveRoster) -> MoveRosterView:
         @property
         def n_moves(self) -> int:
             return len(move_roster)
+
+        def __eq__(self, other):
+            for i in range(len(move_roster)):
+                m0, m1 = self.get_move_view(i), other.get_move_view(i)
+                if m0 != m1:
+                    return False
+            return True
+
+        def __hash__(self):
+            return hash(move_roster)
 
     return MoveRosterViewImpl()
 
@@ -510,7 +568,7 @@ def get_partial_pkm_view(pkm: Pkm, pkm_hypothesis: Pkm = None) -> PkmView:
 
 class PkmTemplate:
 
-    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float):
+    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float, id: int = -1):
         """
         Pokemon specimen definition data structure.
 
@@ -521,6 +579,7 @@ class PkmTemplate:
         self.move_roster: PkmMoveRoster = move_roster
         self.type: PkmType = pkm_type
         self.max_hp = max_hp
+        self.id = id
 
     def __eq__(self, other):
         return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
@@ -561,7 +620,7 @@ class PkmTemplate:
 class PkmTemplateView(ABC):
 
     @abstractmethod
-    def get_move_roster_view(self, idx: int) -> MoveRosterView:
+    def get_move_roster_view(self) -> MoveRosterView:
         pass
 
     @property
@@ -582,7 +641,7 @@ class PkmTemplateView(ABC):
 def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
     class PkmTemplateViewImpl(PkmTemplateView):
 
-        def get_move_roster_view(self, idx: int) -> MoveRosterView:
+        def get_move_roster_view(self) -> MoveRosterView:
             return get_pkm_move_roster_view(template.move_roster)
 
         @property
@@ -600,6 +659,13 @@ def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
             :return: copy of the wrapped PkmTemplate.
             """
             return deepcopy(template)
+
+        def __eq__(self, other):
+            return self.pkm_type == other.pkm_type and self.max_hp == other.max_hp and self.get_move_roster_view() == \
+                   other.get_move_roster_view()
+
+        def __hash__(self):
+            return hash((template.type, template.max_hp) + tuple(template.move_roster))
 
     return PkmTemplateViewImpl()
 
@@ -984,7 +1050,7 @@ class TeamValue(ABC):
 class Rule(ABC):
 
     @abstractmethod
-    def check(self, roster: PkmRosterView) -> bool:
+    def check(self, roster: PkmRosterView, template: PkmTemplate) -> bool:
         pass
 
 
@@ -1015,4 +1081,8 @@ class DesignConstraints(ABC):
 
     @abstractmethod
     def get_target_set(self) -> List[Target]:
+        pass
+
+    @abstractmethod
+    def check_every_rule(self, roster: PkmRoster) -> List[Rule]:
         pass

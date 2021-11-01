@@ -1,18 +1,62 @@
+from abc import abstractmethod
 from copy import deepcopy
 from typing import List, Dict
 
 from framework.DataObjects import DesignConstraints, Target, Rule, PkmTemplate, PkmRosterView, MetaData, \
-    get_pkm_roster_view, PkmRoster
+    get_pkm_roster_view, PkmRoster, get_pkm_move_roster_view
 
 
 class VGCRule(Rule):
 
-    def __init__(self, base_roster_view, target_template=None):
+    def __init__(self, base_roster_view: PkmRosterView):
         self._base_roster_view = base_roster_view
-        self._target_template = target_template
 
-    def check(self, roster: PkmRosterView) -> bool:
+    @abstractmethod
+    def check(self, roster: PkmRosterView, template: PkmTemplate = None) -> bool:
         pass
+
+
+class RosterSizeRule(VGCRule):
+
+    def __init__(self, base_roster_view: PkmRosterView, roster_limit=150):
+        super().__init__(base_roster_view)
+        self._roster_limit = roster_limit
+
+    def check(self, roster: PkmRosterView, template: PkmTemplate = None) -> bool:
+        return 0 < roster.n_pkms <= self._roster_limit
+
+
+class MoveRosterSizeRule(VGCRule):
+
+    def __init__(self, base_roster_view, move_roster_limit=150):
+        super().__init__(base_roster_view)
+        self._move_limit = move_roster_limit
+
+    def check(self, roster: PkmRosterView, template: PkmTemplate = None) -> bool:
+        for i in range(roster.n_pkms):
+            if 0 >= roster.get_pkm_template_view(i).get_move_roster_view().n_moves > self._move_limit:
+                return False
+        return True
+
+
+class MovesUnchangeableRule(VGCRule):
+
+    def __init__(self, base_roster_view: PkmRosterView):
+        super().__init__(base_roster_view)
+
+    def check(self, roster: PkmRosterView, template: PkmTemplate = None) -> bool:
+        return get_pkm_move_roster_view(
+            template.move_roster) == self._base_roster_view.get_pkm_template_view(
+            template.id).get_move_roster_view()
+
+
+class TypeUnchangeableRule(VGCRule):
+
+    def __init__(self, base_roster_view: PkmRosterView):
+        super().__init__(base_roster_view)
+
+    def check(self, roster: PkmRosterView, template: PkmTemplate = None) -> bool:
+        return template.type == self._base_roster_view.get_pkm_template_view(template.id).pkm_type
 
 
 class VGCTarget(Target):
@@ -59,3 +103,18 @@ class VGCDesignConstraints(DesignConstraints):
 
     def add_target(self, target: VGCTarget):
         self._target_set.append(target)
+
+    def check_every_rule(self, roster: PkmRoster) -> List[VGCRule]:
+        failed_checks: List[VGCRule] = []
+        roster_view = get_pkm_roster_view(roster)
+        for rule in self._allpkm_rule_set:
+            if not rule.check(roster_view):
+                failed_checks.append(rule)
+        for rule in self._global_rule_set:
+            if not rule.check(roster_view):
+                failed_checks.append(rule)
+        for template, rules in self._pkm_rule_set:
+            for rule in rules:
+                if not rule.check(roster_view, template):
+                    failed_checks.append(rule)
+        return failed_checks
