@@ -36,3 +36,7 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 ## TODO
 
 * Plugin Loading
+* Restriction Language Implementation
+* Add Baseline Agents
+* Re-tune challenge difficulty
+* Prepare entry points for training and testing and running the competition
