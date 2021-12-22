@@ -35,7 +35,7 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 
 ## TODO
 
-* Graphical User Interface and Rendering
+* Graphical User Interface and Rendering (ongoing)
 * Agents as inter-process clients
 * Meta-Game Structure
 * Balance Evaluation and Criteria
