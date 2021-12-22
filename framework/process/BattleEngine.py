@@ -20,6 +20,7 @@ class PkmBattleEnv(gym.Env):
     def __init__(self, teams: List[PkmTeam] = None, debug: bool = False,
                  team_prediction=None):
         # random active pokemon
+        self.n_turns_no_clear = None
         if team_prediction is None:
             team_prediction = [None, None]
         if teams is None:

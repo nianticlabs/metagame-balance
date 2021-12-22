@@ -35,8 +35,11 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 
 ## TODO
 
-* Plugin Loading
+* Graphical User Interface and Rendering
+* Agents as inter-process clients
+* Meta-Game Structure
+* Balance Evaluation and Criteria
+* Re-tune challenge difficulty
 * Restriction Language Implementation
 * Add Baseline Agents
-* Re-tune challenge difficulty
-* Prepare entry points for training and testing and running the competition
+* Prepare easy entry points for training and testing and running the competition
