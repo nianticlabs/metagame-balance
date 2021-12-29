@@ -1,12 +1,12 @@
 import abc
 import time
 from multiprocessing.connection import Listener
-from typing import List
+from typing import List, Tuple
 
 import arcade
 import threading
 
-
+from framework.DataTypes import PkmType
 from framework.util import non_blocking_lock
 
 # Set constants for the screen size
@@ -138,8 +138,7 @@ class PkmBattleUX(arcade.Window):
         self.sprite_list = None
 
         # Set up the sprite info
-        self.party1: List[arcade.Sprite] = []
-        self.party2: List[arcade.Sprite] = []
+        self.party: Tuple[List[arcade.Sprite], List[arcade.Sprite]] = ([], [])
         self.attack = None
 
         # Set the background color
@@ -147,12 +146,14 @@ class PkmBattleUX(arcade.Window):
 
         # Text
         self.log = ''
-        self.hp1 = 'HP: 300'
-        self.hp2 = 'HP: 300'
-        self.status1 = 'Stat: CLR'
-        self.status2 = 'Stat: CLR'
-        self.slp1 = 'Slp: 0'
-        self.slp2 = 'Slp: 0'
+        self.hp = ['HP: 300', 'HP: 300']
+        self.cnf = ['Cnf: 0', 'Cnf: 0']
+        self.slp = ['Slp: 0', 'Slp: 0']
+        self.moves = 'Moves:'
+        self.a = ['300', '300', '300', '300']
+        self.atk = ['Atk: 0', 'Atk: 0']
+        self.dfs = ['Def: 0', 'Def: 0']
+        self.spd = ['Spd: 0', 'Spd: 0']
 
         # Command Queue
         self.lock = threading.Lock()
@@ -185,13 +186,25 @@ class PkmBattleUX(arcade.Window):
         # Drawing the text
         arcade.draw_text(self.log, 10.0, 10.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.hp1, 10.0, 110.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.status1, 10.0, 90.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.slp1, 10.0, 70.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.spd[0], 10.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[0], 10.0, 150.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[0], 10.0, 130.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.cnf[0], 10.0, 110.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.slp[0], 10.0, 90.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.hp[0], 10.0, 70.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.hp2, 310.0, 210.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.status2, 310.0, 190.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.slp2, 310.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.a[1], 120.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+
+        arcade.draw_text(self.spd[1], 310.0, 270.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[1], 310.0, 250.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[1], 310.0, 230.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.cnf[1], 310.0, 210.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.slp[1], 310.0, 190.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.hp[1], 310.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
 
         # Draw all the sprites.
         self.sprite_list.draw()
@@ -233,64 +246,121 @@ class PkmBattleUX(arcade.Window):
                 elif cmd_type == 'switch':
                     self._switch(data)
                 elif cmd_type == 'clear_attack':
-                    self._clear_attack(data)
+                    self._clear_attack()
+                elif cmd_type == 'event':
+                    self._event(data)
 
     def _init_game(self, data):
-        self.party1.append(arcade.Sprite("sprites/01.png", SPRITE_SCALING))
-        self.party1[0].center_x = 125
-        self.party1[0].center_y = 100
-        self.sprite_list.append(self.party1[0])
+        type0_0 = data[0]
+        self.party[0].append(arcade.Sprite(f"sprites/{type0_0}.png", SPRITE_SCALING))
+        self.party[0][0].center_x = 125
+        self.party[0][0].center_y = 100
+        self.sprite_list.append(self.party[0][0])
 
-        self.party1.append(arcade.Sprite("sprites/01.png", SPRITE_SCALING))
-        self.party1[1].center_x = 290
-        self.party1[1].center_y = 60
-        self.sprite_list.append(self.party1[1])
+        type0_1 = data[1]
+        self.party[0].append(arcade.Sprite(f"sprites/{type0_1}.png", SPRITE_SCALING))
+        self.party[0][1].center_x = 290
+        self.party[0][1].center_y = 60
+        self.sprite_list.append(self.party[0][1])
 
-        self.party1.append(arcade.Sprite("sprites/01.png", SPRITE_SCALING))
-        self.party1[2].center_x = 350
-        self.party1[2].center_y = 60
-        self.sprite_list.append(self.party1[2])
+        type0_2 = data[2]
+        self.party[0].append(arcade.Sprite(f"sprites/{type0_2}.png", SPRITE_SCALING))
+        self.party[0][2].center_x = 350
+        self.party[0][2].center_y = 60
+        self.sprite_list.append(self.party[0][2])
 
-        self.hp1 = 'HP: 300'
+        hp0 = data[3]
+        self.hp[0] = f'HP: {hp0}'
 
-        self.party2.append(arcade.Sprite("sprites/02.png", SPRITE_SCALING))
-        self.party2[0].center_x = 275
-        self.party2[0].center_y = 200
-        self.sprite_list.append(self.party2[0])
+        self.a[0] = str(data[4])
+        self.a[1] = str(data[5])
+        self.a[2] = str(data[6])
+        self.a[3] = str(data[7])
 
-        self.party2.append(arcade.Sprite("sprites/02.png", SPRITE_SCALING))
-        self.party2[1].center_x = 50
-        self.party2[1].center_y = 240
-        self.sprite_list.append(self.party2[1])
+        type1_0 = data[8]
+        self.party[1].append(arcade.Sprite(f"sprites/{type1_0}.png", SPRITE_SCALING))
+        self.party[1][0].center_x = 275
+        self.party[1][0].center_y = 200
+        self.sprite_list.append(self.party[1][0])
 
-        self.party2.append(arcade.Sprite("sprites/02.png", SPRITE_SCALING))
-        self.party2[2].center_x = 110
-        self.party2[2].center_y = 240
-        self.sprite_list.append(self.party2[2])
+        type1_1 = data[9]
+        self.party[1].append(arcade.Sprite(f"sprites/{type1_1}.png", SPRITE_SCALING))
+        self.party[1][1].center_x = 50
+        self.party[1][1].center_y = 240
+        self.sprite_list.append(self.party[1][1])
 
-        self.hp2 = 'HP: 300'
+        type1_2 = data[10]
+        self.party[1].append(arcade.Sprite(f"sprites/{type1_2}.png", SPRITE_SCALING))
+        self.party[1][2].center_x = 110
+        self.party[1][2].center_y = 240
+        self.sprite_list.append(self.party[1][2])
+
+        hp1 = data[11]
+        self.hp[1] = f'HP: {hp1}'
 
         self.log = 'Battle begins.'
 
     def _switch(self, data):
-        old_active = self.party1[0]
-        self.party1[0] = self.party1[1]
-        self.party1[1] = old_active
-        self.anim_events.append(SwitchEvent(self.party1[0], self.party1[1], 1.0))
+        team = data[0]
+        party = data[1]
+        slp = data[2]
+        old_active = self.party[team][0]
+        self.party[team][0] = self.party[team][party]
+        self.party[team][party] = old_active
+        self.anim_events.append(SwitchEvent(self.party[team][0], self.party[team][party], 1.0))
         self.anim_events.append(PauseEvent(0.5))
-        self.log = 'Switch.'
+        self.atk[team] = f'Atk: 0'
+        self.dfs[team] = f'Def: 0'
+        self.spd[team] = f'Spd: 0'
+        self.cnf[team] = f'Cnf: 0'
+        self.slp[team] = f'Slp: {slp}'
+        if team == 0:
+            moves = data[3], data[4], data[5], data[6]
+            self.a = [str(moves[0]), str(moves[1]), str(moves[2]), str(moves[3])]
+        self.log = f'Player {team+1} switches to party {party+1}.'
 
     def _attack(self, data):
-        self.attack = arcade.Sprite("sprites/03.png", SPRITE_SCALING)
-        self.attack.center_x = self.party1[0].center_x
-        self.attack.center_y = self.party1[0].center_y
+        team = data[0]
+        move = data[1]
+        dmg = data[2]
+        self.attack = arcade.Sprite(f"sprites/{move}.png", SPRITE_SCALING)
+        self.attack.center_x = self.party[team][0].center_x
+        self.attack.center_y = self.party[team][0].center_y
         self.sprite_list.append(self.attack)
-        self.anim_events.append(AttackEvent(self.party2[0], self.attack, 1.0))
+        if dmg:
+            opp_team = 0 if team else 1
+            self.anim_events.append(AttackEvent(self.party[opp_team][0], self.attack, 1.0))
+        else:
+            self.anim_events.append(PauseEvent(1.0))
         self.commands.insert(0, ('clear_attack', []))
-        self.log = 'Attack.'
+        self.log = f'Player {team+1} attacks with move {PkmType(move).name}.'
 
-    def _clear_attack(self, data):
+    def _clear_attack(self):
         self.sprite_list.remove(self.attack)
+        self.anim_events.append(PauseEvent(0.5))
+
+    def _event(self, data):
+        evt = data[0]
+        team = data[1]
+        stat = data[2]
+        if evt == 'hp':
+            self.hp[team] = f'HP: {stat}'
+            self.log = f'Active {team + 1} HP becomes {stat}.'
+        elif evt == 'slp':
+            self.slp[team] = f'Slp: {stat}'
+            self.log = f'Active {team + 1} is asleep at {stat} turns.'
+        elif evt == 'cnf':
+            self.slp[team] = f'Cnf: {stat}'
+            self.log = f'Active {team + 1} is confused at {stat} turns.'
+        elif evt == 'atk':
+            self.atk[team] = f'Atk: {stat}'
+            self.log = f'Active {team + 1} ATK status becomes {stat} turns.'
+        elif evt == 'def':
+            self.dfs[team] = f'Atk: {stat}'
+            self.log = f'Active {team + 1} DEF status becomes {stat} turns.'
+        elif evt == 'spd':
+            self.spd[team] = f'Spd: {stat}'
+            self.log = f'Active {team + 1} SPD status becomes {stat} turns.'
         self.anim_events.append(PauseEvent(0.5))
 
 
