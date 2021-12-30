@@ -301,7 +301,7 @@ class PkmBattleUX(arcade.Window):
 
     def _switch(self, data):
         team = data[0]
-        party = data[1]
+        party = data[1] + 1
         hp = data[2]
         old_active = self.party[team][0]
         self.party[team][0] = self.party[team][party]
@@ -315,6 +315,7 @@ class PkmBattleUX(arcade.Window):
             moves = data[3], data[4], data[5], data[6]
             self.a = [str(moves[0]), str(moves[1]), str(moves[2]), str(moves[3])]
         self.log = f'Trainer {team} switches to party {party}.'
+        print('SWITCH')
 
     def _attack(self, data):
         team = data[0]

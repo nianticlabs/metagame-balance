@@ -96,7 +96,7 @@ class PkmBattleEnv(gym.Env):
             first_confusion_damage
         if self.debug and not first_can_attack:
             self.log += f'CANNOT MOVE: Trainer {first} cannot move\n'
-            self.commands.append(('event', ['log', f'Trainer {first} cannot move']))
+            self.commands.append(('event', ['log', f'Trainer {first} cannot move.']))
         dmg_2_second, hp_2_first = self.__perform_pkm_attack(first, actions[first]) if first_can_attack else (0., 0.)
 
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
@@ -395,24 +395,24 @@ class PkmBattleEnv(gym.Env):
                 pkm.status = PkmStatus.PARALYZED
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} was paralyzed\n'
-                    self.__engine.commands.append(('event', ['log', f'Trainer {team} is now paralyzed.']))
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now paralyzed.']))
             elif status == PkmStatus.POISONED and pkm.type != PkmType.POISON and pkm.type != PkmType.STEEL and \
                     pkm.status != PkmStatus.POISONED:
                 pkm.status = PkmStatus.POISONED
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} was poisoned\n'
-                    self.__engine.commands.append(('event', ['log', f'Trainer {team} is now poisoned.']))
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now poisoned.']))
             elif status == PkmStatus.SLEEP and pkm.status != PkmStatus.SLEEP:
                 pkm.status = PkmStatus.SLEEP
                 pkm.n_turns_asleep = 0
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} is now asleep\n'
-                    self.__engine.commands.append(('event', ['log', f'Trainer {team} is now asleep.']))
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now asleep.']))
             elif not team.confused:
                 team.confused = True
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} is now confused\n'
-                    self.__engine.commands.append(('event', ['log', f'Trainer {team} is now confused.']))
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now confused.']))
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             if delta_stage != 0:
@@ -431,7 +431,7 @@ class PkmBattleEnv(gym.Env):
                 team.entry_hazard[hazard] = N_HAZARD_STAGES - 1
             elif self.__engine.debug:
                 self.__engine.log += f'ENTRY HAZARD: Trainer {t_id} gets spikes\n'
-                self.__engine.commands.append(('event', ['log', f'Trainer {team} gets spikes.']))
+                self.__engine.commands.append(('event', ['log', f'Trainer {t_id} gets spikes.']))
 
         @property
         def recover(self):
@@ -553,8 +553,8 @@ class PkmBattleEnv(gym.Env):
             if self.debug and damage > 0.:
                 self.log += 'DAMAGE: deals %s damage, hp reduces from %s to %s for %s\n' % (
                     damage, before_opp_hp, opp_pkm.hp, str(opp_pkm))
-                self.commands.append(('event', ['log', f'Trainer {opponent} active takes damage.']))
-                self.commands.append(('event', ['hp', opponent, opp_pkm.hp]))
+                self.commands.append(('event', ['log', f'Trainer {1 if opponent else 0} active takes damage.']))
+                self.commands.append(('event', ['hp', 1 if opponent else 0, opp_pkm.hp]))
 
         return damage, recover
 
@@ -580,7 +580,6 @@ class PkmBattleEnv(gym.Env):
         pkm0 = self.teams[0].active
         pkm1 = self.teams[1].active
         if pkm0.fainted():
-            print('fainted 0')
             if self.debug:
                 self.log += 'FAINTED: %s\n' % (str(pkm0))
                 self.commands.append(('event', ['log', f'Trainer 0 active fainted.']))
@@ -593,7 +592,6 @@ class PkmBattleEnv(gym.Env):
                                                      new_active.moves[2].power,
                                                      new_active.moves[3].power]))
         if pkm1.fainted():
-            print('fainted 1')
             if self.debug:
                 self.log += 'FAINTED: %s\n' % (str(pkm1))
                 self.commands.append(('event', ['log', f'Trainer 1 active fainted.']))
