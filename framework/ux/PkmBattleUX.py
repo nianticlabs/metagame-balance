@@ -32,7 +32,11 @@ class ServerCom(threading.Thread):
             conn = listener.accept()
             print('connection accepted from', listener.last_accepted)
             while True:
-                msg = conn.recv()
+                try:
+                    msg = conn.recv()
+                except EOFError:
+                    conn.close()
+                    break
                 # do something with msg
                 if msg == 'close':
                     conn.close()
