@@ -6,7 +6,7 @@ from typing import List, Tuple
 import arcade
 import threading
 
-from framework.DataTypes import PkmType
+from framework.DataTypes import PkmType, PkmStat
 from framework.util import non_blocking_lock
 
 # Set constants for the screen size
@@ -38,7 +38,7 @@ class ServerCom(threading.Thread):
                     conn.close()
                     break
                 else:
-                    print(msg)
+                    # print(msg)
                     self.window.push_command(msg)
             listener.close()
 
@@ -147,8 +147,6 @@ class PkmBattleUX(arcade.Window):
         # Text
         self.log = ''
         self.hp = ['HP: 300', 'HP: 300']
-        self.cnf = ['Cnf: 0', 'Cnf: 0']
-        self.slp = ['Slp: 0', 'Slp: 0']
         self.moves = 'Moves:'
         self.a = ['300', '300', '300', '300']
         self.atk = ['Atk: 0', 'Atk: 0']
@@ -186,11 +184,9 @@ class PkmBattleUX(arcade.Window):
         # Drawing the text
         arcade.draw_text(self.log, 10.0, 10.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.spd[0], 10.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.dfs[0], 10.0, 150.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.atk[0], 10.0, 130.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.cnf[0], 10.0, 110.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.slp[0], 10.0, 90.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.spd[0], 10.0, 130.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[0], 10.0, 110.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[0], 10.0, 90.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.hp[0], 10.0, 70.0, arcade.color.WHITE, 12, 180, 'left')
 
         arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
@@ -199,11 +195,9 @@ class PkmBattleUX(arcade.Window):
         arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.spd[1], 310.0, 270.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.dfs[1], 310.0, 250.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.atk[1], 310.0, 230.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.cnf[1], 310.0, 210.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.slp[1], 310.0, 190.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.spd[1], 310.0, 230.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[1], 310.0, 210.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[1], 310.0, 190.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.hp[1], 310.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
 
         # Draw all the sprites.
@@ -251,20 +245,25 @@ class PkmBattleUX(arcade.Window):
                     self._event(data)
 
     def _init_game(self, data):
+        while len(self.sprite_list) > 0:
+            self.sprite_list.pop()
+        del self.party[0][:]
+        del self.party[1][:]
+
         type0_0 = data[0]
-        self.party[0].append(arcade.Sprite(f"sprites/{type0_0}.png", SPRITE_SCALING))
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_0}.png", SPRITE_SCALING))
         self.party[0][0].center_x = 125
         self.party[0][0].center_y = 100
         self.sprite_list.append(self.party[0][0])
 
         type0_1 = data[1]
-        self.party[0].append(arcade.Sprite(f"sprites/{type0_1}.png", SPRITE_SCALING))
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_1}.png", SPRITE_SCALING))
         self.party[0][1].center_x = 290
         self.party[0][1].center_y = 60
         self.sprite_list.append(self.party[0][1])
 
         type0_2 = data[2]
-        self.party[0].append(arcade.Sprite(f"sprites/{type0_2}.png", SPRITE_SCALING))
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_2}.png", SPRITE_SCALING))
         self.party[0][2].center_x = 350
         self.party[0][2].center_y = 60
         self.sprite_list.append(self.party[0][2])
@@ -278,19 +277,19 @@ class PkmBattleUX(arcade.Window):
         self.a[3] = str(data[7])
 
         type1_0 = data[8]
-        self.party[1].append(arcade.Sprite(f"sprites/{type1_0}.png", SPRITE_SCALING))
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_0}.png", SPRITE_SCALING))
         self.party[1][0].center_x = 275
         self.party[1][0].center_y = 200
         self.sprite_list.append(self.party[1][0])
 
         type1_1 = data[9]
-        self.party[1].append(arcade.Sprite(f"sprites/{type1_1}.png", SPRITE_SCALING))
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_1}.png", SPRITE_SCALING))
         self.party[1][1].center_x = 50
         self.party[1][1].center_y = 240
         self.sprite_list.append(self.party[1][1])
 
         type1_2 = data[10]
-        self.party[1].append(arcade.Sprite(f"sprites/{type1_2}.png", SPRITE_SCALING))
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_2}.png", SPRITE_SCALING))
         self.party[1][2].center_x = 110
         self.party[1][2].center_y = 240
         self.sprite_list.append(self.party[1][2])
@@ -303,27 +302,25 @@ class PkmBattleUX(arcade.Window):
     def _switch(self, data):
         team = data[0]
         party = data[1]
-        slp = data[2]
+        hp = data[2]
         old_active = self.party[team][0]
         self.party[team][0] = self.party[team][party]
         self.party[team][party] = old_active
         self.anim_events.append(SwitchEvent(self.party[team][0], self.party[team][party], 1.0))
         self.anim_events.append(PauseEvent(0.5))
+        self.hp[team] = f'HP: {hp}'
         self.atk[team] = f'Atk: 0'
         self.dfs[team] = f'Def: 0'
-        self.spd[team] = f'Spd: 0'
-        self.cnf[team] = f'Cnf: 0'
-        self.slp[team] = f'Slp: {slp}'
         if team == 0:
             moves = data[3], data[4], data[5], data[6]
             self.a = [str(moves[0]), str(moves[1]), str(moves[2]), str(moves[3])]
-        self.log = f'Player {team+1} switches to party {party+1}.'
+        self.log = f'Trainer {team} switches to party {party}.'
 
     def _attack(self, data):
         team = data[0]
         move = data[1]
         dmg = data[2]
-        self.attack = arcade.Sprite(f"sprites/{move}.png", SPRITE_SCALING)
+        self.attack = arcade.Sprite(f"sprites/move/{move}.png", SPRITE_SCALING)
         self.attack.center_x = self.party[team][0].center_x
         self.attack.center_y = self.party[team][0].center_y
         self.sprite_list.append(self.attack)
@@ -333,7 +330,7 @@ class PkmBattleUX(arcade.Window):
         else:
             self.anim_events.append(PauseEvent(1.0))
         self.commands.insert(0, ('clear_attack', []))
-        self.log = f'Player {team+1} attacks with move {PkmType(move).name}.'
+        self.log = f'Trainer {team} attacks with move {PkmType(move).name}.'
 
     def _clear_attack(self):
         self.sprite_list.remove(self.attack)
@@ -342,25 +339,24 @@ class PkmBattleUX(arcade.Window):
     def _event(self, data):
         evt = data[0]
         team = data[1]
-        stat = data[2]
         if evt == 'hp':
+            stat = data[2]
             self.hp[team] = f'HP: {stat}'
-            self.log = f'Active {team + 1} HP becomes {stat}.'
-        elif evt == 'slp':
-            self.slp[team] = f'Slp: {stat}'
-            self.log = f'Active {team + 1} is asleep at {stat} turns.'
-        elif evt == 'cnf':
-            self.slp[team] = f'Cnf: {stat}'
-            self.log = f'Active {team + 1} is confused at {stat} turns.'
-        elif evt == 'atk':
+            self.log = f'Active {team} HP becomes {stat}.'
+        elif evt == PkmStat.ATTACK.name:
+            stat = data[2]
             self.atk[team] = f'Atk: {stat}'
-            self.log = f'Active {team + 1} ATK status becomes {stat} turns.'
-        elif evt == 'def':
+            self.log = f'Active {team} ATK status becomes {stat} turns.'
+        elif evt == PkmStat.DEFENSE.name:
+            stat = data[2]
             self.dfs[team] = f'Atk: {stat}'
-            self.log = f'Active {team + 1} DEF status becomes {stat} turns.'
-        elif evt == 'spd':
+            self.log = f'Active {team} DEF status becomes {stat} turns.'
+        elif evt == PkmStat.SPEED.name:
+            stat = data[2]
             self.spd[team] = f'Spd: {stat}'
-            self.log = f'Active {team + 1} SPD status becomes {stat} turns.'
+            self.log = f'Active {team} SPD status becomes {stat} turns.'
+        elif evt == 'log':
+            self.log = data[1]
         self.anim_events.append(PauseEvent(0.5))
 
 

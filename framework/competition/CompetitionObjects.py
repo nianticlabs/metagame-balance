@@ -146,7 +146,7 @@ class Match:
         team1_view0 = get_full_team_view(c0.team, partial=True)
         team0 = c0.team.get_battle_team(list(c0.selector_policy.get_action([team0_view0, team0_view1])))
         team1 = c1.team.get_battle_team(list(c1.selector_policy.get_action([team1_view1, team1_view0])))
-        env = PkmBattleEnv(debug=self.debug, teams=[team0, team1])
+        env = PkmBattleEnv(debug=self.debug, teams=(team0, team1))
         t = False
         a0 = c0.battle_policy
         a1 = c1.battle_policy

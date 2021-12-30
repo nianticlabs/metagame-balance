@@ -792,16 +792,16 @@ class PkmTeam:
                 not_fainted.append(i)
         return not_fainted
 
-    def switch(self, pos: int) -> Tuple[Pkm, Pkm]:
+    def switch(self, pos: int) -> Tuple[Pkm, Pkm, int]:
         """
         Switch active pkm with party pkm on pos.
         Random party pkm if s_pos = -1
 
         :param pos: to be switch pokemon party position
-        :returns: new active pkm, old active pkm
+        :returns: new active pkm, old active pkm, pos
         """
         if len(self.party) == 0:
-            return self.active, self.active
+            return self.active, self.active, -1
 
         # identify fainted pkm
         not_fainted_pkm = self.get_not_fainted()
@@ -826,7 +826,7 @@ class PkmTeam:
 
                 self.active.reveal()
 
-        return self.active, self.party[pos]
+        return self.active, self.party[pos], pos
 
     def get_pkm_list(self):
         return [self.active] + self.party
