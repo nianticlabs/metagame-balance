@@ -35,7 +35,7 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 
 ## TODO
 
-* Agents as inter-process clients
+* Agents as inter-process clients (ongoing)
 * Meta-Game Structure
 * Balance Evaluation and Criteria
 * Re-tune challenge difficulty
