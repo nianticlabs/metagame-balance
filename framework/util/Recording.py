@@ -1,5 +1,6 @@
 import ast
 import codecs
+import os
 import pickle
 from typing import List, Tuple
 
@@ -19,7 +20,7 @@ class GamePlayRecorder:
         self.buffer: Trajectory = []
         # Recorder parameters
         self.buffer_size: int = buffer_size
-        self.name: str = "../Data/" + name
+        self.name: str = "Data/" + name
         self.pos: int = 0
         self.f = None
 
@@ -38,12 +39,14 @@ class GamePlayRecorder:
                 raw = self.f.readline()
             idx += 1
 
-    def init(self, name: str = None, append=True):
+    def init(self, name: str = None, append=False):
         """
         Init recorder for writing.
         """
         if name is not None:
-            self.name = "../Data/" + name
+            self.name = "Data/" + name
+        if not os.path.exists("Data/"):
+            os.makedirs("Data/", exist_ok=True)
         with open(self.name, "a+" if append else "w+") as f:
             f.write(str(self.competitors) + "\n")
             for team in self.teams:

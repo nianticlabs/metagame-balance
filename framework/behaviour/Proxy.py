@@ -19,18 +19,19 @@ class ProxyBattlePolicy(BattlePolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> int:
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('BattlePolicy', 'get_action', s))
         action: int = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('BattlePolicy', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('BattlePolicy', 'close'))
 
 
@@ -41,19 +42,19 @@ class ProxySelectorPolicy(SelectorPolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> Set[int]:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('SelectorPolicy', 'get_action', s))
         action: Set[int] = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('SelectorPolicy', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('SelectorPolicy', 'close'))
 
 
@@ -64,19 +65,19 @@ class ProxyTeamBuilderPolicy(TeamBuilderPolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> PkmFullTeam:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('TeamBuilderPolicy', 'get_action', s))
         action: PkmFullTeam = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('TeamBuilderPolicy', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('TeamBuilderPolicy', 'close'))
 
 
@@ -87,19 +88,19 @@ class ProxyTeamPredictor(TeamPredictor):
         self.timeout: float = timeout
 
     def get_action(self, s) -> PkmTeamPrediction:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('TeamPredictor', 'get_action', s))
         action: PkmTeamPrediction = self.conn.recv()[0]
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('TeamPredictor', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('TeamPredictor', 'close'))
 
 
@@ -110,19 +111,19 @@ class ProxyDataAggregator(DataAggregator):
         self.timeout: float = timeout
 
     def get_action(self, s) -> MetaData:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('DataAggregator', 'get_action', s))
         action: MetaData = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('DataAggregator', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('DataAggregator', 'close'))
 
 
@@ -133,19 +134,19 @@ class ProxyTeamValuator(TeamValuator):
         self.timeout: float = timeout
 
     def get_action(self, s) -> TeamValue:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('TeamValuator', 'get_action', s))
         action: TeamValue = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('TeamValuator', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('BalancePolicy', 'close'))
 
 
@@ -156,19 +157,19 @@ class ProxyBalancePolicy(BalancePolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> PkmRoster:
-        self.conn.settimeout(self.timeout)
+        # self.conn.settimeout(self.timeout)
         self.conn.send(('BalancePolicy', 'get_action', s))
         action: PkmRoster = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
-        self.conn.settimeout(ENCODE_TIMEOUT)
+        # self.conn.settimeout(ENCODE_TIMEOUT)
         self.conn.send(('BalancePolicy', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
-        self.conn.settimeout(CLOSE_TIMEOUT)
+        # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('BalancePolicy', 'close'))
 
 
@@ -222,37 +223,37 @@ class ProxyCompetitor(Competitor):
 
     @property
     def team(self) -> PkmFullTeam:
-        self.conn.settimeout(GET_TEAM_TIMEOUT)
+        # self.conn.settimeout(GET_TEAM_TIMEOUT)
         self.conn.send(('get_team',))
         action: PkmFullTeam = self.conn.recv()
         return action
 
     @team.setter
     def team(self, team):
-        self.conn.settimeout(SET_TEAM_TIMEOUT)
+        # self.conn.settimeout(SET_TEAM_TIMEOUT)
         self.conn.send(('set_team', team))
 
     @property
     def meta_data(self) -> MetaData:
-        self.conn.settimeout(META_DATA_TIMEOUT)
+        # self.conn.settimeout(META_DATA_TIMEOUT)
         self.conn.send(('meta_data',))
         action: MetaData = self.conn.recv()
         return action
 
     @property
     def name(self) -> str:
-        self.conn.settimeout(NAME_TIMEOUT)
+        # self.conn.settimeout(NAME_TIMEOUT)
         self.conn.send(('name',))
         action: str = self.conn.recv()
         return action
 
     def reset(self):
-        self.conn.settimeout(RESET_TIMEOUT)
+        # self.conn.settimeout(RESET_TIMEOUT)
         self.conn.send(('reset',))
 
     @property
     def want_to_change_team(self) -> bool:
-        self.conn.settimeout(CHANGE_TEAM_TIMEOUT)
+        # self.conn.settimeout(CHANGE_TEAM_TIMEOUT)
         self.conn.send(('want_to_change_team',))
         action: bool = self.conn.recv()
         return action

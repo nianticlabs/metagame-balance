@@ -5,7 +5,7 @@ from framework.competition.CompetitionObjects import Competitor
 
 class RemoteCompetitorManager:
 
-    def __init__(self, competitor: Competitor, authkey, address='localhost', port=6000):
+    def __init__(self, competitor: Competitor, authkey, address='localhost', port=5000):
         self.competitor = competitor
         self.authkey = authkey
         self.address = address
@@ -16,6 +16,7 @@ class RemoteCompetitorManager:
         while True:
             # family is deduced to be 'AF_INET'
             listener = Listener((self.address, self.port), authkey=self.authkey)
+            print('Waiting...')
             self.conn = listener.accept()
             print('connection accepted from', listener.last_accepted)
             while True:

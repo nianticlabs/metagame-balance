@@ -1,4 +1,4 @@
-from competitor.example.Example import Example
+from competitor.ExampleCompetitor import ExampleCompetitor
 from framework.ecosystem import CompetitorManager
 from framework.ecosystem.LeagueEcosystem import LeagueEcosystem
 from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
@@ -13,7 +13,7 @@ def main():
     ddm = DataDistributionManager()
     le = LeagueEcosystem(ddm=ddm, debug=True, render=True)
     for i in range(N_PLAYERS):
-        e_agent = Example("Player %d" % i)
+        e_agent = ExampleCompetitor("Player %d" % i)
         e_agent.team = RandomGeneratorRoster(roster).get_team()
         le.register(CompetitorManager(e_agent, roster))
     le.run(10)

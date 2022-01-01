@@ -18,7 +18,7 @@ class ExampleBattlePolicy(BattlePolicy):
         return sample(range(4 + 3), 1)[0]
 
 
-class Example(Competitor):
+class ExampleCompetitor(Competitor):
 
     def __init__(self, name: str = "Example", team: PkmFullTeam = None):
         self._name = name
