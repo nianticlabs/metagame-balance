@@ -966,7 +966,7 @@ def get_full_team_view(full_team: PkmFullTeam, team_prediction: PkmTeamPredictio
                 if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(pkm)
-                # get partial information with an hypothesis
+                # get partial information with a hypothesis
                 return get_partial_pkm_view(pkm, team_prediction.active)
             # get self active pkm information
             return get_pkm_view(pkm)
@@ -1089,9 +1089,11 @@ class StandardMetaData(MetaData):
             self._victories.pop((existing, archtype))
 
     def get_winrate(self, archtype: Archtype, opponent: Archtype) -> float:
+        if archtype == opponent:
+            return 0.5
         victories = self._victories[(archtype, opponent)]
         losses = self._victories[(opponent, archtype)]
-        return victories / (victories + losses)
+        return victories / max((victories + losses), 1)
 
     def get_usagerate(self, archtype: Archtype):
         return self._usage[archtype] / self._total_usage

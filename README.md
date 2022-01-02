@@ -35,7 +35,6 @@ found in the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/h
 
 ## TODO
 
-* Meta-Game Structure (ongoing)
 * Balance Evaluation and Criteria and Standard Archtypes
 * Re-tune challenge difficulty
 * Restriction Language Implementation
