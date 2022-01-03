@@ -1,6 +1,6 @@
 import argparse
 
-from competitor.ExampleCompetitor import ExampleCompetitor
+from framework.competition.Competitor import ExampleCompetitor
 from framework.network.RemoteCompetitorManager import RemoteCompetitorManager
 
 

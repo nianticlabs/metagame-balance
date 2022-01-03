@@ -1,5 +1,5 @@
 from framework.balance.restriction import DesignConstraints
-from framework.competition.CompetitionObjects import Competitor
+from framework.competition.Competition import Competitor
 from framework.datatypes.Objects import PkmRoster
 from framework.process.RosterBalance import RosterBalance
 

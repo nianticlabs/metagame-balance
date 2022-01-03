@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from framework.balance.restriction import DesignConstraints
-from framework.competition.CompetitionObjects import Competitor
+from framework.competition.Competition import Competitor
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from framework.datatypes.Objects import PkmRoster
 from framework.ecosystem.LeagueEcosystem import Strategy

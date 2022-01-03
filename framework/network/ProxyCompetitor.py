@@ -5,7 +5,7 @@ from typing import Set
 from framework.balance.meta import MetaData
 from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, TeamPredictor, DataAggregator, \
     TeamValuator, BalancePolicy
-from framework.competition.CompetitionObjects import Competitor
+from framework.competition.Competition import Competitor
 from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, PkmRoster
 
 ENCODE_TIMEOUT = 1.0

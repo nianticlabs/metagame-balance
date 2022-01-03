@@ -1,6 +1,6 @@
 from multiprocessing.connection import Listener
 
-from framework.competition.CompetitionObjects import Competitor
+from framework.competition.Competition import Competitor
 
 
 class RemoteCompetitorManager:
