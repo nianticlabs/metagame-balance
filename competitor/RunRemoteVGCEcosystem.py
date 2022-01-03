@@ -1,6 +1,6 @@
 from multiprocessing.connection import Client
 
-from framework.behaviour.Proxy import ProxyCompetitor
+from framework.network.ProxyCompetitor import ProxyCompetitor
 from framework.ecosystem.VGCEcosystem import VGCEcosystem
 from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.PkmTeamGenerators import RandomGeneratorRoster

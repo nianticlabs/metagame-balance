@@ -1,7 +1,7 @@
 import argparse
 
 from competitor.ExampleCompetitor import ExampleCompetitor
-from competitor.RemoteCompetitorManager import RemoteCompetitorManager
+from framework.network.RemoteCompetitorManager import RemoteCompetitorManager
 
 
 def main(args):
