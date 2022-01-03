@@ -4,7 +4,7 @@ from competitor.ExampleCompetitor import ExampleCompetitor
 from framework.balance.restriction import DesignConstraints, DesignRule, Target
 from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
 from framework.ecosystem.BalanceEcosystem import BalanceEcosystem
-from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.Recording import DataDistributionManager
 
 N_PLAYERS = 16

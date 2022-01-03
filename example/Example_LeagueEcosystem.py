@@ -1,8 +1,8 @@
 from competitor.ExampleCompetitor import ExampleCompetitor
 from framework.ecosystem import CompetitorManager
 from framework.ecosystem.LeagueEcosystem import LeagueEcosystem
-from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.PkmTeamGenerators import RandomGeneratorRoster
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
 from framework.util.Recording import DataDistributionManager
 
 N_PLAYERS = 16

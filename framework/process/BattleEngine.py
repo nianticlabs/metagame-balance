@@ -6,7 +6,7 @@ import gym
 import numpy as np
 from gym import spaces
 
-from framework.StandardPkmMoves import Struggle
+from framework.util.generator.StandardPkmMoves import Struggle
 from framework.behaviour import BattlePolicy
 from framework.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS

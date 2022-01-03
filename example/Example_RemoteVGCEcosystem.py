@@ -2,8 +2,8 @@ from multiprocessing.connection import Client
 
 from framework.network.ProxyCompetitor import ProxyCompetitor
 from framework.ecosystem.VGCEcosystem import VGCEcosystem
-from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.PkmTeamGenerators import RandomGeneratorRoster
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
 from framework.util.Recording import DataDistributionManager
 
 N_PLAYERS = 4

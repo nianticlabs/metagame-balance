@@ -1,6 +1,6 @@
 from framework.competition.CompetitionObjects import TreeChampionship, ExampleCompetitor
-from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.PkmTeamGenerators import RandomGeneratorRoster
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
 
 N_COMPETITORS = 16
 

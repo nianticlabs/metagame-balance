@@ -1,5 +1,5 @@
 from framework.competition.CompetitionObjects import Match, ExampleCompetitor, GUIExampleCompetitor
-from framework.util.PkmTeamGenerators import RandomGenerator
+from framework.util.generator.PkmTeamGenerators import RandomGenerator
 
 
 def main():

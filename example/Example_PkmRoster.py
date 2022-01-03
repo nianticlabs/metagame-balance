@@ -2,7 +2,7 @@ from framework.balance.meta import MetaData
 from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.datatypes.Objects import get_pkm_roster_view
-from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main():

@@ -1,6 +1,6 @@
 from framework.behaviour.SelectorPolicies import GUISelectorPolicy
 from framework.datatypes.Objects import get_full_team_view
-from framework.util.PkmTeamGenerators import RandomGenerator
+from framework.util.generator.PkmTeamGenerators import RandomGenerator
 
 
 def main():
