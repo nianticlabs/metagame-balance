@@ -994,7 +994,7 @@ class GameState:
 
     def __eq__(self, other):
         for i, team in enumerate(self.teams):
-            if team != other._teams[i]:
+            if team != other.teams[i]:
                 return False
         return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.n_turns_no_clear
 

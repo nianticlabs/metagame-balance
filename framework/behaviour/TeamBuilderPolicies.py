@@ -1,9 +1,10 @@
 import random
 from typing import List, Tuple, Union
 
+from framework.balance.meta import MetaData
 from framework.behaviour import TeamBuilderPolicy
 from framework.datatypes.Constants import MAX_TEAM_SIZE, DEFAULT_PKM_N_MOVES
-from framework.datatypes.Objects import Pkm, PkmTemplate, PkmRosterView, PkmFullTeam, MetaData, TeamValue
+from framework.datatypes.Objects import Pkm, PkmTemplate, PkmRosterView, PkmFullTeam, TeamValue
 
 
 class RandomTeamBuilderPolicy(TeamBuilderPolicy):

@@ -1,6 +1,7 @@
 import unittest
 
-from framework.datatypes.Objects import StandardMetaData, Archtype
+from framework.balance.archtype import Archtype
+from framework.balance.meta import StandardMetaData
 
 
 class TestStandardMetaData(unittest.TestCase):

@@ -2,7 +2,8 @@ from abc import abstractmethod, ABC
 from copy import deepcopy
 from typing import List, Dict
 
-from framework.datatypes.Objects import PkmTemplate, PkmRosterView, MetaData, get_pkm_roster_view, PkmRoster, \
+from framework.balance.meta import MetaData
+from framework.datatypes.Objects import PkmTemplate, PkmRosterView, get_pkm_roster_view, PkmRoster, \
     get_pkm_move_roster_view
 
 
