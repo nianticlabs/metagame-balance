@@ -7,7 +7,8 @@ from competitor.RemoteCompetitorManager import RemoteCompetitorManager
 def main(args):
     competitorId = args.id
     competitor = ExampleCompetitor()
-    server = RemoteCompetitorManager(competitor, port=5000+competitorId, authkey=f'Competitor {competitorId}'.encode('utf-8'))
+    server = RemoteCompetitorManager(competitor, port=5000 + competitorId,
+                                     authkey=f'Competitor {competitorId}'.encode('utf-8'))
     server.run()
 
 

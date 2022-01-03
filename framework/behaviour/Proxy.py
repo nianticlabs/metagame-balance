@@ -7,7 +7,6 @@ from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy,
     TeamValuator, BalancePolicy
 from framework.competition.CompetitionObjects import Competitor
 
-
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0
 

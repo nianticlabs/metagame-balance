@@ -1,4 +1,3 @@
-
 from multiprocessing.connection import Client
 
 from framework.behaviour.BattlePolicies import RandomBattlePolicy
@@ -10,7 +9,8 @@ gen = RandomGenerator()
 full_team0 = gen.get_team()
 full_team1 = gen.get_team()
 conn = Client(address, authkey='VGC AI'.encode('utf-8'))
-env = PkmBattleEnv((full_team0.get_battle_team([0, 1, 2]), full_team1.get_battle_team([0, 1, 2])), debug=True, conn=conn)
+env = PkmBattleEnv((full_team0.get_battle_team([0, 1, 2]), full_team1.get_battle_team([0, 1, 2])), debug=True,
+                   conn=conn)
 env.reset()
 t = False
 a0 = RandomBattlePolicy()

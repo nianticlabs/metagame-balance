@@ -31,19 +31,19 @@ class TestStandardMetaData(unittest.TestCase):
         for x in range(1, 100):
             for i in range(0, x):
                 count[i] += 1
-                count[i+1] += 1
-                meta.update(archtypes[i], archtypes[i+1])
+                count[i + 1] += 1
+                meta.update(archtypes[i], archtypes[i + 1])
         for i in range(98):
             self.assertEqual(meta.get_usagerate(archtypes[i]), count[i] / meta._total_usage)
-            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i+1]), 1.0)
+            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i + 1]), 1.0)
         for x in range(1, 100):
             for i in range(0, x):
                 count[i] += 1
                 count[i + 1] += 1
-                meta.update(archtypes[i+1], archtypes[i])
+                meta.update(archtypes[i + 1], archtypes[i])
         for i in range(98):
             self.assertEqual(meta.get_usagerate(archtypes[i]), count[i] / meta._total_usage)
-            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i+1]), 0.5)
+            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i + 1]), 0.5)
 
     def test_remove(self):
         meta = StandardMetaData()
@@ -57,7 +57,7 @@ class TestStandardMetaData(unittest.TestCase):
             for i in range(0, x):
                 count[i] += 1
                 count[i + 1] += 1
-                meta.update(archtypes[i], archtypes[i+1])
+                meta.update(archtypes[i], archtypes[i + 1])
         meta._total_usage -= meta._usage[archtypes[0]]
         count = count[1:]
         meta.remove_archtype(archtypes[0])
@@ -65,7 +65,7 @@ class TestStandardMetaData(unittest.TestCase):
         self.assertEqual(len(meta._teams), 9)
         for i in range(7):
             self.assertEqual(meta.get_usagerate(archtypes[i]), count[i] / meta._total_usage)
-            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i+1]), 1.0)
+            self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i + 1]), 1.0)
 
     def test_limited_history(self):
         meta = StandardMetaData(5)

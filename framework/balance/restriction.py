@@ -2,11 +2,11 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import List, Dict
 
-from framework.DataObjects import DesignConstraints, Target, Rule, PkmTemplate, PkmRosterView, MetaData, \
+from framework.DataObjects import DesignConstraints, Target, DesignRule, PkmTemplate, PkmRosterView, MetaData, \
     get_pkm_roster_view, PkmRoster, get_pkm_move_roster_view
 
 
-class VGCRule(Rule):
+class VGCDesignRule(DesignRule):
 
     def __init__(self, base_roster_view: PkmRosterView):
         self._base_roster_view = base_roster_view
@@ -16,7 +16,7 @@ class VGCRule(Rule):
         pass
 
 
-class RosterSizeRule(VGCRule):
+class RosterSizeRule(VGCDesignRule):
 
     def __init__(self, base_roster_view: PkmRosterView, roster_limit=150):
         super().__init__(base_roster_view)
@@ -26,7 +26,7 @@ class RosterSizeRule(VGCRule):
         return 0 < roster.n_pkms <= self._roster_limit
 
 
-class MoveRosterSizeRule(VGCRule):
+class MoveRosterSizeRule(VGCDesignRule):
 
     def __init__(self, base_roster_view, move_roster_limit=150):
         super().__init__(base_roster_view)
@@ -39,7 +39,7 @@ class MoveRosterSizeRule(VGCRule):
         return True
 
 
-class MovesUnchangeableRule(VGCRule):
+class MovesUnchangeableRule(VGCDesignRule):
 
     def __init__(self, base_roster_view: PkmRosterView):
         super().__init__(base_roster_view)
@@ -50,7 +50,7 @@ class MovesUnchangeableRule(VGCRule):
             template.id).get_move_roster_view()
 
 
-class TypeUnchangeableRule(VGCRule):
+class TypeUnchangeableRule(VGCDesignRule):
 
     def __init__(self, base_roster_view: PkmRosterView):
         super().__init__(base_roster_view)
@@ -70,32 +70,32 @@ class VGCDesignConstraints(DesignConstraints):
     def __init__(self, base_roster: PkmRoster):
         self._base_roster = deepcopy(base_roster)
         self._base_roster_view = get_pkm_roster_view(self._base_roster)
-        self._allpkm_rule_set: List[VGCRule] = []
-        self._pkm_rule_set: Dict[PkmTemplate, List[VGCRule]] = {}
-        self._global_rule_set: List[VGCRule] = []
+        self._allpkm_rule_set: List[VGCDesignRule] = []
+        self._pkm_rule_set: Dict[PkmTemplate, List[VGCDesignRule]] = {}
+        self._global_rule_set: List[VGCDesignRule] = []
         self._target_set: List[VGCTarget] = []
 
     def get_base_roster(self) -> PkmRosterView:
         return self._base_roster_view
 
-    def get_allpkm_rule_set(self) -> List[Rule]:
+    def get_allpkm_rule_set(self) -> List[DesignRule]:
         return self._allpkm_rule_set
 
-    def add_allpkm_rule(self, rule: VGCRule):
+    def add_allpkm_rule(self, rule: VGCDesignRule):
         self._allpkm_rule_set.append(rule)
 
-    def get_pkm_rule_set(self, template: PkmTemplate) -> List[Rule]:
+    def get_pkm_rule_set(self, template: PkmTemplate) -> List[DesignRule]:
         return self._pkm_rule_set[template]
 
-    def add_pkm_rule(self, template: PkmTemplate, rule: VGCRule):
+    def add_pkm_rule(self, template: PkmTemplate, rule: VGCDesignRule):
         if template not in self._pkm_rule_set:
             self._pkm_rule_set[template] = []
         self._pkm_rule_set[template].append(rule)
 
-    def get_global_rule_set(self) -> List[Rule]:
+    def get_global_rule_set(self) -> List[DesignRule]:
         return self._global_rule_set
 
-    def add_global_rule(self, rule: VGCRule):
+    def add_global_rule(self, rule: VGCDesignRule):
         self._global_rule_set.append(rule)
 
     def get_target_set(self) -> List[Target]:
@@ -104,8 +104,8 @@ class VGCDesignConstraints(DesignConstraints):
     def add_target(self, target: VGCTarget):
         self._target_set.append(target)
 
-    def check_every_rule(self, roster: PkmRoster) -> List[VGCRule]:
-        failed_checks: List[VGCRule] = []
+    def check_every_rule(self, roster: PkmRoster) -> List[VGCDesignRule]:
+        failed_checks: List[VGCDesignRule] = []
         roster_view = get_pkm_roster_view(roster)
         for rule in self._allpkm_rule_set:
             if not rule.check(roster_view):

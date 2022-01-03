@@ -5,7 +5,6 @@ from framework.behaviour import TeamValuator
 
 
 class NullTeamValuator(TeamValuator):
-
     class NullTeamValue(TeamValue):
 
         def compare_to(self, value) -> int:

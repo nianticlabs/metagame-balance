@@ -1106,7 +1106,7 @@ class TeamValue(ABC):
         pass
 
 
-class Rule(ABC):
+class DesignRule(ABC):
 
     @abstractmethod
     def check(self, roster: PkmRosterView, template: PkmTemplate) -> bool:
@@ -1127,15 +1127,15 @@ class DesignConstraints(ABC):
         pass
 
     @abstractmethod
-    def get_allpkm_rule_set(self) -> List[Rule]:
+    def get_allpkm_rule_set(self) -> List[DesignRule]:
         pass
 
     @abstractmethod
-    def get_pkm_rule_set(self, template: PkmTemplate) -> List[Rule]:
+    def get_pkm_rule_set(self, template: PkmTemplate) -> List[DesignRule]:
         pass
 
     @abstractmethod
-    def get_global_rule_set(self) -> List[Rule]:
+    def get_global_rule_set(self) -> List[DesignRule]:
         pass
 
     @abstractmethod
@@ -1143,5 +1143,5 @@ class DesignConstraints(ABC):
         pass
 
     @abstractmethod
-    def check_every_rule(self, roster: PkmRoster) -> List[Rule]:
+    def check_every_rule(self, roster: PkmRoster) -> List[DesignRule]:
         pass

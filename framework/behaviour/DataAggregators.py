@@ -3,7 +3,6 @@ from framework.behaviour import DataAggregator
 
 
 class NullDataAggregator(DataAggregator):
-
     class NullMetaData(MetaData):
         pass
 

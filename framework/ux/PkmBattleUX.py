@@ -1,10 +1,10 @@
 import abc
+import threading
 import time
 from multiprocessing.connection import Listener
 from typing import List, Tuple
 
 import arcade
-import threading
 
 from framework.DataTypes import PkmType, PkmStat
 from framework.util import non_blocking_lock

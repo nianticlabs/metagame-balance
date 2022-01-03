@@ -18,7 +18,8 @@ from framework.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_s
 
 class PkmBattleEnv(gym.Env):
 
-    def __init__(self, teams: Tuple[PkmTeam, PkmTeam] = None, debug: bool = False, team_prediction=None, conn: Client = None):
+    def __init__(self, teams: Tuple[PkmTeam, PkmTeam] = None, debug: bool = False, team_prediction=None,
+                 conn: Client = None):
         # random active pokemon
         self.n_turns_no_clear = None
         if team_prediction is None:

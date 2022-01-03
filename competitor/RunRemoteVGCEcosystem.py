@@ -15,7 +15,7 @@ def main():
     le = VGCEcosystem(roster, debug=True, render=True, ddm=ddm)
     conns = []
     for i in range(N_PLAYERS):
-        address = ('localhost', 5000+i)
+        address = ('localhost', 5000 + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         conns.append(conn)
         e_agent = ProxyCompetitor(conn)

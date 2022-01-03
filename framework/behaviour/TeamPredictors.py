@@ -5,7 +5,6 @@ from framework.behaviour import TeamPredictor
 
 
 class NullTeamPredictor(TeamPredictor):
-
     null_team_prediction = PkmTeamPrediction()
 
     def requires_encode(self) -> bool:
