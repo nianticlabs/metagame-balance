@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmTeam, PkmTeamPrediction, get_full_team_view
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
+from framework.datatypes.Objects import PkmTeam, PkmTeamPrediction, get_full_team_view
 from framework.process.BattleEngine import BattleEngine
 from framework.process.DataAggregation import DataAggregation
 from framework.process.OpponentTeamPrediction import OpponentTeamPrediction

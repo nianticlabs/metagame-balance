@@ -1,5 +1,6 @@
 from competitor.ExampleCompetitor import ExampleCompetitor
-from framework.DataObjects import DesignConstraints, PkmRosterView
+from framework.balance.restriction import DesignConstraints
+from framework.datatypes.Objects import PkmRosterView
 from framework.ecosystem.BalanceEcosystem import BalanceEcosystem
 from framework.util.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.Recording import DataDistributionManager

@@ -1,8 +1,10 @@
 from typing import List, Union
 
-from framework.DataConstants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
-from framework.DataObjects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamPrediction, null_pkm, Weather
-from framework.DataTypes import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, PkmStatus, \
+from framework.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
+from framework.datatypes.Objects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamPrediction, null_pkm, \
+    Weather
+from framework.datatypes.Types import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, \
+    PkmStatus, \
     WeatherCondition, PkmEntryHazard
 
 

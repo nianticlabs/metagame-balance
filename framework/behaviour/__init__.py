@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Set
 
-from framework.DataObjects import PkmRoster, PkmTeamPrediction, PkmFullTeam, TeamValue, MetaData
+from framework.balance.meta import MetaData
+from framework.datatypes.Objects import PkmRoster, PkmTeamPrediction, PkmFullTeam, TeamValue
 
 
 class Behaviour(ABC):

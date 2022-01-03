@@ -4,7 +4,7 @@ import os
 import pickle
 from typing import List, Tuple
 
-from framework.DataObjects import Pkm
+from framework.datatypes.Objects import Pkm
 
 Frame = Tuple[List, List, int, int, bool]
 Trajectory = List[Frame]

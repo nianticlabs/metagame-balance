@@ -1,4 +1,4 @@
-from framework.DataObjects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam
+from framework.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam
 
 
 def legal_move_set(pkm: Pkm, template: PkmTemplate):

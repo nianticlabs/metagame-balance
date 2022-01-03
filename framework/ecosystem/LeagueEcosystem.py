@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from elo import rate_1vs1
 
-from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
+from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from framework.ecosystem import CompetitorManager
 from framework.module.BattlePhase import BattlePhase
 from framework.module.SelectionPhase import SelectionPhase

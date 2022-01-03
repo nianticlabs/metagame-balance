@@ -4,8 +4,8 @@ import time
 
 from elo import INITIAL
 
-from framework.DataObjects import PkmFullTeam, PkmRoster
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Objects import PkmFullTeam, PkmRoster
 from framework.module.TeamBuilding import TeamBuildingProcess
 from framework.util.Recording import MetaGameSubscriber
 

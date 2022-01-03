@@ -6,10 +6,10 @@ from random import sample
 
 import numpy as np
 
-from framework.DataConstants import MIN_HIT_POINTS, MAX_HIT_POINTS
-from framework.DataObjects import PkmTemplate
-from framework.DataTypes import PkmType
 from framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from framework.datatypes.Constants import MIN_HIT_POINTS, MAX_HIT_POINTS
+from framework.datatypes.Objects import PkmTemplate
+from framework.datatypes.Types import PkmType
 
 
 class TestEncodingMethods(unittest.TestCase):

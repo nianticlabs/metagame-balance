@@ -3,10 +3,10 @@ from typing import List
 import PySimpleGUI as sg
 import numpy as np
 
-from framework.DataConstants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
-from framework.DataObjects import PkmMove, GameStateView
-from framework.DataTypes import PkmStat, PkmType, WeatherCondition, PkmStatus
 from framework.behaviour import BattlePolicy
+from framework.datatypes.Constants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
+from framework.datatypes.Objects import PkmMove, GameStateView
+from framework.datatypes.Types import PkmStat, PkmType, WeatherCondition, PkmStatus
 
 
 def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, opp_pkm_type: PkmType,

@@ -1,9 +1,9 @@
 from random import sample
 
-from framework.DataObjects import MetaData, PkmFullTeam
 from framework.behaviour import BattlePolicy
 from framework.behaviour.DataAggregators import NullDataAggregator
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Objects import MetaData, PkmFullTeam
 
 
 class ExampleBattlePolicy(BattlePolicy):

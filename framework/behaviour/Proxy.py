@@ -2,10 +2,11 @@
 from multiprocessing.connection import Client
 from typing import Set
 
-from framework.DataObjects import PkmFullTeam, PkmTeamPrediction, MetaData, TeamValue, PkmRoster
+from framework.balance.meta import MetaData
 from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, TeamPredictor, DataAggregator, \
     TeamValuator, BalancePolicy
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, PkmRoster
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0

@@ -1,6 +1,7 @@
-from framework.DataObjects import MetaData, PkmFullTeam, PkmRoster, get_pkm_roster_view, TeamValue
+from framework.balance.meta import MetaData
 from framework.behaviour import TeamBuilderPolicy
 from framework.competition import legal_team
+from framework.datatypes.Objects import PkmFullTeam, PkmRoster, get_pkm_roster_view, TeamValue
 from framework.util.PkmTeamGenerators import RandomGeneratorRoster
 
 

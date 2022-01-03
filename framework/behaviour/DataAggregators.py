@@ -1,4 +1,4 @@
-from framework.DataObjects import MetaData
+from framework.balance.meta import MetaData
 from framework.behaviour import DataAggregator
 
 

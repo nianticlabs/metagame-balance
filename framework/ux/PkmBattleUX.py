@@ -6,10 +6,10 @@ from typing import List, Tuple
 
 import arcade
 
-from framework.DataTypes import PkmType, PkmStat
-from framework.util import non_blocking_lock
-
+from framework.datatypes.Types import PkmType, PkmStat
 # Set constants for the screen size
+from framework.util.Networking import non_blocking_lock
+
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
 TITLE = "Pokemon Battle"

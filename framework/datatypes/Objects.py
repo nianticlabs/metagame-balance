@@ -2,12 +2,13 @@ import random
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from math import isclose
-from typing import List, Tuple, Set, Union, Dict
+from typing import List, Tuple, Set, Union
 
 import numpy as np
 
-from framework.DataConstants import MOVE_MED_PP, MAX_HIT_POINTS
-from framework.DataTypes import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, PkmEntryHazard
+from framework.datatypes.Constants import MOVE_MED_PP, MAX_HIT_POINTS
+from framework.datatypes.Types import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
+    PkmEntryHazard
 
 
 class PkmMove:
@@ -1036,112 +1037,8 @@ def get_game_state_view(game_state: GameState, team_prediction: PkmTeamPredictio
     return GameStateViewImpl()
 
 
-class MetaData(ABC):
-    pass
-
-
-class Archtype:
-    pass
-
-
-class StandardMetaData(MetaData):
-
-    def __init__(self, _max_history_size: int = 1e5, unlimited: bool = False):
-        self._teams: Set[Archtype] = set()
-        self._victories: Dict[Tuple[Archtype, Archtype], int] = {}
-        self._usage: Dict[Archtype, int] = {}
-        self._history: List[Archtype] = []
-        self._max_history_size: int = _max_history_size * 2
-        self._total_usage = 0
-        self._unlimited = unlimited
-
-    def set_archtype(self, archtype: Archtype):
-        if archtype not in self._teams:
-            for existing in self._teams:
-                self._victories[(archtype, existing)] = 0
-                self._victories[(existing, archtype)] = 0
-            self._usage[archtype] = 0
-            self._teams.add(archtype)
-
-    def update(self, winner: Archtype, loser: Archtype):
-        self._victories[(winner, loser)] += 1
-        self._usage[winner] += 1
-        self._usage[loser] += 1
-        self._total_usage += 2
-        self._history.append(winner)
-        self._history.append(loser)
-        if len(self._history) > self._max_history_size and not self._unlimited:
-            old_achtype0 = self._history.pop(0)
-            old_achtype1 = self._history.pop(0)
-            self._usage[old_achtype0] -= 1
-            self._usage[old_achtype1] -= 1
-            self._total_usage -= 2
-            if self._usage[old_achtype0] == 0:
-                self.remove_archtype(old_achtype0)
-            if self._usage[old_achtype1] == 0:
-                self.remove_archtype(old_achtype1)
-
-    def remove_archtype(self, archtype: Archtype):
-        self._teams.remove(archtype)
-        self._usage.pop(archtype)
-        for existing in self._teams:
-            self._victories.pop((archtype, existing))
-            self._victories.pop((existing, archtype))
-
-    def get_winrate(self, archtype: Archtype, opponent: Archtype) -> float:
-        if archtype == opponent:
-            return 0.5
-        victories = self._victories[(archtype, opponent)]
-        losses = self._victories[(opponent, archtype)]
-        return victories / max((victories + losses), 1)
-
-    def get_usagerate(self, archtype: Archtype):
-        return self._usage[archtype] / self._total_usage
-
-
 class TeamValue(ABC):
 
     @abstractmethod
     def compare_to(self, value) -> int:
-        pass
-
-
-class DesignRule(ABC):
-
-    @abstractmethod
-    def check(self, roster: PkmRosterView, template: PkmTemplate) -> bool:
-        pass
-
-
-class Target(ABC):
-
-    @abstractmethod
-    def check(self, meta_game: MetaData) -> bool:
-        pass
-
-
-class DesignConstraints(ABC):
-
-    @abstractmethod
-    def get_base_roster(self) -> PkmRosterView:
-        pass
-
-    @abstractmethod
-    def get_allpkm_rule_set(self) -> List[DesignRule]:
-        pass
-
-    @abstractmethod
-    def get_pkm_rule_set(self, template: PkmTemplate) -> List[DesignRule]:
-        pass
-
-    @abstractmethod
-    def get_global_rule_set(self) -> List[DesignRule]:
-        pass
-
-    @abstractmethod
-    def get_target_set(self) -> List[Target]:
-        pass
-
-    @abstractmethod
-    def check_every_rule(self, roster: PkmRoster) -> List[DesignRule]:
         pass

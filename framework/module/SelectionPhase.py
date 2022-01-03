@@ -1,7 +1,7 @@
 from typing import Tuple
 
-from framework.DataObjects import PkmFullTeam, get_full_team_view, PkmTeam, PkmTeamPrediction
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Objects import PkmFullTeam, get_full_team_view, PkmTeam, PkmTeamPrediction
 from framework.process.OpponentTeamPrediction import OpponentTeamPrediction
 from framework.process.TeamSelection import TeamSelection
 

@@ -2,8 +2,7 @@ import random
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
-from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmFullTeam, MetaData, get_full_team_view, PkmRoster, get_pkm_roster_view
+from framework.balance.meta import MetaData
 from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, DataAggregator, TeamPredictor, \
     TeamValuator, BalancePolicy
 from framework.behaviour.BalancePolicies import IdleBalancePolicy
@@ -13,6 +12,8 @@ from framework.behaviour.SelectorPolicies import RandomSelectorPolicy, GUISelect
 from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
 from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamValuators import NullTeamValuator
+from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
+from framework.datatypes.Objects import PkmFullTeam, get_full_team_view, PkmRoster, get_pkm_roster_view
 from framework.process.BattleEngine import PkmBattleEnv
 
 random_battle_policy = RandomBattlePolicy()

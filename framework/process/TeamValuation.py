@@ -1,5 +1,6 @@
-from framework.DataObjects import MetaData, PkmFullTeam, TeamValue
+from framework.balance.meta import MetaData
 from framework.behaviour import TeamValuator
+from framework.datatypes.Objects import PkmFullTeam, TeamValue
 
 
 class NullTeamValue(TeamValue):

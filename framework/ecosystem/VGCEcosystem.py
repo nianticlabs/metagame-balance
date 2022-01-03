@@ -1,8 +1,8 @@
 from typing import List
 
-from framework.DataConstants import DEFAULT_MATCH_N_BATTLES
-from framework.DataObjects import PkmRoster
 from framework.competition.CompetitionObjects import Competitor
+from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
+from framework.datatypes.Objects import PkmRoster
 from framework.ecosystem import CompetitorManager
 from framework.ecosystem.LeagueEcosystem import LeagueEcosystem, Strategy
 from framework.util.Recording import DataDistributionManager

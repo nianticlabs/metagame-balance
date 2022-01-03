@@ -1,9 +1,50 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from copy import deepcopy
 from typing import List, Dict
 
-from framework.DataObjects import DesignConstraints, Target, DesignRule, PkmTemplate, PkmRosterView, MetaData, \
-    get_pkm_roster_view, PkmRoster, get_pkm_move_roster_view
+from framework.datatypes.Objects import PkmTemplate, PkmRosterView, MetaData, get_pkm_roster_view, PkmRoster, \
+    get_pkm_move_roster_view
+
+
+class DesignRule(ABC):
+
+    @abstractmethod
+    def check(self, roster: PkmRosterView, template: PkmTemplate) -> bool:
+        pass
+
+
+class Target(ABC):
+
+    @abstractmethod
+    def check(self, meta_game: MetaData) -> bool:
+        pass
+
+
+class DesignConstraints(ABC):
+
+    @abstractmethod
+    def get_base_roster(self) -> PkmRosterView:
+        pass
+
+    @abstractmethod
+    def get_allpkm_rule_set(self) -> List[DesignRule]:
+        pass
+
+    @abstractmethod
+    def get_pkm_rule_set(self, template: PkmTemplate) -> List[DesignRule]:
+        pass
+
+    @abstractmethod
+    def get_global_rule_set(self) -> List[DesignRule]:
+        pass
+
+    @abstractmethod
+    def get_target_set(self) -> List[Target]:
+        pass
+
+    @abstractmethod
+    def check_every_rule(self, roster: PkmRoster) -> List[DesignRule]:
+        pass
 
 
 class VGCDesignRule(DesignRule):

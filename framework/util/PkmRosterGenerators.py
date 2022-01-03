@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List
 
-from framework.DataConstants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM
-from framework.DataObjects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
-from framework.DataTypes import PkmType
 from framework.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from framework.datatypes.Constants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM
+from framework.datatypes.Objects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
+from framework.datatypes.Types import PkmType
 from framework.util.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
 
 

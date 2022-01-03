@@ -1,7 +1,8 @@
 from typing import Tuple
 
-from framework.DataObjects import TeamValue, PkmFullTeam, MetaData
+from framework.balance.meta import MetaData
 from framework.behaviour import TeamValuator
+from framework.datatypes.Objects import TeamValue, PkmFullTeam
 
 
 class NullTeamValuator(TeamValuator):

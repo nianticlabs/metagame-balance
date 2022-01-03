@@ -3,9 +3,9 @@ from typing import Set, Tuple
 
 import PySimpleGUI as sg
 
-from framework.DataConstants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
-from framework.DataObjects import PkmFullTeamView
 from framework.behaviour import SelectorPolicy
+from framework.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
+from framework.datatypes.Objects import PkmFullTeamView
 
 
 class GUISelectorPolicy(SelectorPolicy):
