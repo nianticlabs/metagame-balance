@@ -1,4 +1,4 @@
-from competitor.ExampleCompetitor import ExampleCompetitor
+from example.competitor import ExampleCompetitor
 from framework.ecosystem.VGCEcosystem import VGCEcosystem
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
