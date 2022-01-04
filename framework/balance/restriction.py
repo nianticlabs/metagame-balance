@@ -105,7 +105,10 @@ class UnbannableRule(VGCDesignRule):
         self._template = template
 
     def check(self, roster: PkmRoster, template: PkmTemplate = None) -> bool:
-        return self._template in roster
+        for pkm in roster:
+            if pkm == self._template:
+                return True
+        return False
 
     def reason(self) -> RuleType:
         return RuleType.UNBANNABLE
@@ -301,7 +304,7 @@ class VGCDesignConstraints(DesignConstraints):
         for rule in self._global_rule_set:
             if not rule.check(roster):
                 failed_checks.append(rule)
-        for template, rules in self._pkm_rule_set:
+        for template, rules in self._pkm_rule_set.items():
             for rule in rules:
                 if not rule.check(roster, template):
                     failed_checks.append(rule)
