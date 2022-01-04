@@ -56,7 +56,6 @@ Please cite this work if used.
 
 ## TODO
 
-* Restriction Rules (ongoing)
 * Balance Evaluation
 * Re-tune challenge difficulty
 * Prepare easy entry points for training and testing and running the competition (with standard meta-data and archtypes)
