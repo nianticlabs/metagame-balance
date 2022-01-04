@@ -1,12 +1,11 @@
 from typing import List
 
-
 from framework.balance.restriction import DesignConstraints, DesignRule, Target
 from framework.competition.Competitor import ExampleCompetitor
 from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
 from framework.ecosystem.BalanceEcosystem import BalanceEcosystem
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.Recording import DataDistributionManager
+from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 N_PLAYERS = 16
 

@@ -6,7 +6,6 @@ import gym
 import numpy as np
 from gym import spaces
 
-from framework.util.generator.StandardPkmMoves import Struggle
 from framework.behaviour import BattlePolicy
 from framework.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
@@ -14,6 +13,7 @@ from framework.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameS
 from framework.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from framework.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
+from framework.util.generator.StandardPkmMoves import Struggle
 
 
 class PkmBattleEnv(gym.Env):

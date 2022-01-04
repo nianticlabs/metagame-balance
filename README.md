@@ -1,7 +1,5 @@
 # Pokémon VGC AI Framework
 
-(Legacy repository: https://gitlab.com/DracoStriker/simplified-pokemon-environment)
-
 ## Installation
 
 1. Install Python 3.6.8 or higher.
@@ -32,10 +30,35 @@ In the test module is contained some unit tests from the core framework modules.
 All the documentation from Applicational Programming Interface and Framework architecture can be found in
 the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
 
+## Citation
+
+Please cite this work if used.
+
+```
+@INPROCEEDINGS{9618985,
+
+  author={Reis, Simão and Reis, Luís Paulo and Lau, Nuno},
+
+  booktitle={2021 IEEE Conference on Games (CoG)}, 
+
+  title={VGC AI Competition - A New Model of Meta-Game Balance AI Competition}, 
+
+  year={2021},
+
+  volume={},
+
+  number={},
+
+  pages={01-08},
+
+  doi={10.1109/CoG52621.2021.9618985}}
+```
+
 ## TODO
 
-* Balance Evaluation & Restriction Rules (ongoing)
+* Restriction Rules (ongoing)
+* Balance Evaluation
 * Re-tune challenge difficulty
 * Prepare easy entry points for training and testing and running the competition (with standard meta-data and archtypes)
 * Standard Archtypes
-* Add Baseline Agents
+* Baseline Agents
