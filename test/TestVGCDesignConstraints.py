@@ -1,5 +1,4 @@
 import unittest
-from copy import deepcopy
 
 from framework.balance.restriction import VGCDesignConstraints, RosterBoundedSizeRule, RosterFixedSizeRule, \
     UnbannableRule, MoveRosterBoundedSizeRule, MoveRosterFixedSizeRule, MovesUnchangeableRule, TypeUnchangeableRule, \
