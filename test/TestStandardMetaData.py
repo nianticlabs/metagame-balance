@@ -1,6 +1,6 @@
 import unittest
 
-from framework.balance.archtype import Archtype
+from framework.balance.archtype import TeamArchtype
 from framework.balance.meta import StandardMetaData
 
 
@@ -11,7 +11,7 @@ class TestStandardMetaData(unittest.TestCase):
             meta = StandardMetaData()
             archtypes = []
             for _ in range(x):
-                archtypes.append(Archtype())
+                archtypes.append(TeamArchtype())
             for archtype in archtypes:
                 meta.set_archtype(archtype)
             # repeat should not affect
@@ -25,7 +25,7 @@ class TestStandardMetaData(unittest.TestCase):
         meta = StandardMetaData()
         archtypes = []
         for _ in range(100):
-            archtypes.append(Archtype())
+            archtypes.append(TeamArchtype())
         for archtype in archtypes:
             meta.set_archtype(archtype)
         count = [0] * 100
@@ -50,7 +50,7 @@ class TestStandardMetaData(unittest.TestCase):
         meta = StandardMetaData()
         archtypes = []
         for _ in range(10):
-            archtypes.append(Archtype())
+            archtypes.append(TeamArchtype())
         for archtype in archtypes:
             meta.set_archtype(archtype)
         count = [0] * 10
@@ -61,7 +61,7 @@ class TestStandardMetaData(unittest.TestCase):
                 meta.update(archtypes[i], archtypes[i + 1])
         meta._total_usage -= meta._usage[archtypes[0]]
         count = count[1:]
-        meta.remove_archtype(archtypes[0])
+        meta._remove_archtype(archtypes[0])
         archtypes.pop(0)
         self.assertEqual(len(meta._teams), 9)
         for i in range(7):
@@ -72,7 +72,7 @@ class TestStandardMetaData(unittest.TestCase):
         meta = StandardMetaData(5)
         archtypes = []
         for _ in range(3):
-            archtypes.append(Archtype())
+            archtypes.append(TeamArchtype())
         for archtype in archtypes:
             meta.set_archtype(archtype)
         for x in range(4):

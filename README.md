@@ -56,7 +56,7 @@ Please cite this work if used.
 
 ## TODO
 
-* Balance Evaluation
+* Balance Evaluation (ongoing)
 * Re-tune challenge difficulty
 * Prepare easy entry points for training and testing and running the competition (with standard meta-data and archtypes)
 * Standard Archtypes
