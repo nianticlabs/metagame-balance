@@ -1,7 +1,7 @@
 from copy import copy
 
 from framework.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP
-from framework.datatypes.Objects import PkmMove, PkmTemplate
+from framework.datatypes.Objects import PkmMove, PkmTemplate, PkmFullTeam
 from framework.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
 
 
@@ -49,10 +49,21 @@ def standard_move_distance(move0: PkmMove, move1: PkmMove) -> float:
     return d_base + d_effects / 4.0
 
 
-def pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=standard_move_distance):
+def standard_pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=standard_move_distance) -> float:
     d_max_hp = abs(pkm0.max_hp - pkm1.max_hp) / MAX_HIT_POINTS
     d_type = float(pkm0.type != pkm1.type)
     d_moves = 0.0
     for move0, move1 in zip(pkm0.move_roster, pkm1.move_roster):
         d_moves += move_distance(move0, move1) / 5.25
     return d_max_hp + d_type + d_moves / 8.0
+
+
+def team_distance(team0: PkmFullTeam, team1: PkmFullTeam, pokemon_distance=standard_pkm_distance) -> float:
+    d_pkms = 0.0
+    t0 = team0.get_battle_team([0, 1, 2])
+    t1 = team1.get_battle_team([0, 1, 2])
+    for pkm0, pkm1 in zip([t0.active] + t0.party, [t1.active] + t1.party):
+        tmp0 = PkmTemplate(set(pkm0.moves), pkm0.type, pkm0.max_hp)
+        tmp1 = PkmTemplate(set(pkm1.moves), pkm1.type, pkm1.max_hp)
+        d_pkms += pokemon_distance(tmp0, tmp1) / 5.25
+    return d_pkms
