@@ -1,7 +1,7 @@
 from copy import copy
 
 from framework.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP
-from framework.datatypes.Objects import PkmMove
+from framework.datatypes.Objects import PkmMove, PkmTemplate
 from framework.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
 
 
@@ -21,7 +21,7 @@ def _remove_effects(move: PkmMove) -> PkmMove:
     return move
 
 
-def move_distance(move0: PkmMove, move1: PkmMove) -> float:
+def standard_move_distance(move0: PkmMove, move1: PkmMove) -> float:
     # attributes distances
     d_power = abs(move0.power - move1.power) / MAX_HIT_POINTS
     d_acc = abs(move0.acc - move1.acc)
@@ -46,4 +46,13 @@ def move_distance(move0: PkmMove, move1: PkmMove) -> float:
     d_base = d_power + 0.7 * d_acc + 0.1 * d_max_pp + d_type + 0.2 * d_priority
     d_effects = d_prob + d_target + d_recover + d_status + d_stat + d_stage + d_fixed_damage + d_weather + d_hazard
     # total distances
-    return d_base + 1 / 4 * d_effects
+    return d_base + d_effects / 4.0
+
+
+def pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=standard_move_distance):
+    d_max_hp = abs(pkm0.max_hp - pkm1.max_hp) / MAX_HIT_POINTS
+    d_type = float(pkm0.type != pkm1.type)
+    d_moves = 0.0
+    for move0, move1 in zip(pkm0.move_roster, pkm1.move_roster):
+        d_moves += move_distance(move0, move1) / 5.25
+    return d_max_hp + d_type + d_moves / 8.0
