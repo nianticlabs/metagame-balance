@@ -5,9 +5,9 @@ from typing import List, Optional
 from framework.balance.meta import MetaData
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.competition import CompetitorManager
+from framework.competition.BattleMatch import BattleMatch
 from framework.competition.Competitor import Competitor
 from framework.datatypes.Objects import PkmRoster, get_pkm_roster_view, PkmFullTeam
-from framework.engine.PkmBattleEnv import Match
 
 
 class Championship(ABC):
@@ -22,14 +22,14 @@ class MatchHandlerTree:
 
         def __init__(self):
             self.winner: Optional[CompetitorManager] = None
-            self.match: Optional[Match] = None
+            self.match: Optional[BattleMatch] = None
             self.prev_mh0 = None
             self.prev_mh1 = None
 
         def run_match(self, debug: bool = False):
             if self.match is None:
-                self.match = Match(self.prev_mh0.winner.competitor, self.prev_mh1.winner.competitor,
-                                   self.prev_mh0.winner.team, self.prev_mh1.winner.team, debug=debug)
+                self.match = BattleMatch(self.prev_mh0.winner.competitor, self.prev_mh1.winner.competitor,
+                                         self.prev_mh0.winner.team, self.prev_mh1.winner.team, debug=debug)
             if debug:
                 print(self.match.competitors[0].name + ' vs ' + self.match.competitors[1].name + '\n')
             if not self.match.finished:
@@ -57,11 +57,12 @@ class MatchHandlerTree:
         mh = self.handlers[self.__pos]
         self.__pos += 1
         if len(cm) == 1:
-            mh.match = Match(cm[0].competitor, Competitor(), cm[0].team, PkmFullTeam(), debug=self.enable_debug)
+            mh.match = BattleMatch(cm[0].competitor, Competitor(), cm[0].team, PkmFullTeam(), debug=self.enable_debug)
             mh.match.finished = True
             mh.winner = cm[0]
         elif len(cm) == 2:
-            mh.match = Match(cm[0].competitor, cm[1].competitor, cm[0].team, cm[1].competitor, debug=self.enable_debug)
+            mh.match = BattleMatch(cm[0].competitor, cm[1].competitor, cm[0].team, cm[1].competitor,
+                                   debug=self.enable_debug)
         else:
             half = len(cm) // 2
             mh.prev_mh0 = MatchHandlerTree.MatchHandler()

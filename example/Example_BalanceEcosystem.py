@@ -1,5 +1,6 @@
 from typing import List
 
+from framework.balance.meta import MetaData
 from framework.balance.restriction import DesignConstraints, DesignRule
 from framework.competition.Competitor import ExampleCompetitor
 from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
@@ -36,7 +37,8 @@ class MockDesignConstraints(DesignConstraints):
 def main():
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
     mdc = MockDesignConstraints(roster)
-    be = GameBalanceEcosystem(ExampleCompetitor(), ExampleCompetitor(), mdc, roster, debug=True, render=True, ddm=ddm,
+    meta_data = MetaData()
+    be = GameBalanceEcosystem(ExampleCompetitor(), ExampleCompetitor(), mdc, roster, meta_data, debug=True, render=True,
                               n_competitors=N_PLAYERS)
     be.run(n_vgc_epochs=10, n_league_epochs=10)
 

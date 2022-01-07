@@ -6,8 +6,8 @@ from elo import rate_1vs1
 
 from framework.balance.meta import MetaData
 from framework.competition import CompetitorManager
+from framework.competition.BattleMatch import BattleMatch
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
-from framework.engine.PkmBattleEnv import Match
 
 
 class Strategy(Enum):
@@ -53,7 +53,8 @@ class BattleEcosystem:
     def __run_matches(self, pairs: List[Tuple[CompetitorManager, CompetitorManager]]):
         for pair in pairs:
             cm0, cm1 = pair
-            match = Match(cm0.competitor, cm1.competitor, cm0.team, cm1.team, self.n_battles, self.debug, self.render)
+            match = BattleMatch(cm0.competitor, cm1.competitor, cm0.team, cm1.team, self.n_battles, self.debug,
+                                self.render)
             match.run()
             if match.winner == 0:
                 cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)
