@@ -1,7 +1,7 @@
 import time
 
 from framework.behaviour.BattlePolicies import SimpleBattlePolicy, RandomBattlePolicy
-from framework.process.BattleEngine import PkmBattleEnv
+from framework.engine.PkmBattleEnv import PkmBattleEnv
 from framework.util.Recording import GamePlayRecorder, Frame
 
 

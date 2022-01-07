@@ -6,10 +6,9 @@ import gym
 import numpy as np
 from gym import spaces
 
-from framework.behaviour import BattlePolicy
 from framework.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
-    TYPE_CHART_MULTIPLIER, DEFAULT_MATCH_N_BATTLES, DEFAULT_N_ACTIONS
-from framework.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, PkmTeamPrediction, Weather
+    TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
+from framework.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, Weather
 from framework.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from framework.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
@@ -612,56 +611,3 @@ class PkmBattleEnv(gym.Env):
     def close(self):
         if self.conn is not None:
             self.conn.close()
-
-
-class BattleEngine:
-
-    def __init__(self, bp0: BattlePolicy, bp1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, debug=False, render=True,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, team_prediction: List[PkmTeamPrediction] = None):
-        self.env = PkmBattleEnv(teams=(team0, team1), debug=debug, team_prediction=team_prediction)
-        self.bp0 = bp0
-        self.bp1 = bp1
-        self.step = 0
-        self.n_battles = n_battles
-        self.render = render
-        self.s = None
-        self.v = None
-        self.t = True
-
-    # noinspection PyBroadException
-    def run_a_turn(self, rec=None):
-        if self.t:
-            self.s = self.env.reset()
-            if rec is not None:
-                rec.record((self.s[0], self.s[1], -1, -1, False))
-            self.v = self.env.game_state_view
-            if self.render:
-                self.env.render()
-        o0 = self.s[0] if self.bp0.requires_encode() else self.v[0]
-        o1 = self.s[1] if self.bp1.requires_encode() else self.v[1]
-        try:
-            a0 = self.bp0.get_action(o0)
-        except:
-            a0 = random.randint(0, 4)
-        try:
-            a1 = self.bp0.get_action(o1)
-        except:
-            a1 = random.randint(0, 4)
-        a = [a0, a1]
-        self.s, r, self.t, self.v = self.env.step(a)
-        if rec is not None:
-            rec.record((self.s[0], self.s[1], a[0], a[1], self.t))
-        if self.render:
-            self.env.render()
-        return r
-
-    def battle_completed(self) -> bool:
-        return self.t
-
-    @property
-    def winner(self):
-        return self.env.winner
-
-    def terminate(self):
-        self.bp0.close()
-        self.bp1.close()

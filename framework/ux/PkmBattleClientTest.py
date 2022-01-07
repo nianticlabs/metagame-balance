@@ -1,7 +1,7 @@
 from multiprocessing.connection import Client
 
 from framework.behaviour.BattlePolicies import RandomBattlePolicy
-from framework.process.BattleEngine import PkmBattleEnv
+from framework.engine.PkmBattleEnv import PkmBattleEnv
 from framework.util.generator.PkmTeamGenerators import RandomGenerator
 
 address = ('localhost', 6000)

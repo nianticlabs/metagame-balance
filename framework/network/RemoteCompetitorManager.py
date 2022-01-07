@@ -58,13 +58,6 @@ class RemoteCompetitorManager:
                 self.conn.send(self.competitor.team_prediction_policy.requires_encode())
             elif msg[2] == 'close':
                 self.competitor.team_prediction_policy.close()
-        elif msg[0] == 'DataAggregator':
-            if msg[1] == 'get_action':
-                self.conn.send(self.competitor.data_aggregator_policy.get_action(msg[2]))
-            elif msg[1] == 'requires_encode':
-                self.conn.send(self.competitor.data_aggregator_policy.requires_encode())
-            elif msg[2] == 'close':
-                self.competitor.data_aggregator_policy.close()
         elif msg[0] == 'TeamValuator':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_valuator_policy.get_action(msg[2]))

@@ -2,9 +2,8 @@
 from multiprocessing.connection import Client
 from typing import Set
 
-from framework.balance.meta import MetaData
-from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, TeamPredictor, DataAggregator, \
-    TeamValuator, BalancePolicy
+from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, TeamPredictor, TeamValuator, \
+    BalancePolicy
 from framework.competition.Competition import Competitor
 from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, PkmRoster
 
@@ -104,29 +103,6 @@ class ProxyTeamPredictor(TeamPredictor):
         self.conn.send(('TeamPredictor', 'close'))
 
 
-class ProxyDataAggregator(DataAggregator):
-
-    def __init__(self, conn: Client, timeout: float):
-        self.conn: Client = conn
-        self.timeout: float = timeout
-
-    def get_action(self, s) -> MetaData:
-        # self.conn.settimeout(self.timeout)
-        self.conn.send(('DataAggregator', 'get_action', s))
-        action: MetaData = self.conn.recv()
-        return action
-
-    def requires_encode(self) -> bool:
-        # self.conn.settimeout(ENCODE_TIMEOUT)
-        self.conn.send(('DataAggregator', 'requires_encode',))
-        action: bool = self.conn.recv()
-        return action
-
-    def close(self):
-        # self.conn.settimeout(CLOSE_TIMEOUT)
-        self.conn.send(('DataAggregator', 'close'))
-
-
 class ProxyTeamValuator(TeamValuator):
 
     def __init__(self, conn: Client, timeout: float):
@@ -189,7 +165,6 @@ class ProxyCompetitor(Competitor):
         self.selectorPolicy = ProxySelectorPolicy(conn, 1.0)
         self.teamBuilderPolicy = ProxyTeamBuilderPolicy(conn, 1.0)
         self.teamPredictor = ProxyTeamPredictor(conn, 1.0)
-        self.dataAggregator = ProxyDataAggregator(conn, 1.0)
         self.teamValuator = ProxyTeamValuator(conn, 1.0)
         self.balancePolicy = ProxyBalancePolicy(conn, 1.0)
 
@@ -208,10 +183,6 @@ class ProxyCompetitor(Competitor):
     @property
     def team_prediction_policy(self) -> TeamPredictor:
         return self.teamPredictor
-
-    @property
-    def data_aggregator_policy(self) -> DataAggregator:
-        return self.dataAggregator
 
     @property
     def team_valuator_policy(self) -> TeamValuator:

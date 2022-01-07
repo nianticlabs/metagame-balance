@@ -1,5 +1,4 @@
 import argparse
-import time
 from multiprocessing.connection import Client
 
 from framework.competition.Competition import TreeChampionship
@@ -11,7 +10,7 @@ def main(args):
     n_agents = args.n_agents
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
     conns = []
-    championship = TreeChampionship(roster, name="Battle Competition " + time.strftime("%Y%m%d-%H%M%S"), debug=True)
+    championship = TreeChampionship(roster, debug=True)
     for i in range(n_agents):
         address = ('localhost', 5000 + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))

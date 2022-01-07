@@ -7,8 +7,6 @@ from elo import INITIAL
 
 from framework.competition import Competitor
 from framework.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam
-from framework.module.TeamBuilding import TeamBuildingProcess
-from framework.util.Recording import MetaGameSubscriber
 
 
 def legal_move_set(pkm: Pkm, template: PkmTemplate):
@@ -41,12 +39,7 @@ class CompetitorManager:
         self.competitor = c
         self.team: Optional[PkmFullTeam] = None
         self.elo: float = INITIAL
-        self.tbp: Optional[TeamBuildingProcess] = None
-        self.mgs = MetaGameSubscriber()
         self.team_archive_path = time.strftime("%Y%m%d-%H%M%S") + '_' + self.competitor.name
-
-    def new_team_building_process(self, roster):
-        self.tbp = TeamBuildingProcess(self.competitor, self.team, roster)
 
     def get_archived_team(self, idx: int) -> PkmFullTeam:
         index = 0

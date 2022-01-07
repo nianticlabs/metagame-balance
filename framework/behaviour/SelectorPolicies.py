@@ -82,3 +82,21 @@ class RandomSelectorPolicy(SelectorPolicy):
 
     def close(self):
         pass
+
+
+class FirstEditionSelectorPolicy(SelectorPolicy):
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
+        """
+        Teams are selected as they are.
+
+        :param d: (self, opponent)
+        :return: idx list of selected pokemons
+        """
+        return {0, 1, 2}
+
+    def close(self):
+        pass

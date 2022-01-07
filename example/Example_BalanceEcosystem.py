@@ -3,8 +3,7 @@ from typing import List
 from framework.balance.restriction import DesignConstraints, DesignRule
 from framework.competition.Competitor import ExampleCompetitor
 from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
-from framework.ecosystem.BalanceEcosystem import BalanceEcosystem
-from framework.util.Recording import DataDistributionManager
+from framework.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 N_PLAYERS = 16
@@ -24,9 +23,6 @@ class MockDesignConstraints(DesignConstraints):
     def get_global_rule_set(self) -> List[DesignRule]:
         pass
 
-    def get_target_set(self) -> List[Target]:
-        pass
-
     def check_every_rule(self, roster: PkmRoster) -> List[DesignRule]:
         pass
 
@@ -40,9 +36,8 @@ class MockDesignConstraints(DesignConstraints):
 def main():
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
     mdc = MockDesignConstraints(roster)
-    ddm = DataDistributionManager()
-    be = BalanceEcosystem(ExampleCompetitor(), ExampleCompetitor(), mdc, roster, debug=True, render=True, ddm=ddm,
-                          n_competitors=N_PLAYERS)
+    be = GameBalanceEcosystem(ExampleCompetitor(), ExampleCompetitor(), mdc, roster, debug=True, render=True, ddm=ddm,
+                              n_competitors=N_PLAYERS)
     be.run(n_vgc_epochs=10, n_league_epochs=10)
 
 
