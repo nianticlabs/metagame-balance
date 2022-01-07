@@ -255,19 +255,22 @@ class PkmBattleUX(arcade.Window):
         del self.party[1][:]
 
         type0_0 = data[0]
-        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_0}.png", SPRITE_SCALING))
+        n = 1
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_0}_{n}.png", SPRITE_SCALING))
         self.party[0][0].center_x = 125
         self.party[0][0].center_y = 100
         self.sprite_list.append(self.party[0][0])
 
         type0_1 = data[1]
-        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_1}.png", SPRITE_SCALING))
+        n = 2 if type0_0 == type0_1 else 1
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_1}_{n}.png", SPRITE_SCALING))
         self.party[0][1].center_x = 290
         self.party[0][1].center_y = 60
         self.sprite_list.append(self.party[0][1])
 
         type0_2 = data[2]
-        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_2}.png", SPRITE_SCALING))
+        n = 3 if type0_2 == type0_1 and type0_2 == type0_0 else (2 if type0_2 == type0_1 or type0_2 == type0_0 else 1)
+        self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_2}_{n}.png", SPRITE_SCALING))
         self.party[0][2].center_x = 350
         self.party[0][2].center_y = 60
         self.sprite_list.append(self.party[0][2])
@@ -281,19 +284,22 @@ class PkmBattleUX(arcade.Window):
         self.a[3] = str(data[7])
 
         type1_0 = data[8]
-        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_0}.png", SPRITE_SCALING))
+        n = 1
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_0}_{n}.png", SPRITE_SCALING))
         self.party[1][0].center_x = 275
         self.party[1][0].center_y = 200
         self.sprite_list.append(self.party[1][0])
 
         type1_1 = data[9]
-        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_1}.png", SPRITE_SCALING))
+        n = 2 if type1_0 == type1_1 else 1
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_1}_{n}.png", SPRITE_SCALING))
         self.party[1][1].center_x = 50
         self.party[1][1].center_y = 240
         self.sprite_list.append(self.party[1][1])
 
         type1_2 = data[10]
-        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_2}.png", SPRITE_SCALING))
+        n = 3 if type1_2 == type1_1 and type1_2 == type1_0 else (2 if type1_2 == type1_1 or type1_2 == type1_0 else 1)
+        self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_2}_{n}.png", SPRITE_SCALING))
         self.party[1][2].center_x = 110
         self.party[1][2].center_y = 240
         self.sprite_list.append(self.party[1][2])

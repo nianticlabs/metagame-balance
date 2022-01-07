@@ -12,9 +12,10 @@ class GameBalanceEcosystem:
     def __init__(self, c: Competitor, battle_c: Competitor, constraints: DesignConstraints, base_roster: PkmRoster,
                  meta_data: MetaData, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES,
                  n_competitors: int = 16):
+        self.c = c
         self.roster = base_roster
-        self.mgb = MetaGameBalance(c, self.roster, meta_data, constraints)
-        self.mgb.run()
+        self.constraints = constraints
+        self.meta_data = meta_data
         self.vgc: VGCEcosystem = VGCEcosystem(self.roster, meta_data, debug, render, n_battles)
         for competitor in range(n_competitors):
             self.vgc.register(battle_c)
