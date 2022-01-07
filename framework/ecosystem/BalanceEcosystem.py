@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from framework.balance.restriction import DesignConstraints
 from framework.competition.Competition import Competitor
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
@@ -20,7 +18,7 @@ class BalanceEcosystem:
         self.__mgb.run()
         self.__vgc: VGCEcosystem = VGCEcosystem(self.__roster, debug, render, n_battles, ddm)
         for competitor in range(n_competitors):
-            self.__vgc.register(deepcopy(battle_c))
+            self.__vgc.register(battle_c)
 
     def run(self, n_vgc_epochs: int, n_league_epochs: int, strategy: Strategy = Strategy.RANDOM_PAIRING):
         self.__vgc.run(n_vgc_epochs, n_league_epochs, strategy)

@@ -55,31 +55,7 @@ class Competitor(ABC):
 
     @property
     @abstractmethod
-    def team(self) -> PkmFullTeam:
-        pass
-
-    @team.setter
-    @abstractmethod
-    def team(self, team):
-        pass
-
-    @property
-    @abstractmethod
-    def meta_data(self) -> MetaData:
-        pass
-
-    @property
-    @abstractmethod
     def name(self) -> str:
-        pass
-
-    @abstractmethod
-    def reset(self):
-        pass
-
-    @property
-    @abstractmethod
-    def want_to_change_team(self) -> bool:
         pass
 
 
@@ -116,9 +92,6 @@ class ExampleCompetitor(Competitor):
     @property
     def meta_data(self) -> MetaData:
         return NullDataAggregator.null_metadata
-
-    def want_to_change_team(self):
-        return True
 
     @property
     def team(self) -> PkmFullTeam:

@@ -8,23 +8,19 @@ from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
 class TeamBuilding:
 
     def __init__(self, tbp: TeamBuilderPolicy, full_team: PkmFullTeam, meta_data: MetaData, roster: PkmRoster):
-        self.__tbp = tbp
-        self.__full_team = full_team
-        self.__meta_data = meta_data
-        self.__roster = roster
-        self.__roster_view = get_pkm_roster_view(self.__roster)
+        self.tbp = tbp
+        self.full_team = full_team
+        self.meta_data = meta_data
+        self.roster = roster
+        self.roster_view = get_pkm_roster_view(self.roster)
         # output
-        self.__team = None
-        self.__rand_gen = RandomGeneratorRoster(self.__roster)
+        self.team = None
+        self.rand_gen = RandomGeneratorRoster(self.roster)
 
     def run(self, val: TeamValue):
         try:
-            self.__team = self.__tbp.get_action((self.__meta_data, self.__full_team, self.__roster_view, val))
-            if not legal_team(self.__team, self.__roster):
-                self.__team = self.__rand_gen.get_team()
+            self.team = self.tbp.get_action((self.meta_data, self.full_team, self.roster_view, val))
+            if not legal_team(self.team, self.roster):
+                self.team = self.rand_gen.get_team()
         except:
-            self.__team = self.__full_team
-
-    @property
-    def team(self) -> PkmFullTeam:
-        return self.__team
+            self.team = self.full_team

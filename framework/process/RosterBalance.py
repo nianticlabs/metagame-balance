@@ -9,22 +9,18 @@ from framework.datatypes.Objects import PkmRoster
 class RosterBalance:
 
     def __init__(self, bp: BalancePolicy, meta_data: MetaData, roster: PkmRoster, constraints: DesignConstraints):
-        self.__bp = bp
-        self.__meta_data = meta_data
-        self.__constraints = constraints
-        self.__roster = roster
+        self.bp = bp
+        self.meta_data = meta_data
+        self.onstraints = constraints
+        self.roster = roster
 
     # noinspection PyBroadException
     def run(self) -> Any:
-        roster = self.__roster
+        roster = self.roster
         try:
-            self.__roster = self.__bp.get_action((self.__meta_data, self.__roster, self.__constraints))
+            self.roster = self.bp.get_action((self.meta_data, self.roster, self.onstraints))
         except:
             pass
-        if self.__roster != roster:
-            roster = self.__roster
+        if self.roster != roster:
+            roster = self.roster
         return roster
-
-    @property
-    def roster(self):
-        return self.__roster

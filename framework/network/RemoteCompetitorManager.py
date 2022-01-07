@@ -79,15 +79,5 @@ class RemoteCompetitorManager:
                 self.conn.send(self.competitor.balance_policy.requires_encode())
             elif msg[2] == 'close':
                 self.competitor.balance_policy.close()
-        elif msg[0] == 'get_team':
-            self.conn.send(self.competitor.team)
-        elif msg[0] == 'set_team':
-            self.competitor.team = msg[1]
-        elif msg[0] == 'meta_data':
-            self.conn.send(self.competitor.meta_data)
         elif msg[0] == 'name':
             self.conn.send(self.competitor.name)
-        elif msg[0] == 'reset':
-            self.competitor.reset()
-        elif msg[0] == 'want_to_change_team':
-            self.conn.send(self.competitor.want_to_change_team)

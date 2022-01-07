@@ -4,8 +4,8 @@ from typing import List, Tuple
 
 from elo import rate_1vs1
 
+from framework.competition import CompetitorManager
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
-from framework.ecosystem import CompetitorManager
 from framework.module.BattlePhase import BattlePhase
 from framework.module.SelectionPhase import SelectionPhase
 from framework.util.Recording import DataDistributionManager
@@ -55,17 +55,14 @@ class LeagueEcosystem:
     def __run_match(self, cm0: CompetitorManager, cm1: CompetitorManager):
         c0 = cm0.competitor
         c1 = cm1.competitor
-        c0.reset()
-        c1.reset()
-        c0.team.hide()
-        c1.team.hide()
-        sp0 = SelectionPhase(c0, c1.team)
-        sp1 = SelectionPhase(c1, c0.team)
+        cm0.team.hide()
+        cm1.team.hide()
+        sp0 = SelectionPhase(c0, cm0.team, cm1.team)
+        sp1 = SelectionPhase(c1, cm1.team, cm0.team)
         team0, prediction0 = sp0.output()  # output empty containers
         team1, prediction1 = sp0.output()  # output empty containers
-        bp = BattlePhase(c0, c1, team0, team1, prediction0, prediction1, cm0.mgs, cm1.mgs, self.__ddm,
-                         debug=self.__debug,
-                         render=self.__render, n_battles=self.__n_battles)
+        bp = BattlePhase(c0, c1, team0, cm0.team, team1, cm1.team, prediction0, prediction1, cm0.mgs, cm1.mgs,
+                         self.__ddm, debug=self.__debug, render=self.__render, n_battles=self.__n_battles)
         for i in range(self.__n_battles):
             sp0.run()
             sp1.run()
@@ -74,5 +71,3 @@ class LeagueEcosystem:
             cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)
         elif bp.winner == 1:
             cm1.elo, cm0.elo = rate_1vs1(cm1.elo, cm0.elo)
-        cm0.increment_n_battles()
-        cm1.increment_n_battles()

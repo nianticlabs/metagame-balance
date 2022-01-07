@@ -1,6 +1,6 @@
 from typing import List
 
-from framework.balance.restriction import DesignConstraints, DesignRule, Target
+from framework.balance.restriction import DesignConstraints, DesignRule
 from framework.competition.Competitor import ExampleCompetitor
 from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
 from framework.ecosystem.BalanceEcosystem import BalanceEcosystem

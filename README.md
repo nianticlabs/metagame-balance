@@ -56,8 +56,7 @@ Please cite this work if used.
 
 ## TODO
 
-* Balance Evaluation (ongoing)
-* Re-tune challenge difficulty
-* Prepare easy entry points for training and testing and running the competition (with standard meta-data and archtypes)
-* Standard Archtypes
-* Baseline Agents
+* Meta-Balance Evaluation (ongoing)
+* Re-tune challenge difficulty (ongoing)
+* Entry points for running the competition tracks (ongoing)
+* Add Baseline Agents

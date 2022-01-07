@@ -222,38 +222,8 @@ class ProxyCompetitor(Competitor):
         return self.balancePolicy
 
     @property
-    def team(self) -> PkmFullTeam:
-        # self.conn.settimeout(GET_TEAM_TIMEOUT)
-        self.conn.send(('get_team',))
-        action: PkmFullTeam = self.conn.recv()
-        return action
-
-    @team.setter
-    def team(self, team):
-        # self.conn.settimeout(SET_TEAM_TIMEOUT)
-        self.conn.send(('set_team', team))
-
-    @property
-    def meta_data(self) -> MetaData:
-        # self.conn.settimeout(META_DATA_TIMEOUT)
-        self.conn.send(('meta_data',))
-        action: MetaData = self.conn.recv()
-        return action
-
-    @property
     def name(self) -> str:
         # self.conn.settimeout(NAME_TIMEOUT)
         self.conn.send(('name',))
         action: str = self.conn.recv()
-        return action
-
-    def reset(self):
-        # self.conn.settimeout(RESET_TIMEOUT)
-        self.conn.send(('reset',))
-
-    @property
-    def want_to_change_team(self) -> bool:
-        # self.conn.settimeout(CHANGE_TEAM_TIMEOUT)
-        self.conn.send(('want_to_change_team',))
-        action: bool = self.conn.recv()
         return action

@@ -16,5 +16,6 @@ class TestDistance(unittest.TestCase):
 
     def test_set_move_similarity_3(self):
         self.assertGreater(standard_move_distance(SunnyDay, FireBlast), standard_move_distance(Flamethrower, FireBlast))
-        self.assertGreater(standard_move_distance(HydroPump, FireBlast), standard_move_distance(Flamethrower, FireBlast))
+        self.assertGreater(standard_move_distance(HydroPump, FireBlast),
+                           standard_move_distance(Flamethrower, FireBlast))
         self.assertGreater(standard_move_distance(HydroPump, FireBlast), standard_move_distance(Flamethrower, SunnyDay))

@@ -6,13 +6,13 @@ from framework.util.Recording import MetaGameSubscriber
 class DataAggregation:
 
     def __init__(self, da: DataAggregator, meta_data: MetaData, mgs: MetaGameSubscriber):
-        self.__da = da
-        self.__meta_data = meta_data
-        self.__mgs = mgs
+        self.da = da
+        self.meta_data = meta_data
+        self.mgs = mgs
 
     # noinspection PyBroadException
     def run(self):
         try:
-            self.__da.get_action((self.__meta_data, self.__mgs))
+            self.da.get_action((self.meta_data, self.mgs))
         except:
             pass

@@ -6,9 +6,9 @@ from framework.process.TeamValuation import TeamValuation
 
 class TeamBuildingProcess:
 
-    def __init__(self, c: Competitor, roster: PkmRoster):
-        self.tv = TeamValuation(c.team_valuator_policy, c.team, c.meta_data)
-        self.tb = TeamBuilding(c.team_builder_policy, c.team, c.meta_data, roster)
+    def __init__(self, c: Competitor, team: PkmFullTeam, roster: PkmRoster):
+        self.tv = TeamValuation(c.team_valuator_policy, team, c.meta_data)
+        self.tb = TeamBuilding(c.team_builder_policy, team, c.meta_data, roster)
 
     def run(self):
         self.tv.run()
