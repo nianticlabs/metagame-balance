@@ -46,9 +46,9 @@ class RandomGeneratorRoster:
     def __init__(self, roster: PkmRoster):
         self.roster = list(roster)
 
-    def get_team(self, t_id: int = 0) -> PkmFullTeam:
+    def get_team(self, size=6) -> PkmFullTeam:
         pkms = []
-        templates: List[PkmTemplate] = random.sample(self.roster, 6)
+        templates: List[PkmTemplate] = random.sample(self.roster, size)
         for template in templates:
             move_combination = random.sample(range(10), 4)
             pkms.append(template.gen_pkm(move_combination))

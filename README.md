@@ -57,6 +57,4 @@ Please cite this work if used.
 ## TODO
 
 * Meta-Balance Evaluation (ongoing)
-* Re-tune challenge difficulty (ongoing)
-* Entry points for running the competition tracks (ongoing)
 * Add Baseline Agents

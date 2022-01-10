@@ -162,8 +162,8 @@ class ProxyCompetitor(Competitor):
     def __init__(self, conn: Client):
         self.conn = conn
         self.battlePolicy = ProxyBattlePolicy(conn, 1.0)
-        self.selectorPolicy = ProxyTeamSelectionPolicy(conn, 1.0)
-        self.teamBuilderPolicy = ProxyTeamBuildPolicy(conn, 1.0)
+        self.teamSelectionPolicy = ProxyTeamSelectionPolicy(conn, 1.0)
+        self.teamBuildPolicy = ProxyTeamBuildPolicy(conn, 1.0)
         self.teamPredictor = ProxyTeamPredictor(conn, 1.0)
         self.teamValuator = ProxyTeamValuator(conn, 1.0)
         self.balancePolicy = ProxyBalancePolicy(conn, 1.0)
@@ -174,11 +174,11 @@ class ProxyCompetitor(Competitor):
 
     @property
     def team_selection_policy(self) -> TeamSelectionPolicy:
-        return self.selectorPolicy
+        return self.teamSelectionPolicy
 
     @property
     def team_build_policy(self) -> TeamBuildPolicy:
-        return self.teamBuilderPolicy
+        return self.teamBuildPolicy
 
     @property
     def team_predictor(self) -> TeamPredictor:

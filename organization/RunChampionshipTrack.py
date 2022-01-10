@@ -2,6 +2,8 @@ import argparse
 from multiprocessing.connection import Client
 
 from framework.balance.meta import MetaData
+from framework.behaviour.TeamPredictors import NullTeamPredictor
+from framework.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
 from framework.competition import CompetitorManager
 from framework.competition.Competition import TreeChampionship
 from framework.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
@@ -14,7 +16,7 @@ def main(args):
     n_epochs = args.n_epochs
     n_league_epochs = args.n_league_epochs
     base_port = args.base_port
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     meta_data = MetaData()
     conns = []
     ce = ChampionshipEcosystem(roster, meta_data, debug=True, store_teams=True)
@@ -23,6 +25,8 @@ def main(args):
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         conns.append(conn)
         competitor = ProxyCompetitor(conn)
+        competitor.teamPredictor = NullTeamPredictor()
+        competitor.teamSelectionPolicy = FirstEditionTeamSelectionPolicy()
         cm = CompetitorManager(competitor)
         ce.register(cm)
     ce.run(n_epochs=n_epochs, n_league_epochs=n_league_epochs)
