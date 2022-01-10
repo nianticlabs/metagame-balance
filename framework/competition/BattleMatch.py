@@ -5,6 +5,7 @@ from typing import Tuple, List, Optional
 from framework.balance.meta import MetaData
 from framework.behaviour import BattlePolicy
 from framework.behaviour.TeamPredictors import NullTeamPredictor
+from framework.competition import CompetitorManager
 from framework.competition.Competitor import Competitor
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from framework.datatypes.Objects import PkmFullTeam, get_full_team_view, PkmTeamPrediction, PkmFullTeamView, PkmTeam
@@ -14,7 +15,7 @@ from framework.engine.PkmBattleEnv import PkmBattleEnv
 def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullTeamView,
                    opp_team_view: PkmFullTeamView) -> PkmTeam:
     try:
-        team_ids = list(c.selector_policy.get_action((my_team_view, opp_team_view)))
+        team_ids = list(c.team_selection_policy.get_action((my_team_view, opp_team_view)))
     except:
         team_ids = sample(range(6), DEFAULT_TEAM_SIZE)
     return full_team.get_battle_team(team_ids)
@@ -22,12 +23,11 @@ def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullT
 
 class BattleMatch:
 
-    def __init__(self, competitor0: Competitor, competitor1: Competitor, full_team0: PkmFullTeam,
-                 full_team1: PkmFullTeam, n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False,
-                 render: bool = True, meta_data: Optional[MetaData] = None):
+    def __init__(self, competitor0: CompetitorManager, competitor1: CompetitorManager,
+                 n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False, render: bool = False,
+                 meta_data: Optional[MetaData] = None):
         self.n_battles: int = n_battles
-        self.competitors: Tuple[Competitor, Competitor] = (competitor0, competitor1)
-        self.full_teams: Tuple[PkmFullTeam, PkmFullTeam] = (full_team0, full_team1)
+        self.cms: Tuple[CompetitorManager, CompetitorManager] = (competitor0, competitor1)
         self.wins: List[int] = [0, 0]
         self.debug = debug
         self.render_mode = 'ux' if render else 'console'
@@ -35,10 +35,10 @@ class BattleMatch:
         self.meta_data = meta_data
 
     def run(self):
-        c0 = self.competitors[0]
-        c1 = self.competitors[1]
-        full_team0 = self.full_teams[0]
-        full_team1 = self.full_teams[1]
+        c0 = self.cms[0].competitor
+        c1 = self.cms[1].competitor
+        full_team0 = self.cms[0].team
+        full_team1 = self.cms[1].team
         full_team0.reveal()
         full_team1.reveal()
         team0_view0 = get_full_team_view(full_team0)
@@ -71,12 +71,12 @@ class BattleMatch:
             return NullTeamPredictor.null_team_prediction
         else:
             try:
-                return c.team_prediction_policy.get_action((opp_team_view, self.meta_data))
+                return c.team_predictor.get_action((opp_team_view, self.meta_data))
             except:
                 return NullTeamPredictor.null_team_prediction
 
     def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam) -> int:
-        env = PkmBattleEnv(teams=(team0, team1))
+        env = PkmBattleEnv(teams=(team0, team1), debug=self.debug)
         s = env.reset()
         v = env.game_state_view
         if self.debug:

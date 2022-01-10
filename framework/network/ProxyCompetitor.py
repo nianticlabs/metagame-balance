@@ -2,7 +2,7 @@
 from multiprocessing.connection import Client
 from typing import Set
 
-from framework.behaviour import BattlePolicy, SelectorPolicy, TeamBuilderPolicy, TeamPredictor, TeamValuator, \
+from framework.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, TeamValuator, \
     BalancePolicy
 from framework.competition.Competition import Competitor
 from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, PkmRoster
@@ -34,7 +34,7 @@ class ProxyBattlePolicy(BattlePolicy):
         self.conn.send(('BattlePolicy', 'close'))
 
 
-class ProxySelectorPolicy(SelectorPolicy):
+class ProxyTeamSelectionPolicy(TeamSelectionPolicy):
 
     def __init__(self, conn: Client, timeout: float):
         self.conn: Client = conn
@@ -57,7 +57,7 @@ class ProxySelectorPolicy(SelectorPolicy):
         self.conn.send(('SelectorPolicy', 'close'))
 
 
-class ProxyTeamBuilderPolicy(TeamBuilderPolicy):
+class ProxyTeamBuildPolicy(TeamBuildPolicy):
 
     def __init__(self, conn: Client, timeout: float):
         self.conn: Client = conn
@@ -162,8 +162,8 @@ class ProxyCompetitor(Competitor):
     def __init__(self, conn: Client):
         self.conn = conn
         self.battlePolicy = ProxyBattlePolicy(conn, 1.0)
-        self.selectorPolicy = ProxySelectorPolicy(conn, 1.0)
-        self.teamBuilderPolicy = ProxyTeamBuilderPolicy(conn, 1.0)
+        self.selectorPolicy = ProxyTeamSelectionPolicy(conn, 1.0)
+        self.teamBuilderPolicy = ProxyTeamBuildPolicy(conn, 1.0)
         self.teamPredictor = ProxyTeamPredictor(conn, 1.0)
         self.teamValuator = ProxyTeamValuator(conn, 1.0)
         self.balancePolicy = ProxyBalancePolicy(conn, 1.0)
@@ -173,19 +173,19 @@ class ProxyCompetitor(Competitor):
         return self.battlePolicy
 
     @property
-    def selector_policy(self) -> SelectorPolicy:
+    def team_selection_policy(self) -> TeamSelectionPolicy:
         return self.selectorPolicy
 
     @property
-    def team_builder_policy(self) -> TeamBuilderPolicy:
+    def team_build_policy(self) -> TeamBuildPolicy:
         return self.teamBuilderPolicy
 
     @property
-    def team_prediction_policy(self) -> TeamPredictor:
+    def team_predictor(self) -> TeamPredictor:
         return self.teamPredictor
 
     @property
-    def team_valuator_policy(self) -> TeamValuator:
+    def team_valuator(self) -> TeamValuator:
         return self.teamValuator
 
     @property

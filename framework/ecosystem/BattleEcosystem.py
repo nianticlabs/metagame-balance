@@ -17,7 +17,7 @@ class Strategy(Enum):
 
 class BattleEcosystem:
 
-    def __init__(self, meta_data: MetaData, debug=False, render=True, n_battles=DEFAULT_MATCH_N_BATTLES,
+    def __init__(self, meta_data: MetaData, debug=False, render=False, n_battles=DEFAULT_MATCH_N_BATTLES,
                  pairings_strategy: Strategy = Strategy.RANDOM_PAIRING):
         self.meta_data = meta_data
         self.competitors: List[CompetitorManager] = []
@@ -53,8 +53,7 @@ class BattleEcosystem:
     def __run_matches(self, pairs: List[Tuple[CompetitorManager, CompetitorManager]]):
         for pair in pairs:
             cm0, cm1 = pair
-            match = BattleMatch(cm0.competitor, cm1.competitor, cm0.team, cm1.team, self.n_battles, self.debug,
-                                self.render, meta_data=self.meta_data)
+            match = BattleMatch(cm0, cm1, self.n_battles, self.debug, self.render, meta_data=self.meta_data)
             match.run()
             if match.winner == 0:
                 cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)

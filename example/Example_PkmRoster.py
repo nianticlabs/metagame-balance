@@ -1,5 +1,5 @@
 from framework.balance.meta import MetaData
-from framework.behaviour.TeamBuilderPolicies import RandomTeamBuilderPolicy
+from framework.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.datatypes.Objects import get_pkm_roster_view
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
@@ -10,7 +10,7 @@ def main():
     for pt in roster:
         print(pt)
 
-    a = RandomTeamBuilderPolicy()
+    a = RandomTeamBuildPolicy()
     t = a.get_action((MetaData(), None, get_pkm_roster_view(roster), NullTeamValuator.null_team_value))
     print(t)
 

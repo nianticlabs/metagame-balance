@@ -26,14 +26,14 @@ class BattlePolicy(Behaviour):
         pass
 
 
-class SelectorPolicy(Behaviour):
+class TeamSelectionPolicy(Behaviour):
 
     @abstractmethod
     def get_action(self, s) -> Set[int]:
         pass
 
 
-class TeamBuilderPolicy(Behaviour):
+class TeamBuildPolicy(Behaviour):
 
     @abstractmethod
     def get_action(self, s) -> PkmFullTeam:

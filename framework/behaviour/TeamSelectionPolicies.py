@@ -3,12 +3,12 @@ from typing import Set, Tuple
 
 import PySimpleGUI as sg
 
-from framework.behaviour import SelectorPolicy
+from framework.behaviour import TeamSelectionPolicy
 from framework.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
 from framework.datatypes.Objects import PkmFullTeamView
 
 
-class GUISelectorPolicy(SelectorPolicy):
+class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
     def __init__(self, selected_team_size: int = DEFAULT_TEAM_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
@@ -61,7 +61,7 @@ class GUISelectorPolicy(SelectorPolicy):
         self.window.close()
 
 
-class RandomSelectorPolicy(SelectorPolicy):
+class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
     def __init__(self, teams_size: int = MAX_TEAM_SIZE, selection_size: int = DEFAULT_TEAM_SIZE):
         self.teams_size = teams_size
@@ -84,7 +84,7 @@ class RandomSelectorPolicy(SelectorPolicy):
         pass
 
 
-class FirstEditionSelectorPolicy(SelectorPolicy):
+class FirstEditionTeamSelectionPolicy(TeamSelectionPolicy):
 
     def requires_encode(self) -> bool:
         return False

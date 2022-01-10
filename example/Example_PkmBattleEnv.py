@@ -1,4 +1,4 @@
-from framework.behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
+from framework.behaviour.BattlePolicies import RandomBattlePolicy
 from framework.engine.PkmBattleEnv import PkmBattleEnv
 
 
@@ -6,7 +6,7 @@ def main():
     env = PkmBattleEnv(debug=True)
     env.reset()
     t = False
-    a0 = GUIBattlePolicy()
+    a0 = RandomBattlePolicy()
     a1 = RandomBattlePolicy()
     ep = 0
     n_battles = 3

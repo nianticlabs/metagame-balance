@@ -1,13 +1,16 @@
+from example.Example_Competitor import ExampleCompetitor
+from framework.competition import CompetitorManager
 from framework.competition.BattleMatch import BattleMatch
-from framework.competition.Competitor import ExampleCompetitor
 from framework.util.generator.PkmTeamGenerators import RandomGenerator
 
 
 def main():
     rg = RandomGenerator()
-    c0 = ExampleCompetitor("Player1")
-    c1 = ExampleCompetitor("Player2")
-    match = BattleMatch(c0, c1, rg.get_team(), rg.get_team(), debug=True)
+    cm0 = CompetitorManager(ExampleCompetitor("Player 1"))
+    cm0.team = rg.get_team()
+    cm1 = CompetitorManager(ExampleCompetitor("Player 2"))
+    cm1.team = rg.get_team()
+    match = BattleMatch(cm0, cm1, debug=True)
     match.run()
 
 
