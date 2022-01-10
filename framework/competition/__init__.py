@@ -40,6 +40,7 @@ class CompetitorManager:
         self.team: Optional[PkmFullTeam] = None
         self.elo: float = INITIAL
         self.team_archive_path = time.strftime("%Y%m%d-%H%M%S") + '_' + self.competitor.name
+        self.n_teams = 0
 
     def get_archived_team(self, idx: int) -> PkmFullTeam:
         index = 0
@@ -57,3 +58,4 @@ class CompetitorManager:
     def record_team(self, team: PkmFullTeam):
         with open(self.team_archive_path, "a+") as f:
             f.writelines([codecs.encode(pickle.dumps(team), "base64").decode()])
+        self.n_teams += 1

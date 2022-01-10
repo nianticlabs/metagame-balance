@@ -12,7 +12,7 @@ N_PLAYERS = 4
 def main():
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
     meta_data = MetaData()
-    ce = ChampionshipEcosystem(roster, meta_data, debug=True, render=True)
+    ce = ChampionshipEcosystem(roster, meta_data, debug=True)
     conns = []
     for i in range(N_PLAYERS):
         address = ('localhost', 5000 + i)

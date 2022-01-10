@@ -1,4 +1,5 @@
 from example.Example_Competitor import ExampleCompetitor
+from framework.competition import CompetitorManager
 from framework.competition.Competition import TreeChampionship
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
@@ -10,9 +11,10 @@ def main():
     competitors = [ExampleCompetitor('Player ' + str(i)) for i in range(N_COMPETITORS)]
     championship = TreeChampionship(roster, debug=True)
     for competitor in competitors:
-        championship.register(competitor)
+        championship.register(CompetitorManager(competitor))
     championship.new_tournament()
-    championship.run()
+    winner = championship.run()
+    print(winner.competitor.name + " wins the tournament!")
 
 
 if __name__ == '__main__':

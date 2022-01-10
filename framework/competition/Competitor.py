@@ -11,7 +11,7 @@ from framework.behaviour.TeamValuators import NullTeamValuator
 
 random_battle_policy = RandomBattlePolicy()
 random_selector_policy = RandomTeamSelectionPolicy()
-random_builder_policy = RandomTeamBuildPolicy()
+random_team_build_policy = RandomTeamBuildPolicy()
 idle_balance_policy = IdleBalancePolicy()
 null_team_predictor = NullTeamPredictor()
 null_team_valuator = NullTeamValuator()
@@ -29,7 +29,7 @@ class Competitor(ABC):
 
     @property
     def team_build_policy(self) -> TeamBuildPolicy:
-        return random_builder_policy
+        return random_team_build_policy
 
     @property
     def team_predictor(self) -> TeamPredictor:

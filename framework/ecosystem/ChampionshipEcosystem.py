@@ -18,13 +18,14 @@ null_team_value = NullTeamValue()
 class ChampionshipEcosystem:
 
     def __init__(self, roster: PkmRoster, meta_data: MetaData, debug=False, render=False,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING):
+                 n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING, store_teams=False):
         self.meta_data = meta_data
         self.roster = roster
         self.roster_view = get_pkm_roster_view(self.roster)
         self.rand_gen = RandomGeneratorRoster(self.roster)
         self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy)
         self.debug = debug
+        self.store_teams = store_teams
 
     def register(self, cm: CompetitorManager):
         self.league.register(cm)
@@ -59,3 +60,5 @@ class ChampionshipEcosystem:
                 cm.team = self.rand_gen.get_team()
         except:
             cm.team = cm.team
+        if self.store_teams:
+            cm.record_team(cm.team)

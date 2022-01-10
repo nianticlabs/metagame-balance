@@ -7,7 +7,7 @@ from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.competition import CompetitorManager
 from framework.competition.BattleMatch import BattleMatch
 from framework.competition.Competitor import Competitor
-from framework.datatypes.Objects import PkmRoster, get_pkm_roster_view
+from framework.datatypes.Objects import PkmRoster, get_pkm_roster_view, PkmFullTeam
 
 
 class Championship(ABC):
@@ -71,9 +71,10 @@ class MatchHandlerTree:
             self.__build_sub_tree(cm[:half])
             self.__build_sub_tree(cm[half:])
 
-    def run_matches(self, debug: bool = False):
+    def run_matches(self, debug: bool = False) -> CompetitorManager:
         for handler in self.handlers:
             handler.run_match(debug)
+        return self.handlers[-1].winner
 
 
 class TreeChampionship(Championship):
@@ -85,10 +86,20 @@ class TreeChampionship(Championship):
         self.meta_data = meta_data
         self.debug = debug
 
-    def register(self, c: Competitor):
-        cm = CompetitorManager(c)
+    def register(self, cm: CompetitorManager):
         cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view,
                                                               NullTeamValuator.null_team_value))
+        self.competitors.append(cm)
+
+    def vgc_register(self, cm: CompetitorManager):
+        cm.team = PkmFullTeam()
+        max_value = NullTeamValuator.null_team_value
+        for i in range(cm.n_teams):
+            team = cm.get_archived_team(i)
+            team_value = cm.competitor.team_valuator.get_action((team, self.meta_data))
+            if max_value.compare_to(team_value):
+                max_value = team_value
+                cm.team = team
         self.competitors.append(cm)
 
     def new_tournament(self):
@@ -96,5 +107,5 @@ class TreeChampionship(Championship):
         self.match_tree = MatchHandlerTree(self.competitors, self.debug)
         self.match_tree.build_tree()
 
-    def run(self):
-        self.match_tree.run_matches(self.debug)
+    def run(self) -> CompetitorManager:
+        return self.match_tree.run_matches(self.debug)
