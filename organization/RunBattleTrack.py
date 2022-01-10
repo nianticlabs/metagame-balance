@@ -9,7 +9,7 @@ from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerato
 
 def main(args):
     n_agents = args.n_agents
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     championship = TreeChampionship(roster, debug=True)
     conns = []
     for i in range(n_agents):
