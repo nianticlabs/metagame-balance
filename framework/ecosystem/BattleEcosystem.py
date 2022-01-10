@@ -54,7 +54,7 @@ class BattleEcosystem:
         for pair in pairs:
             cm0, cm1 = pair
             match = BattleMatch(cm0.competitor, cm1.competitor, cm0.team, cm1.team, self.n_battles, self.debug,
-                                self.render)
+                                self.render, meta_data=self.meta_data)
             match.run()
             if match.winner == 0:
                 cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)

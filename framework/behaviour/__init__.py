@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Set
 
-from framework.balance.meta import MetaData
 from framework.datatypes.Objects import PkmRoster, PkmTeamPrediction, PkmFullTeam, TeamValue
 
 
@@ -45,13 +44,6 @@ class TeamPredictor(Behaviour):
 
     @abstractmethod
     def get_action(self, s) -> PkmTeamPrediction:
-        pass
-
-
-class DataAggregator(Behaviour):
-
-    @abstractmethod
-    def get_action(self, s) -> MetaData:
         pass
 
 

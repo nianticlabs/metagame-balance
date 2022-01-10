@@ -18,7 +18,7 @@ class NullTeamValue(TeamValue):
 null_team_value = NullTeamValue()
 
 
-class VGCEcosystem:
+class ChampionshipEcosystem:
 
     def __init__(self, roster: PkmRoster, meta_data: MetaData, debug=False, render=True,
                  n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING):

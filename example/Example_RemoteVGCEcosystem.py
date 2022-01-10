@@ -1,7 +1,7 @@
 from multiprocessing.connection import Client
 
 from framework.balance.meta import MetaData
-from framework.ecosystem.VGCEcosystem import VGCEcosystem
+from framework.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from framework.network.ProxyCompetitor import ProxyCompetitor
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
@@ -12,7 +12,7 @@ N_PLAYERS = 4
 def main():
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
     meta_data = MetaData()
-    le = VGCEcosystem(roster, meta_data, debug=True, render=True)
+    le = ChampionshipEcosystem(roster, meta_data, debug=True, render=True)
     conns = []
     for i in range(N_PLAYERS):
         address = ('localhost', 5000 + i)

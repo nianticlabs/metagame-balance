@@ -4,7 +4,7 @@ from framework.competition.Competition import Competitor
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from framework.datatypes.Objects import PkmRoster
 from framework.ecosystem.BattleEcosystem import Strategy
-from framework.ecosystem.VGCEcosystem import VGCEcosystem
+from framework.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 
 
 class GameBalanceEcosystem:
@@ -16,7 +16,7 @@ class GameBalanceEcosystem:
         self.roster = base_roster
         self.constraints = constraints
         self.meta_data = meta_data
-        self.vgc: VGCEcosystem = VGCEcosystem(self.roster, meta_data, debug, render, n_battles)
+        self.vgc: ChampionshipEcosystem = ChampionshipEcosystem(self.roster, meta_data, debug, render, n_battles)
         for competitor in range(n_competitors):
             self.vgc.register(battle_c)
 
