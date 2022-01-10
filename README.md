@@ -56,5 +56,5 @@ Please cite this work if used.
 
 ## TODO
 
-* Meta-Balance Evaluation (ongoing)
+* Meta-Balance Evaluation and Integration (ongoing)
 * Add Baseline Agents
