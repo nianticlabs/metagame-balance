@@ -16,19 +16,19 @@ the container boot.
 
 ## Project Organization
 
-In the competitor module you can store your developed agents to be used as plugins. There is a small provided example.
-
 In the example module can be found multiple how to use the framework examples to train or test isolated agents or
 behaviours or run full ecosystems.
 
 In the framework module is the core implementation of the VGC AI Framework.
 
+In the organization module can be found the multiple entry points for the main ecosystem layers in the VGC AI Framework.
+
 In the test module is contained some unit tests from the core framework modules.
 
 ## Documentation
 
-All the documentation from Applicational Programming Interface and Framework architecture can be found in
-the [wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
+All the documentation from Applicational Programming Interface, VGC Framework architecture to the COmpetition Tracks and
+Rules can be found in the [Wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
 
 ## Citation
 
