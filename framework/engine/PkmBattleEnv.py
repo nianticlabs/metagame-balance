@@ -44,9 +44,6 @@ class PkmBattleEnv(gym.Env):
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.winner = -1
 
-    def set_conn(self, conn: Client):
-        self.conn = conn
-
     def step(self, actions):
 
         # Reset variables
@@ -150,12 +147,6 @@ class PkmBattleEnv(gym.Env):
         partial_encode_game_state(e0, self.game_state[0])
         partial_encode_game_state(e1, self.game_state[1])
         return [e0, e1], r, finished, self.game_state_view
-
-    def set_new_teams(self, teams: Tuple[PkmTeam, PkmTeam]):
-        self.teams = teams
-        self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
-                           GameState([self.teams[1], self.teams[0]], self.weather)]
-        self.game_state_view = [get_game_state_view(self.game_state[0]), get_game_state_view(self.game_state[1])]
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR

@@ -752,7 +752,7 @@ class PkmTeam:
 
     def reset_team_members(self, pkms: List[Pkm] = None):
         """
-        Reset tean members
+        Reset team members
 
         :param pkms: list of pkm members
         """

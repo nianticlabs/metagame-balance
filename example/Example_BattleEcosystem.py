@@ -3,7 +3,7 @@ from framework.balance.meta import MetaData
 from framework.competition import CompetitorManager
 from framework.ecosystem.BattleEcosystem import BattleEcosystem
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.generator.PkmTeamGenerators import RandomGeneratorRoster
+from framework.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
 N_PLAYERS = 16
 
@@ -14,7 +14,7 @@ def main():
     le = BattleEcosystem(meta_data, debug=True)
     for i in range(N_PLAYERS):
         cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
-        cm.team = RandomGeneratorRoster(roster).get_team()
+        cm.team = RandomTeamFromRoster(roster).get_team()
         le.register(cm)
     le.run(10)
 

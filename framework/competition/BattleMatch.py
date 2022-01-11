@@ -10,6 +10,7 @@ from framework.competition.Competitor import Competitor
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from framework.datatypes.Objects import PkmFullTeam, get_full_team_view, PkmTeamPrediction, PkmFullTeamView, PkmTeam
 from framework.engine.PkmBattleEnv import PkmBattleEnv
+from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullTeamView,
@@ -25,7 +26,7 @@ class BattleMatch:
 
     def __init__(self, competitor0: CompetitorManager, competitor1: CompetitorManager,
                  n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False, render: bool = False,
-                 meta_data: Optional[MetaData] = None):
+                 meta_data: Optional[MetaData] = None, random_teams=False):
         self.n_battles: int = n_battles
         self.cms: Tuple[CompetitorManager, CompetitorManager] = (competitor0, competitor1)
         self.wins: List[int] = [0, 0]
@@ -33,6 +34,7 @@ class BattleMatch:
         self.render_mode = 'ux' if render else 'console'
         self.finished = False
         self.meta_data = meta_data
+        self.random_teams = random_teams
 
     def run(self):
         c0 = self.cms[0].competitor
@@ -49,14 +51,14 @@ class BattleMatch:
         team1_view0 = get_full_team_view(full_team0, team0_prediction, partial=True)
         a0 = c0.battle_policy
         a1 = c1.battle_policy
-        game = 0
-        while game < self.n_battles:
+        battle = 0
+        while battle < self.n_battles:
             team0 = team_selection(c0, full_team0, team0_view0, team0_view1)
             team1 = team_selection(c1, full_team1, team1_view1, team1_view0)
-            game += 1
+            battle += 1
             if self.debug:
-                print('GAME ' + str(game) + '\n')
-            winner = self.__run_battle(a0, a1, team0, team1)
+                print('BATTLE ' + str(battle) + '\n')
+            winner = self.__run_battle(a0, a1, team0, team1, team0_prediction, team1_prediction)
             if self.wins[winner] > self.n_battles // 2:
                 break
         if self.debug:
@@ -75,8 +77,9 @@ class BattleMatch:
             except:
                 return NullTeamPredictor.null_team_prediction
 
-    def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam) -> int:
-        env = PkmBattleEnv(teams=(team0, team1), debug=self.debug)
+    def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
+                     pred0: Optional[PkmTeamPrediction], pred1: Optional[PkmTeamPrediction]) -> int:
+        env = PkmBattleEnv((team0, team1), self.debug, [pred1, pred0])
         s = env.reset()
         v = env.game_state_view
         if self.debug:

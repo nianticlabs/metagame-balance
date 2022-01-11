@@ -2,10 +2,10 @@ from multiprocessing.connection import Client
 
 from framework.behaviour.BattlePolicies import RandomBattlePolicy
 from framework.engine.PkmBattleEnv import PkmBattleEnv
-from framework.util.generator.PkmTeamGenerators import RandomGenerator
+from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 address = ('localhost', 6000)
-gen = RandomGenerator()
+gen = RandomTeamGenerator()
 full_team0 = gen.get_team()
 full_team1 = gen.get_team()
 conn = Client(address, authkey='VGC AI'.encode('utf-8'))
