@@ -5,9 +5,10 @@ from typing import List, Optional
 from framework.balance.meta import MetaData
 from framework.behaviour.TeamValuators import NullTeamValuator
 from framework.competition import CompetitorManager
-from framework.competition.BattleMatch import BattleMatch
+from framework.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
 from framework.competition.Competitor import Competitor
 from framework.datatypes.Objects import PkmRoster, get_pkm_roster_view, PkmFullTeam
+from framework.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
 class Championship(ABC):
@@ -17,37 +18,44 @@ class Championship(ABC):
         pass
 
 
-class MatchHandlerTree:
-    class MatchHandler:
+class MatchHandler:
 
-        def __init__(self):
-            self.winner: Optional[CompetitorManager] = None
-            self.match: Optional[BattleMatch] = None
-            self.prev_mh0 = None
-            self.prev_mh1 = None
+    def __init__(self, gen: Optional[PkmTeamGenerator] = None):
+        self.winner: Optional[CompetitorManager] = None
+        self.match: Optional[BattleMatch] = None
+        self.prev_mh0 = None
+        self.prev_mh1 = None
+        self.gen = gen
 
-        def run_match(self, debug: bool = False):
-            if self.match is None:
+    def run_match(self, debug: bool = False):
+        if self.match is None:
+            if self.gen is not None:
+                self.match = RandomTeamsBattleMatch(self.gen, self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
+            else:
                 self.match = BattleMatch(self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
+        if debug:
+            print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
+        if not self.match.finished:
+            self.match.run()
+            winner = self.match.winner()
+            if winner == 0:
+                self.winner = self.match.cms[0]
+            else:
+                self.winner = self.match.cms[1]
             if debug:
-                print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
-            if not self.match.finished:
-                self.match.run()
-                winner = self.match.winner()
-                if winner == 0:
-                    self.winner = self.match.cms[0]
-                else:
-                    self.winner = self.match.cms[1]
-                if debug:
-                    print(self.winner.competitor.name + ' wins' + '\n')
+                print(self.winner.competitor.name + ' wins' + '\n')
+
+
+class MatchHandlerTree:
 
     def __init__(self, competitors: List[CompetitorManager], debug: bool = False,
-                 meta_data: Optional[MetaData] = None):
+                 meta_data: Optional[MetaData] = None, gen: Optional[PkmTeamGenerator] = None):
         self.meta_data = meta_data
         self.competitors = competitors
-        self.handlers: List[MatchHandlerTree.MatchHandler] = [MatchHandlerTree.MatchHandler()]
+        self.handlers: List[MatchHandler] = [MatchHandler(gen)]
         self.pos = 0
         self.debug = debug
+        self.gen = gen
 
     def build_tree(self):
         self.__build_sub_tree(self.competitors)
@@ -64,8 +72,8 @@ class MatchHandlerTree:
             mh.match = BattleMatch(cm[0], cm[1], debug=self.debug)
         else:
             half = len(cm) // 2
-            mh.prev_mh0 = MatchHandlerTree.MatchHandler()
-            mh.prev_mh1 = MatchHandlerTree.MatchHandler()
+            mh.prev_mh0 = MatchHandler(self.gen)
+            mh.prev_mh1 = MatchHandler(self.gen)
             self.handlers.append(mh.prev_mh0)
             self.handlers.append(mh.prev_mh1)
             self.__build_sub_tree(cm[:half])
@@ -79,12 +87,14 @@ class MatchHandlerTree:
 
 class TreeChampionship(Championship):
 
-    def __init__(self, roster: PkmRoster, meta_data: Optional[MetaData] = None, debug: bool = False):
+    def __init__(self, roster: PkmRoster, meta_data: Optional[MetaData] = None, debug: bool = False,
+                 gen: Optional[PkmTeamGenerator] = None):
         self.competitors: List[CompetitorManager] = []
         self.match_tree: Optional[MatchHandlerTree] = None
         self.roster_view = get_pkm_roster_view(roster)
         self.meta_data = meta_data
         self.debug = debug
+        self.gen = gen
 
     def register(self, cm: CompetitorManager):
         cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view,
@@ -104,7 +114,7 @@ class TreeChampionship(Championship):
 
     def new_tournament(self):
         random.shuffle(self.competitors)
-        self.match_tree = MatchHandlerTree(self.competitors, self.debug)
+        self.match_tree = MatchHandlerTree(self.competitors, self.debug, gen=self.gen)
         self.match_tree.build_tree()
 
     def run(self) -> CompetitorManager:

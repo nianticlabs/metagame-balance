@@ -5,12 +5,13 @@ from framework.competition import CompetitorManager
 from framework.competition.Competition import TreeChampionship
 from framework.network.ProxyCompetitor import ProxyCompetitor
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def main(args):
     n_agents = args.n_agents
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
-    championship = TreeChampionship(roster, debug=True)
+    championship = TreeChampionship(roster, debug=True, gen=RandomTeamGenerator(2))
     conns = []
     for i in range(n_agents):
         address = ('localhost', 5000 + i)
