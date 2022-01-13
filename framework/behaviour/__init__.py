@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Set, Union, List, Tuple
 
+from framework.balance import DeltaRoster
 from framework.balance.meta import MetaData
-from framework.datatypes.Objects import PkmRoster, PkmTeamPrediction, PkmFullTeam, TeamValue, GameStateView, \
+from framework.balance.restriction import VGCDesignConstraints
+from framework.datatypes.Objects import PkmTeamPrediction, PkmFullTeam, TeamValue, GameStateView, \
     PkmFullTeamView, PkmRosterView
 
 
@@ -58,5 +60,5 @@ class TeamValuator(Behaviour):
 class BalancePolicy(Behaviour):
 
     @abstractmethod
-    def get_action(self, s: Tuple[PkmRosterView, MetaData]) -> PkmRoster:
+    def get_action(self, s: Tuple[PkmRosterView, MetaData, VGCDesignConstraints]) -> DeltaRoster:
         pass

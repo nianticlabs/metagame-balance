@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Set, Dict, Tuple, List
 
 from framework.balance.archtype import TeamArchtype, standard_move_distance, standard_pkm_distance
@@ -6,7 +6,10 @@ from framework.datatypes.Objects import PkmTemplate, PkmMove
 
 
 class MetaData(ABC):
-    pass
+
+    @abstractmethod
+    def evaluate(self) -> float:
+        pass
 
 
 class StandardMetaData(MetaData):
@@ -117,3 +120,6 @@ class StandardMetaData(MetaData):
 
     def get_pkm_usagerate(self, pkm: PkmTemplate):
         return self._pkm_usage[pkm] / self._total_pkm_usage
+
+    def evaluate(self) -> float:
+        return 0.0

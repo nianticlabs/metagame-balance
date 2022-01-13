@@ -18,6 +18,7 @@ class GameBalanceEcosystem:
         self.c = competitor
         self.constraints = constraints
         self.meta_data = meta_data
+        self.accumulated_points = 0.0
         self.vgc: ChampionshipEcosystem = ChampionshipEcosystem(base_roster, meta_data, debug, render, n_battles,
                                                                 strategy=strategy)
         for c in surrogate_agent:
@@ -27,12 +28,12 @@ class GameBalanceEcosystem:
         epoch = 0
         while epoch < n_epochs:
             self.vgc.run(n_vgc_epochs, n_league_epochs)
-            # TODO evaluate meta
-            # TODO get deltas not entire roster
-            new_roster = self.c.balance_policy.get_action((self.vgc.roster, self.meta_data, self.constraints))
-            violated_rules = self.constraints.check_every_rule(new_roster)
+            self.accumulated_points += self.meta_data.evaluate()
+            delta_roster = self.c.balance_policy.get_action((get_pkm_roster_view(self.vgc.roster), self.meta_data,
+                                                             self.constraints))
+            delta_roster.apply(self.vgc.roster)
+            violated_rules = self.constraints.check_every_rule(self.vgc.roster)
             if len(violated_rules) == 0:
-                self.vgc.roster = new_roster
-                self.vgc.roster_view = get_pkm_roster_view(self.vgc.roster)
+                pass
                 # TODO update meta with deltas
             epoch += 1

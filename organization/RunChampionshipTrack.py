@@ -5,7 +5,7 @@ from framework.balance.meta import MetaData
 from framework.behaviour.TeamPredictors import NullTeamPredictor
 from framework.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
 from framework.competition import CompetitorManager
-from framework.competition.Competition import TreeChampionship
+# from framework.competition.Competition import TreeChampionship
 from framework.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from framework.network.ProxyCompetitor import ProxyCompetitor
 from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator

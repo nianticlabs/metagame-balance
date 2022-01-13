@@ -2,6 +2,7 @@
 from multiprocessing.connection import Client
 from typing import Set
 
+from framework.balance import DeltaRoster
 from framework.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, TeamValuator, \
     BalancePolicy
 from framework.competition.Competition import Competitor
@@ -139,11 +140,11 @@ class ProxyBalancePolicy(BalancePolicy):
         self.conn: Client = conn
         self.timeout: float = timeout
 
-    def get_action(self, s) -> PkmRoster:
-        prv, md = s
+    def get_action(self, s) -> DeltaRoster:
+        prv, md, dc = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('BalancePolicy', 'get_action', (SerializedPkmRoster(prv), md)))
-        action: PkmRoster = self.conn.recv()
+        self.conn.send(('BalancePolicy', 'get_action', (SerializedPkmRoster(prv), md, dc)))
+        action: DeltaRoster = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
