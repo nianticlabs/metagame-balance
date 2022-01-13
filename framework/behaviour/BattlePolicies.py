@@ -31,9 +31,6 @@ class SimpleBattlePolicy(BattlePolicy):
     def close(self):
         pass
 
-    def requires_encode(self) -> bool:
-        return False
-
     def get_action(self, g: GameStateView) -> int:
         """
         Decision step.
@@ -96,9 +93,6 @@ class GUIBattlePolicy(BattlePolicy):
         layout = [[self.weather], [self.opponent], [self.active], self.moves] + self.party
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()
-
-    def requires_encode(self) -> bool:
-        return False
 
     def get_action(self, g: GameStateView) -> int:
         """
@@ -192,9 +186,6 @@ class RandomBattlePolicy(BattlePolicy):
         self.n_actions: int = n_moves + n_switches
         self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
                 [switch_probability / n_switches] * n_switches)
-
-    def requires_encode(self) -> bool:
-        return False
 
     def get_action(self, g: GameStateView) -> int:
         """

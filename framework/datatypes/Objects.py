@@ -509,10 +509,6 @@ class PkmView(ABC):
     def n_turns_asleep(self) -> int:
         pass
 
-    @abstractmethod
-    def get_copy(self) -> Pkm:
-        pass
-
 
 def get_pkm_view(pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None, partial=False) -> PkmView:
     class PkmViewImpl(PkmView):
@@ -546,14 +542,6 @@ def get_pkm_view(pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None, partial=Fals
         @property
         def n_turns_asleep(self) -> int:
             return pkm.n_turns_asleep
-
-        def get_copy(self) -> Pkm:
-            move0 = pkm.moves[0] if pkm.moves[0].revealed else null_pkm_move
-            move1 = pkm.moves[1] if pkm.moves[1].revealed else null_pkm_move
-            move2 = pkm.moves[2] if pkm.moves[2].revealed else null_pkm_move
-            move3 = pkm.moves[3] if pkm.moves[3].revealed else null_pkm_move
-            return deepcopy(pkm) if not partial or pkm.revealed else Pkm(pkm.type, pkm.max_hp, pkm.status, move0, move1,
-                                                                         move2, move3)
 
     return PkmViewImpl()
 
@@ -634,10 +622,6 @@ class PkmTemplateView(ABC):
     def max_hp(self) -> float:
         pass
 
-    @abstractmethod
-    def get_copy(self) -> PkmTemplate:
-        pass
-
 
 def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
     class PkmTemplateViewImpl(PkmTemplateView):
@@ -652,14 +636,6 @@ def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
         @property
         def max_hp(self) -> float:
             return template.max_hp
-
-        def get_copy(self) -> PkmTemplate:
-            """
-            Obtain full copy of the wrapped PkmTemplate.
-
-            :return: copy of the wrapped PkmTemplate.
-            """
-            return deepcopy(template)
 
         def __eq__(self, other):
             return self.pkm_type == other.pkm_type and self.max_hp == other.max_hp and self.get_move_roster_view() == \

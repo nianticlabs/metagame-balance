@@ -25,9 +25,6 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
         self.window.Finalize()
         self.select.Update(disabled=True)
 
-    def requires_encode(self) -> bool:
-        return False
-
     def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
         """
 
@@ -67,9 +64,6 @@ class RandomTeamSelectionPolicy(TeamSelectionPolicy):
         self.teams_size = teams_size
         self.selection_size = selection_size
 
-    def requires_encode(self) -> bool:
-        return False
-
     def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
         """
 
@@ -85,9 +79,6 @@ class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
 
 class FirstEditionTeamSelectionPolicy(TeamSelectionPolicy):
-
-    def requires_encode(self) -> bool:
-        return False
 
     def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
         """

@@ -31,7 +31,7 @@ class RandomMoveRosterGenerator(MoveRosterGenerator):
         for m in moves:
             base_move_roster.remove(m)
         move_roster: List[PkmMove] = moves
-        for _ in range(self.n_moves_pkm - 1):
+        for _ in range(self.n_moves_pkm - 2):
             if random.random() < .2:
                 m_type: PkmType = random.choice(LIST_OF_TYPES)
                 m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
