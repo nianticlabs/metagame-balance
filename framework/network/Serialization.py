@@ -176,7 +176,7 @@ class SerializedMoveRoster(MoveRosterView):
         self._n_moves = mrv.n_moves
 
     def get_move_view(self, idx: int) -> MoveView:
-        pass
+        return self._move_view[idx]
 
     @property
     def n_moves(self) -> int:

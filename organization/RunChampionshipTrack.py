@@ -19,7 +19,7 @@ def main(args):
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     meta_data = MetaData()
     conns = []
-    ce = ChampionshipEcosystem(roster, meta_data, debug=True, store_teams=True)
+    ce = ChampionshipEcosystem(roster, meta_data, debug=True)  # , store_teams=True)
     for i in range(n_agents):
         address = ('localhost', base_port + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
@@ -30,12 +30,14 @@ def main(args):
         cm = CompetitorManager(competitor)
         ce.register(cm)
     ce.run(n_epochs=n_epochs, n_league_epochs=n_league_epochs)
-    finals = TreeChampionship(roster, debug=True)
-    for cm in ce.league.competitors:
-        finals.vgc_register(cm)
-    finals.new_tournament()
-    winner = finals.run()
+    # finals = TreeChampionship(roster, debug=True)
+    # for cm in ce.league.competitors:
+    #     finals.vgc_register(cm)
+    # finals.new_tournament()
+    # winner = finals.run()
+    winner = ce.strongest()
     print(winner.competitor.name + " wins the tournament!")
+    print(f"ELO {winner.elo}")
     for conn in conns:
         conn.close()
 

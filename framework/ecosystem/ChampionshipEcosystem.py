@@ -1,3 +1,5 @@
+import operator
+
 from framework.balance.meta import MetaData
 from framework.competition import CompetitorManager, legal_team
 from framework.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
@@ -62,3 +64,6 @@ class ChampionshipEcosystem:
             cm.team = cm.team
         if self.store_teams:
             cm.record_team(cm.team)
+
+    def strongest(self) -> CompetitorManager:
+        return max(self.league.competitors, key=operator.attrgetter('elo'))

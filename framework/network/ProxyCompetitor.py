@@ -47,19 +47,19 @@ class ProxyTeamSelectionPolicy(TeamSelectionPolicy):
     def get_action(self, s) -> Set[int]:
         ptv0, ptv1 = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('SelectorPolicy', 'get_action', (SerializedPkmFullTeam(ptv0), SerializedPkmFullTeam(ptv1))))
+        self.conn.send(('TeamSelectionPolicy', 'get_action', (SerializedPkmFullTeam(ptv0), SerializedPkmFullTeam(ptv1))))
         action: Set[int] = self.conn.recv()
         return action
 
     def requires_encode(self) -> bool:
         # self.conn.settimeout(ENCODE_TIMEOUT)
-        self.conn.send(('SelectorPolicy', 'requires_encode',))
+        self.conn.send(('TeamSelectionPolicy', 'requires_encode',))
         action: bool = self.conn.recv()
         return action
 
     def close(self):
         # self.conn.settimeout(CLOSE_TIMEOUT)
-        self.conn.send(('SelectorPolicy', 'close'))
+        self.conn.send(('TeamSelectionPolicy', 'close'))
 
 
 class ProxyTeamBuildPolicy(TeamBuildPolicy):

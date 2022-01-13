@@ -30,9 +30,9 @@ class MatchHandler:
     def run_match(self, debug: bool = False):
         if self.match is None:
             if self.gen is not None:
-                self.match = RandomTeamsBattleMatch(self.gen, self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
+                self.match = RandomTeamsBattleMatch(self.gen, self.prev_mh0.winner(), self.prev_mh1.winner, debug=debug)
             else:
-                self.match = BattleMatch(self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
+                self.match = BattleMatch(self.prev_mh0.winner(), self.prev_mh1.winner(), debug=debug)
         if debug:
             print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
         if not self.match.finished:

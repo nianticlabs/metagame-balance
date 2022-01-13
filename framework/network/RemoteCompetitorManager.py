@@ -35,42 +35,42 @@ class RemoteCompetitorManager:
                 self.conn.send(self.competitor.battle_policy.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.battle_policy.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.battle_policy.close()
         elif msg[0] == 'TeamSelectionPolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_selection_policy.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.team_selection_policy.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.team_selection_policy.close()
         elif msg[0] == 'TeamBuildPolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_build_policy.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.team_build_policy.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.team_build_policy.close()
         elif msg[0] == 'TeamPredictor':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_predictor.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.team_predictor.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.team_predictor.close()
         elif msg[0] == 'TeamValuator':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_valuator.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.team_valuator.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.team_valuator.close()
         elif msg[0] == 'BalancePolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.balance_policy.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.balance_policy.requires_encode())
-            elif msg[2] == 'close':
+            elif msg[1] == 'close':
                 self.competitor.balance_policy.close()
         elif msg[0] == 'name':
             self.conn.send(self.competitor.name)
