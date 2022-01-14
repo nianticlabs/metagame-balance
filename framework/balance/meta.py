@@ -17,6 +17,18 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
+    def get_global_pkm_usage(self, pkm: PkmTemplate) -> float:
+        pass
+
+    @abstractmethod
+    def get_global_pkm_winrate(self, pkm: PkmTemplate) -> float:
+        pass
+
+    @abstractmethod
+    def get_global_move_usage(self, move: PkmMove) -> float:
+        pass
+
+    @abstractmethod
     def evaluate(self) -> float:
         pass
 
@@ -94,13 +106,13 @@ class StandardMetaData(MetaData):
                 self._move_usage[old_move] -= 1
             self._total_move_usage -= 12
 
-    def get_global_pkm_usagerate(self, pkm: PkmTemplate):
+    def get_global_pkm_usage(self, pkm: PkmTemplate) -> float:
         return self._pkm_usage[pkm] / self._total_pkm_usage
 
-    def get_global_pkm_winrate(self, pkm: PkmTemplate):
+    def get_global_pkm_winrate(self, pkm: PkmTemplate) -> float:
         return self._pkm_wins[pkm] / self._pkm_usage[pkm]
 
-    def get_global_move_usagerate(self, move: PkmMove):
+    def get_global_move_usage(self, move: PkmMove) -> float:
         return self._move_usage[move] / self._total_move_usage
 
     def evaluate(self) -> float:
