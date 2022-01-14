@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Tuple, List
 
 from framework.balance import DeltaRoster
-from framework.balance.archtype import standard_move_distance, standard_pkm_distance
+from framework.balance.archtype import standard_move_distance, standard_pkm_distance, standard_team_distance
 from framework.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam
 
 
@@ -29,6 +29,14 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
+    def get_global_move_winrate(self, move: PkmMove) -> float:
+        pass
+
+    @abstractmethod
+    def get_pair_usage(self, pair: Tuple[PkmTemplate, PkmTemplate]) -> float:
+        pass
+
+    @abstractmethod
     def evaluate(self) -> float:
         pass
 
@@ -42,13 +50,17 @@ class StandardMetaData(MetaData):
         # global usage rate - moves, pkm
         self._move_usage: Dict[PkmMove, int] = {}
         self._pkm_usage: Dict[PkmTemplate, int] = {}
+        # global win rate - moves, pkm
+        self._move_wins: Dict[PkmMove, int] = {}
         self._pkm_wins: Dict[PkmTemplate, int] = {}
         # similarity matrix - moves, pkm
         self._d_move: Dict[Tuple[PkmMove, PkmMove], float] = {}
         self._d_pkm: Dict[Tuple[PkmTemplate, PkmTemplate], float] = {}
+        self._d_overall_team = 0.0
         # history buffer - moves, pkm, teams
         self._move_history: List[PkmMove] = []
         self._pkm_history: List[PkmTemplate] = []
+        self._teammates_history: Dict[Tuple[PkmTemplate, PkmTemplate], int] = {}
         self._team_history: List[Tuple[PkmFullTeam, bool]] = []
         # total usage count - moves, pkm, teams
         self._total_move_usage = 0
@@ -79,6 +91,10 @@ class StandardMetaData(MetaData):
 
     def update_with_team(self, team: PkmFullTeam, won: bool):
         self._team_history.append((team.get_copy(), won))
+        # update distance
+        for _team in self._team_history:
+            self._d_overall_team = standard_team_distance(team, _team[0],
+                                                          pokemon_distance=lambda x, y: self._d_pkm[x, y])
         # update usages
         for pkm in team.pkm_list:
             self._pkm_usage[pkm] += 1
@@ -86,6 +102,15 @@ class StandardMetaData(MetaData):
                 self._pkm_wins[pkm] += 1
             for move in pkm.moves:
                 self._move_usage[move] += 1
+                if won:
+                    self._move_wins[move] += 1
+        for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+            if pkm0 != pkm1:
+                pair = (pkm0, pkm1)
+                if pair not in self._teammates_history.keys():
+                    self._teammates_history[pair] = 1
+                else:
+                    self._teammates_history[pair] += 1
         # update total usages
         self._total_pkm_usage += 3
         self._total_move_usage += 12
@@ -95,6 +120,14 @@ class StandardMetaData(MetaData):
             if won:
                 for pkm in team.pkm_list:
                     self._pkm_wins[pkm] -= 1
+                    for move in pkm.moves:
+                        self._move_wins[move] -= 1
+            for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+                if pkm0 != pkm1:
+                    self._teammates_history[(pkm0, pkm1)] -= 1
+            for _team in self._team_history:
+                self._d_overall_team -= standard_team_distance(team, _team[0],
+                                                               pokemon_distance=lambda x, y: self._d_pkm[x, y])
         if len(self._pkm_history) > self._max_pkm_history_size and not self._unlimited:
             for _ in range(3):
                 old_pkm = self._pkm_history.pop(0)
@@ -114,6 +147,14 @@ class StandardMetaData(MetaData):
 
     def get_global_move_usage(self, move: PkmMove) -> float:
         return self._move_usage[move] / self._total_move_usage
+
+    def get_global_move_winrate(self, move: PkmMove) -> float:
+        return self._move_wins[move] / self._move_usage[move]
+
+    def get_pair_usage(self, pair: Tuple[PkmTemplate, PkmTemplate]) -> float:
+        if pair not in self._teammates_history.keys():
+            return 0.0
+        return self._teammates_history[pair] / self._pkm_usage[pair[0]]
 
     def evaluate(self) -> float:
         return 0.0

@@ -54,7 +54,7 @@ def standard_pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=st
     return d_max_hp + d_type + d_moves / 8.0
 
 
-def team_distance(team0: PkmFullTeam, team1: PkmFullTeam, pokemon_distance=standard_pkm_distance) -> float:
+def standard_team_distance(team0: PkmFullTeam, team1: PkmFullTeam, pokemon_distance=standard_pkm_distance) -> float:
     d_pkms = 0.0
     t0 = team0.get_battle_team([0, 1, 2])
     t1 = team1.get_battle_team([0, 1, 2])

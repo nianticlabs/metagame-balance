@@ -6,7 +6,7 @@ from framework.balance import DeltaRoster
 from framework.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, TeamValuator, \
     BalancePolicy
 from framework.competition.Competition import Competitor
-from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, PkmRoster, GameStateView
+from framework.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, GameStateView
 from framework.network.Serialization import SerializedGameState, SerializedPkmRoster, \
     SerializedPkmFullTeam
 
@@ -48,7 +48,8 @@ class ProxyTeamSelectionPolicy(TeamSelectionPolicy):
     def get_action(self, s) -> Set[int]:
         ptv0, ptv1 = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamSelectionPolicy', 'get_action', (SerializedPkmFullTeam(ptv0), SerializedPkmFullTeam(ptv1))))
+        self.conn.send(
+            ('TeamSelectionPolicy', 'get_action', (SerializedPkmFullTeam(ptv0), SerializedPkmFullTeam(ptv1))))
         action: Set[int] = self.conn.recv()
         return action
 
