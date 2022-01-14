@@ -42,9 +42,6 @@ class BattleMatch:
         c1 = self.cms[1].competitor
         full_team0 = self.cms[0].team
         full_team1 = self.cms[1].team
-        if self.update_meta:
-            self.meta_data.update_with_team(full_team0)
-            self.meta_data.update_with_team(full_team1)
         full_team0.reveal()
         full_team1.reveal()
         team0_view0 = get_full_team_view(full_team0)
@@ -70,6 +67,9 @@ class BattleMatch:
         a0.close()
         full_team0.hide()
         full_team1.hide()
+        if self.update_meta:
+            self.meta_data.update_with_team(full_team0, self.wins[0] > self.wins[1])
+            self.meta_data.update_with_team(full_team1, self.wins[1] > self.wins[0])
         self.finished = True
 
     def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeamView) -> PkmTeamPrediction:

@@ -920,6 +920,9 @@ class PkmFullTeam:
         for pkm in self.pkm_list:
             pkm.reveal()
 
+    def get_copy(self):
+        return PkmFullTeam(self.pkm_list)
+
 
 class PkmFullTeamView(ABC):
 

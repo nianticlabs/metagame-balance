@@ -56,5 +56,4 @@ Please cite this work if used.
 
 ## TODO
 
-* Meta-Balance Evaluation (ongoing)
-* Add Baseline Agents
+* Add More Baseline Agents

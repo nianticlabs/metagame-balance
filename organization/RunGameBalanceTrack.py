@@ -2,7 +2,7 @@ import argparse
 from multiprocessing.connection import Client
 
 from example.Example_Competitor import ExampleCompetitor
-from framework.balance.meta import MetaData
+from framework.balance.meta import StandardMetaData
 from framework.balance.restriction import VGCDesignConstraints
 from framework.competition import CompetitorManager
 from framework.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
@@ -25,7 +25,7 @@ def main(args):
         address = ('localhost', base_port + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         competitor = ProxyCompetitor(conn)
-        meta_data = MetaData()
+        meta_data = StandardMetaData()
         gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=True)
         gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
         results.append((competitor.name, gbe.accumulated_points))

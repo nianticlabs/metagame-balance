@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Set, Dict, Tuple, List
+from typing import Dict, Tuple, List
 
 from framework.balance import DeltaRoster
 from framework.balance.archtype import standard_move_distance, standard_pkm_distance
@@ -9,7 +9,7 @@ from framework.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam
 class MetaData(ABC):
 
     @abstractmethod
-    def update_with_team(self, team: PkmFullTeam):
+    def update_with_team(self, team: PkmFullTeam, won: bool):
         pass
 
     @abstractmethod
@@ -27,28 +27,24 @@ class StandardMetaData(MetaData):
         # listings - moves, pkm, teams
         self._moves: List[PkmMove] = []
         self._pkm: List[PkmTemplate] = []
-        self._teams: Set[TeamArchtype] = set()
         # global usage rate - moves, pkm
         self._move_usage: Dict[PkmMove, int] = {}
         self._pkm_usage: Dict[PkmTemplate, int] = {}
-        self._team_usage: Dict[TeamArchtype, int] = {}
+        self._pkm_wins: Dict[PkmTemplate, int] = {}
         # similarity matrix - moves, pkm
         self._d_move: Dict[Tuple[PkmMove, PkmMove], float] = {}
         self._d_pkm: Dict[Tuple[PkmTemplate, PkmTemplate], float] = {}
-        # win rate history - teams
-        self._victory_matrix: Dict[Tuple[TeamArchtype, TeamArchtype], int] = {}
         # history buffer - moves, pkm, teams
         self._move_history: List[PkmMove] = []
         self._pkm_history: List[PkmTemplate] = []
-        self._team_history: List[TeamArchtype] = []
+        self._team_history: List[Tuple[PkmFullTeam, bool]] = []
         # total usage count - moves, pkm, teams
         self._total_move_usage = 0
         self._total_pkm_usage = 0
-        self._total_team_usage = 0
         # if meta history size
-        self._max_move_history_size: int = _max_history_size * 24
-        self._max_pkm_history_size: int = _max_history_size * 6
-        self._max_team_history_size: int = _max_history_size * 2
+        self._max_move_history_size: int = _max_history_size * 12
+        self._max_pkm_history_size: int = _max_history_size * 3
+        self._max_team_history_size: int = _max_history_size
         self._unlimited = unlimited
 
     def set_moves_pkm(self, moves: List[PkmMove], pkm: List[PkmTemplate]):
@@ -59,80 +55,53 @@ class StandardMetaData(MetaData):
         for p0, p1 in zip(self._pkm, self._pkm):
             self._d_pkm[(p0, p1)] = standard_pkm_distance(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
 
-    def adapt_moves_pkm(self, moves: List[PkmMove], pkms: List[PkmTemplate]):
-        for move in moves:
-            for move_pair in self._d_move.keys():
-                if move in move_pair:
-                    self._d_move[(move_pair[0], move_pair[1])] = standard_move_distance(move_pair[0], move_pair[1])
-        for pkm in pkms:
+    def update_with_delta_roster(self, delta: DeltaRoster):
+        for idx in delta.dp.keys():
+            for m_idx in delta.dp[idx].dpm.keys():
+                for move_pair in self._d_move.keys():
+                    if self._moves[idx * 4 + m_idx] in move_pair:
+                        self._d_move[(move_pair[0], move_pair[1])] = standard_move_distance(move_pair[0], move_pair[1])
             for pkm_pair in self._d_pkm.keys():
-                if pkm in pkm_pair:
+                if self._pkm[idx] in pkm_pair:
                     self._d_pkm[(pkm_pair[0], pkm_pair[1])] = standard_pkm_distance(pkm_pair[0], pkm_pair[1])
 
-    def set_archtype(self, archtype: TeamArchtype):
-        if archtype not in self._teams:
-            for existing in self._teams:
-                self._victory_matrix[(archtype, existing)] = 0
-                self._victory_matrix[(existing, archtype)] = 0
-            self._team_usage[archtype] = 0
-            self._teams.add(archtype)
-
-    def update_with_team(self, winner: TeamArchtype, loser: TeamArchtype):
-        # update win rate
-        self._victory_matrix[(winner, loser)] += 1
+    def update_with_team(self, team: PkmFullTeam, won: bool):
+        self._team_history.append((team.get_copy(), won))
         # update usages
-        for pkm in winner:
+        for pkm in team.pkm_list:
             self._pkm_usage[pkm] += 1
+            if won:
+                self._pkm_wins[pkm] += 1
             for move in pkm.moves:
                 self._move_usage[move] += 1
-        for pkm in loser:
-            self._pkm_usage[pkm] += 1
-            for move in pkm.moves:
-                self._move_usage[move] += 1
-        self._team_usage[winner] += 1
-        self._team_usage[loser] += 1
         # update total usages
-        self._total_move_usage += 24
-        self._total_pkm_usage += 6
-        self._total_team_usage += 2
-        # update history
-        self._team_history.append(winner)
-        self._team_history.append(loser)
+        self._total_pkm_usage += 3
+        self._total_move_usage += 12
         # remove from history past defined maximum length
         if len(self._team_history) > self._max_team_history_size and not self._unlimited:
-            old_achtype0 = self._team_history.pop(0)
-            old_achtype1 = self._team_history.pop(0)
-            self._team_usage[old_achtype0] -= 1
-            self._team_usage[old_achtype1] -= 1
-            self._total_team_usage -= 2
-            if self._team_usage[old_achtype0] == 0:
-                self._remove_archtype(old_achtype0)
-            if self._team_usage[old_achtype1] == 0:
-                self._remove_archtype(old_achtype1)
+            team, won = self._team_history.pop(0)
+            if won:
+                for pkm in team.pkm_list:
+                    self._pkm_wins[pkm] -= 1
+        if len(self._pkm_history) > self._max_pkm_history_size and not self._unlimited:
+            for _ in range(3):
+                old_pkm = self._pkm_history.pop(0)
+                self._pkm_usage[old_pkm] -= 1
+            self._total_pkm_usage -= 3
+        if len(self._move_history) > self._max_move_history_size and not self._unlimited:
+            for _ in range(12):
+                old_move = self._move_history.pop(0)
+                self._move_usage[old_move] -= 1
+            self._total_move_usage -= 12
 
-    def update_with_delta_roster(self, delta: DeltaRoster):
-        pass
-
-    def _remove_archtype(self, archtype: TeamArchtype):
-        self._teams.remove(archtype)
-        self._team_usage.pop(archtype)
-        for existing in self._teams:
-            self._victory_matrix.pop((archtype, existing))
-            self._victory_matrix.pop((existing, archtype))
-
-    def get_winrate(self, archtype: TeamArchtype, opponent: TeamArchtype) -> float:
-        if archtype == opponent:
-            return 0.5
-        victories = self._victory_matrix[(archtype, opponent)]
-        losses = self._victory_matrix[(opponent, archtype)]
-        return victories / max((victories + losses), 1)
-
-    def get_usagerate(self, archtype: TeamArchtype):
-        return self._team_usage[archtype] / self._total_team_usage
-
-    def get_pkm_usagerate(self, pkm: PkmTemplate):
+    def get_global_pkm_usagerate(self, pkm: PkmTemplate):
         return self._pkm_usage[pkm] / self._total_pkm_usage
 
+    def get_global_pkm_winrate(self, pkm: PkmTemplate):
+        return self._pkm_wins[pkm] / self._pkm_usage[pkm]
+
+    def get_global_move_usagerate(self, move: PkmMove):
+        return self._move_usage[move] / self._total_move_usage
+
     def evaluate(self) -> float:
-        # TODO
         return 0.0
