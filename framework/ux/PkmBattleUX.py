@@ -138,6 +138,9 @@ class PkmBattleUX(arcade.Window):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
+        # Background image will be stored in this variable
+        self.background = None
+
         # Variables that will hold sprite lists
         self.sprite_list = None
 
@@ -172,6 +175,9 @@ class PkmBattleUX(arcade.Window):
     def setup(self):
         """ Set up the game and initialize the variables. """
 
+        # Load the background image. Do this in the setup so we don't keep reloading it all the time.
+        self.background = arcade.load_texture("sprites/background.png")
+
         # Sprite lists
         self.sprite_list = arcade.SpriteList()
 
@@ -185,13 +191,16 @@ class PkmBattleUX(arcade.Window):
         # This command has to happen before we start drawing
         arcade.start_render()
 
+        # Draw the background texture
+        arcade.draw_lrwh_rectangle_textured(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+
         # Drawing the text
         arcade.draw_text(self.log, 10.0, 10.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.spd[0], 10.0, 130.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.dfs[0], 10.0, 110.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.atk[0], 10.0, 90.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.hp[0], 10.0, 70.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.spd[0], 130.0, 200.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[0], 130.0, 180.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[0], 130.0, 160.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.hp[0], 130.0, 140.0, arcade.color.WHITE, 12, 180, 'left')
 
         arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
@@ -199,10 +208,10 @@ class PkmBattleUX(arcade.Window):
         arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.spd[1], 310.0, 230.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.dfs[1], 310.0, 210.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.atk[1], 310.0, 190.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.hp[1], 310.0, 170.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.spd[1], 210.0, 200.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.dfs[1], 210.0, 180.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.atk[1], 210.0, 160.0, arcade.color.WHITE, 12, 180, 'left')
+        arcade.draw_text(self.hp[1], 210.0, 140.0, arcade.color.WHITE, 12, 180, 'left')
 
         # Draw all the sprites.
         self.sprite_list.draw()
@@ -257,22 +266,22 @@ class PkmBattleUX(arcade.Window):
         type0_0 = data[0]
         n = 1
         self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_0}_{n}.png", SPRITE_SCALING))
-        self.party[0][0].center_x = 125
-        self.party[0][0].center_y = 100
+        self.party[0][0].center_x = 90
+        self.party[0][0].center_y = 135
         self.sprite_list.append(self.party[0][0])
 
         type0_1 = data[1]
         n = 2 if type0_0 == type0_1 else 1
         self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_1}_{n}.png", SPRITE_SCALING))
-        self.party[0][1].center_x = 290
-        self.party[0][1].center_y = 60
+        self.party[0][1].center_x = 50
+        self.party[0][1].center_y = 260
         self.sprite_list.append(self.party[0][1])
 
         type0_2 = data[2]
         n = 3 if type0_2 == type0_1 and type0_2 == type0_0 else (2 if type0_2 == type0_1 or type0_2 == type0_0 else 1)
         self.party[0].append(arcade.Sprite(f"sprites/pkm/{type0_2}_{n}.png", SPRITE_SCALING))
-        self.party[0][2].center_x = 350
-        self.party[0][2].center_y = 60
+        self.party[0][2].center_x = 110
+        self.party[0][2].center_y = 260
         self.sprite_list.append(self.party[0][2])
 
         hp0 = data[3]
@@ -286,22 +295,22 @@ class PkmBattleUX(arcade.Window):
         type1_0 = data[8]
         n = 1
         self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_0}_{n}.png", SPRITE_SCALING))
-        self.party[1][0].center_x = 275
-        self.party[1][0].center_y = 200
+        self.party[1][0].center_x = 310
+        self.party[1][0].center_y = 135
         self.sprite_list.append(self.party[1][0])
 
         type1_1 = data[9]
         n = 2 if type1_0 == type1_1 else 1
         self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_1}_{n}.png", SPRITE_SCALING))
-        self.party[1][1].center_x = 50
-        self.party[1][1].center_y = 240
+        self.party[1][1].center_x = 290
+        self.party[1][1].center_y = 260
         self.sprite_list.append(self.party[1][1])
 
         type1_2 = data[10]
         n = 3 if type1_2 == type1_1 and type1_2 == type1_0 else (2 if type1_2 == type1_1 or type1_2 == type1_0 else 1)
         self.party[1].append(arcade.Sprite(f"sprites/pkm/{type1_2}_{n}.png", SPRITE_SCALING))
-        self.party[1][2].center_x = 110
-        self.party[1][2].center_y = 240
+        self.party[1][2].center_x = 350
+        self.party[1][2].center_y = 260
         self.sprite_list.append(self.party[1][2])
 
         hp1 = data[11]
