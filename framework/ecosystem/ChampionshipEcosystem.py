@@ -25,7 +25,8 @@ class ChampionshipEcosystem:
         self.roster = roster
         self.roster_view = get_pkm_roster_view(self.roster)
         self.rand_gen = RandomTeamFromRoster(self.roster)
-        self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy)
+        self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy,
+                                                       update_meta=True)
         self.debug = debug
         self.store_teams = store_teams
 

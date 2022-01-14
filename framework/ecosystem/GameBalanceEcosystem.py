@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List
 
 from framework.balance.meta import MetaData
@@ -31,9 +32,10 @@ class GameBalanceEcosystem:
             self.accumulated_points += self.meta_data.evaluate()
             delta_roster = self.c.balance_policy.get_action((get_pkm_roster_view(self.vgc.roster), self.meta_data,
                                                              self.constraints))
-            delta_roster.apply(self.vgc.roster)
-            violated_rules = self.constraints.check_every_rule(self.vgc.roster)
+            copy_roster = deepcopy(self.vgc.roster)
+            delta_roster.apply(copy_roster)
+            violated_rules = self.constraints.check_every_rule(copy_roster)
             if len(violated_rules) == 0:
-                pass
-                # TODO update meta with deltas
+                delta_roster.apply(self.vgc.roster)
+                self.meta_data.update_with_delta_roster(delta_roster)
             epoch += 1

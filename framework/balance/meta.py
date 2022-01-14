@@ -1,11 +1,20 @@
 from abc import ABC, abstractmethod
 from typing import Set, Dict, Tuple, List
 
-from framework.balance.archtype import TeamArchtype, standard_move_distance, standard_pkm_distance
-from framework.datatypes.Objects import PkmTemplate, PkmMove
+from framework.balance import DeltaRoster
+from framework.balance.archtype import standard_move_distance, standard_pkm_distance
+from framework.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam
 
 
 class MetaData(ABC):
+
+    @abstractmethod
+    def update_with_team(self, team: PkmFullTeam):
+        pass
+
+    @abstractmethod
+    def update_with_delta_roster(self, delta: DeltaRoster):
+        pass
 
     @abstractmethod
     def evaluate(self) -> float:
@@ -68,7 +77,7 @@ class StandardMetaData(MetaData):
             self._team_usage[archtype] = 0
             self._teams.add(archtype)
 
-    def update(self, winner: TeamArchtype, loser: TeamArchtype):
+    def update_with_team(self, winner: TeamArchtype, loser: TeamArchtype):
         # update win rate
         self._victory_matrix[(winner, loser)] += 1
         # update usages
@@ -100,6 +109,9 @@ class StandardMetaData(MetaData):
                 self._remove_archtype(old_achtype0)
             if self._team_usage[old_achtype1] == 0:
                 self._remove_archtype(old_achtype1)
+
+    def update_with_delta_roster(self, delta: DeltaRoster):
+        pass
 
     def _remove_archtype(self, archtype: TeamArchtype):
         self._teams.remove(archtype)

@@ -26,7 +26,7 @@ class BattleMatch:
 
     def __init__(self, competitor0: CompetitorManager, competitor1: CompetitorManager,
                  n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False, render: bool = False,
-                 meta_data: Optional[MetaData] = None, random_teams=False):
+                 meta_data: Optional[MetaData] = None, random_teams=False, update_meta=False):
         self.n_battles: int = n_battles
         self.cms: Tuple[CompetitorManager, CompetitorManager] = (competitor0, competitor1)
         self.wins: List[int] = [0, 0]
@@ -35,12 +35,16 @@ class BattleMatch:
         self.finished = False
         self.meta_data = meta_data
         self.random_teams = random_teams
+        self.update_meta = update_meta
 
     def run(self):
         c0 = self.cms[0].competitor
         c1 = self.cms[1].competitor
         full_team0 = self.cms[0].team
         full_team1 = self.cms[1].team
+        if self.update_meta:
+            self.meta_data.update_with_team(full_team0)
+            self.meta_data.update_with_team(full_team1)
         full_team0.reveal()
         full_team1.reveal()
         team0_view0 = get_full_team_view(full_team0)

@@ -1,6 +1,5 @@
 import unittest
 
-from framework.balance.archtype import TeamArchtype
 from framework.balance.meta import StandardMetaData
 
 
@@ -33,7 +32,7 @@ class TestStandardMetaData(unittest.TestCase):
             for i in range(0, x):
                 count[i] += 1
                 count[i + 1] += 1
-                meta.update(archtypes[i], archtypes[i + 1])
+                meta.update_with_team(archtypes[i], archtypes[i + 1])
         for i in range(98):
             self.assertEqual(meta.get_usagerate(archtypes[i]), count[i] / meta._total_team_usage)
             self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i + 1]), 1.0)
@@ -41,7 +40,7 @@ class TestStandardMetaData(unittest.TestCase):
             for i in range(0, x):
                 count[i] += 1
                 count[i + 1] += 1
-                meta.update(archtypes[i + 1], archtypes[i])
+                meta.update_with_team(archtypes[i + 1], archtypes[i])
         for i in range(98):
             self.assertEqual(meta.get_usagerate(archtypes[i]), count[i] / meta._total_team_usage)
             self.assertEqual(meta.get_winrate(archtypes[i], archtypes[i + 1]), 0.5)
@@ -58,7 +57,7 @@ class TestStandardMetaData(unittest.TestCase):
             for i in range(0, x):
                 count[i] += 1
                 count[i + 1] += 1
-                meta.update(archtypes[i], archtypes[i + 1])
+                meta.update_with_team(archtypes[i], archtypes[i + 1])
         meta._total_team_usage -= meta._team_usage[archtypes[0]]
         count = count[1:]
         meta._remove_archtype(archtypes[0])
@@ -76,12 +75,12 @@ class TestStandardMetaData(unittest.TestCase):
         for archtype in archtypes:
             meta.set_archtype(archtype)
         for x in range(4):
-            meta.update(archtypes[0], archtypes[1])
+            meta.update_with_team(archtypes[0], archtypes[1])
         self.assertEqual(meta._team_usage[archtypes[0]], 4)
         self.assertEqual(meta._team_usage[archtypes[1]], 4)
         self.assertEqual(meta._total_team_usage, 8)
         for x in range(6):
-            meta.update(archtypes[0], archtypes[1])
+            meta.update_with_team(archtypes[0], archtypes[1])
         self.assertEqual(meta._total_team_usage, 10)
         self.assertEqual(meta._team_usage[archtypes[0]], 5)
         self.assertEqual(meta._team_usage[archtypes[1]], 5)

@@ -5,10 +5,6 @@ from framework.datatypes.Objects import PkmMove, PkmTemplate, PkmFullTeam
 from framework.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
 
 
-class TeamArchtype:
-    pass
-
-
 def _remove_effects(move: PkmMove) -> PkmMove:
     move.target = 1
     move.recover = 0.0

@@ -233,7 +233,7 @@ class PkmBattleUX(arcade.Window):
             self._resolve_next_command()
 
         # Move sprites
-        self.sprite_list.update()
+        self.sprite_list.update_with_team()
 
     def push_command(self, command):
         self.lock.acquire()
