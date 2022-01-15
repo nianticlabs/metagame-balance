@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List
 
 from framework.balance import DeltaRoster
 from framework.balance.archtype import standard_move_distance, standard_pkm_distance, standard_team_distance
-from framework.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam
+from framework.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
 
 
 class MetaData(ABC):
@@ -71,9 +71,11 @@ class StandardMetaData(MetaData):
         self._max_team_history_size: int = _max_history_size
         self._unlimited = unlimited
 
-    def set_moves_pkm(self, moves: List[PkmMove], pkm: List[PkmTemplate]):
-        self._moves = moves
-        self._pkm = pkm
+    def set_moves_and_pkm(self, roster: PkmRoster):
+        self._pkm = list(roster)
+        self._moves = []
+        for pkm in self._pkm:
+            self._moves += list(pkm.move_roster)
         for m0, m1 in zip(self._moves, self._moves):
             self._d_move[(m0, m1)] = standard_move_distance(m0, m1)
         for p0, p1 in zip(self._pkm, self._pkm):

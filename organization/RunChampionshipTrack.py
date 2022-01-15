@@ -17,6 +17,7 @@ def main(args):
     base_port = args.base_port
     roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     meta_data = StandardMetaData()
+    meta_data.set_moves_and_pkm(roster)
     conns = []
     ce = ChampionshipEcosystem(roster, meta_data, debug=True)  # , store_teams=True)
     for i in range(n_agents):

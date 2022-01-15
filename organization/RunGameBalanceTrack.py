@@ -26,6 +26,7 @@ def main(args):
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         competitor = ProxyCompetitor(conn)
         meta_data = StandardMetaData()
+        meta_data.set_moves_and_pkm(base_roster)
         gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=True)
         gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
         results.append((competitor.name, gbe.accumulated_points))
