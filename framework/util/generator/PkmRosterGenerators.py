@@ -71,5 +71,5 @@ class RandomPkmRosterGenerator(PkmRosterGenerator):
             p_type: PkmType = random.choice(LIST_OF_TYPES)
             max_hp: float = round(random.random() * DELTA_HIT_POINTS + MIN_HIT_POINTS)
             move_roster = RandomMoveRosterGenerator(self.base_move_roster, p_type, self.n_moves_pkm).gen_roster()
-            roster.append(PkmTemplate(move_roster, p_type, max_hp))
+            roster.append(PkmTemplate(move_roster, p_type, max_hp, i))
         return set(roster)

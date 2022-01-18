@@ -34,7 +34,7 @@ def pkm_template_from_view(ptv: PkmTemplateView) -> PkmTemplate:
     pmrv = ptv.get_move_roster_view()
     for i in range(pmrv.n_moves):
         pmr.add(move_template_from_view(pmrv.get_move_view(i)))
-    return PkmTemplate(pmr, ptv.pkm_type, ptv.max_hp)
+    return PkmTemplate(pmr, ptv.pkm_type, ptv.max_hp, ptv.pkm_id)
 
 
 class RandomTeamBuildPolicy(TeamBuildPolicy):

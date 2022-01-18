@@ -386,7 +386,7 @@ class Pkm:
 
     def __init__(self, p_type: PkmType = PkmType.NORMAL, max_hp: float = MAX_HIT_POINTS,
                  status: PkmStatus = PkmStatus.NONE, move0: PkmMove = PkmMove(), move1: PkmMove = PkmMove(),
-                 move2: PkmMove = PkmMove(), move3: PkmMove = PkmMove()):
+                 move2: PkmMove = PkmMove(), move3: PkmMove = PkmMove(), pkm_id=-1):
         """
         In battle Pokemon base data struct.
 
@@ -407,6 +407,7 @@ class Pkm:
         for move in self.moves:
             move.set_owner(self)
         self.public = False
+        self.pkm_id = pkm_id
 
     def __eq__(self, other):
         return self.type == other.type and isclose(self.max_hp, other.max_hp) and set(self.moves) == set(other.moves)
@@ -557,7 +558,7 @@ def get_partial_pkm_view(pkm: Pkm, pkm_hypothesis: Pkm = None) -> PkmView:
 
 class PkmTemplate:
 
-    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float, id: int = -1):
+    def __init__(self, move_roster: PkmMoveRoster, pkm_type: PkmType, max_hp: float, pkm_id: int):
         """
         Pokemon specimen definition data structure.
 
@@ -568,7 +569,7 @@ class PkmTemplate:
         self.move_roster: PkmMoveRoster = move_roster
         self.type: PkmType = pkm_type
         self.max_hp = max_hp
-        self.id = id
+        self.pkm_id = pkm_id
 
     def __eq__(self, other):
         return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
@@ -594,7 +595,8 @@ class PkmTemplate:
                    move0=move_list[moves[0]],
                    move1=move_list[moves[1]],
                    move2=move_list[moves[2]],
-                   move3=move_list[moves[3]])
+                   move3=move_list[moves[3]],
+                   pkm_id=self.pkm_id)
 
     def is_speciman(self, pkm: Pkm) -> bool:
         """
@@ -622,6 +624,11 @@ class PkmTemplateView(ABC):
     def max_hp(self) -> float:
         pass
 
+    @property
+    @abstractmethod
+    def pkm_id(self) -> int:
+        pass
+
 
 def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
     class PkmTemplateViewImpl(PkmTemplateView):
@@ -636,6 +643,10 @@ def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
         @property
         def max_hp(self) -> float:
             return template.max_hp
+
+        @property
+        def pkm_id(self) -> int:
+            return template.pkm_id
 
         def __eq__(self, other):
             return self.pkm_type == other.pkm_type and self.max_hp == other.max_hp and self.get_move_roster_view() == \

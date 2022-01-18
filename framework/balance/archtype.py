@@ -17,7 +17,7 @@ def _remove_effects(move: PkmMove) -> PkmMove:
     return move
 
 
-def standard_move_distance(move0: PkmMove, move1: PkmMove) -> float:
+def std_move_dist(move0: PkmMove, move1: PkmMove) -> float:
     # attributes distances
     d_power = abs(move0.power - move1.power) / MAX_HIT_POINTS
     d_acc = abs(move0.acc - move1.acc)
@@ -45,7 +45,7 @@ def standard_move_distance(move0: PkmMove, move1: PkmMove) -> float:
     return d_base + d_effects / 4.0
 
 
-def standard_pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=standard_move_distance) -> float:
+def std_pkm_dist(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=std_move_dist) -> float:
     d_max_hp = abs(pkm0.max_hp - pkm1.max_hp) / MAX_HIT_POINTS
     d_type = float(pkm0.type != pkm1.type)
     d_moves = 0.0
@@ -54,12 +54,12 @@ def standard_pkm_distance(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=st
     return d_max_hp + d_type + d_moves / 8.0
 
 
-def standard_team_distance(team0: PkmFullTeam, team1: PkmFullTeam, pokemon_distance=standard_pkm_distance) -> float:
+def std_team_dist(team0: PkmFullTeam, team1: PkmFullTeam, pokemon_distance=std_pkm_dist) -> float:
     d_pkms = 0.0
     t0 = team0.get_battle_team([0, 1, 2])
     t1 = team1.get_battle_team([0, 1, 2])
     for pkm0, pkm1 in zip([t0.active] + t0.party, [t1.active] + t1.party):
-        tmp0 = PkmTemplate(set(pkm0.moves), pkm0.type, pkm0.max_hp)
-        tmp1 = PkmTemplate(set(pkm1.moves), pkm1.type, pkm1.max_hp)
+        tmp0 = PkmTemplate(set(pkm0.moves), pkm0.type, pkm0.max_hp, pkm0.pkm_id)
+        tmp1 = PkmTemplate(set(pkm1.moves), pkm1.type, pkm1.max_hp, pkm1.pkm_id)
         d_pkms += pokemon_distance(tmp0, tmp1) / 5.25
     return d_pkms
