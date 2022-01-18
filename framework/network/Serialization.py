@@ -189,6 +189,7 @@ class SerializedPkmTemplate(PkmTemplateView):
         self._move_roster_view = SerializedMoveRoster(ptv.get_move_roster_view())
         self._pkm_type = ptv.pkm_type
         self._max_hp = ptv.max_hp
+        self._pkm_id = ptv.pkm_id
 
     def get_move_roster_view(self) -> MoveRosterView:
         return self._move_roster_view
@@ -200,6 +201,10 @@ class SerializedPkmTemplate(PkmTemplateView):
     @property
     def max_hp(self) -> float:
         return self._max_hp
+
+    @property
+    def pkm_id(self) -> int:
+        return self._pkm_id
 
 
 class SerializedPkmRoster(PkmRosterView):

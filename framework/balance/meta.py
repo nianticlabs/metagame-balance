@@ -1,3 +1,4 @@
+import itertools
 from abc import ABC, abstractmethod
 from math import exp
 from typing import Dict, Tuple, List
@@ -80,9 +81,14 @@ class StandardMetaData(MetaData):
         self._moves = []
         for pkm in self._pkm:
             self._moves += list(pkm.move_roster)
-        for m0, m1 in zip(self._moves, self._moves):
+            self._pkm_usage[pkm.pkm_id] = 0
+            self._pkm_wins[pkm.pkm_id] = 0
+        for move in self._moves:
+            self._move_usage[move] = 0
+            self._move_wins[move] = 0
+        for m0, m1 in itertools.product(self._moves, self._moves):
             self._d_move[(m0, m1)] = std_move_dist(m0, m1)
-        for p0, p1 in zip(self._pkm, self._pkm):
+        for p0, p1 in itertools.product(self._pkm, self._pkm):
             self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
 
     def update_with_delta_roster(self, delta: DeltaRoster):
@@ -100,7 +106,8 @@ class StandardMetaData(MetaData):
         self._team_history.append((team.get_copy(), won))
         # update distance
         for _team in self._team_history:
-            self._d_overall_team = std_team_dist(team, _team[0], pokemon_distance=lambda x, y: self._d_pkm[x, y])
+            self._d_overall_team = std_team_dist(team, _team[0],
+                                                 pokemon_distance=lambda x, y: self._d_pkm[x.pkm_id, y.pkm_id])
         # update usages
         for pkm in team.pkm_list:
             self._pkm_usage[pkm.pkm_id] += 1
@@ -110,7 +117,7 @@ class StandardMetaData(MetaData):
                 self._move_usage[move] += 1
                 if won:
                     self._move_wins[move] += 1
-        for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+        for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
             if pkm0 != pkm1:
                 pair = (pkm0.pkm_id, pkm1.pkm_id)
                 if pair not in self._teammates_history.keys():
@@ -128,7 +135,7 @@ class StandardMetaData(MetaData):
                     self._pkm_wins[pkm.pkm_id] -= 1
                     for move in pkm.moves:
                         self._move_wins[move] -= 1
-            for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+            for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
                 if pkm0 != pkm1:
                     self._teammates_history[(pkm0.pkm_id, pkm1.pkm_id)] -= 1
             for _team in self._team_history:
@@ -164,11 +171,11 @@ class StandardMetaData(MetaData):
     def evaluate(self) -> float:
         d = [0., 0., 0., 0., 0.]
         # Overall number of different Pkm (templates).
-        for pkm0, pkm1 in zip(self._pkm, self._pkm):
+        for pkm0, pkm1 in itertools.product(self._pkm, self._pkm):
             d[0] += - self._pkm_usage[pkm1.pkm_id] * exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
         d[0] /= 2
         # Overall number of different Pkm moves.
-        for move0, move1 in zip(self._moves, self._moves):
+        for move0, move1 in itertools.product(self._moves, self._moves):
             d[1] += - self._move_usage[move1] * exp(-self._d_move[(move0, move1)]) + 1
         d[1] /= 2
         # Overall number of different Pkm teams.
@@ -178,10 +185,10 @@ class StandardMetaData(MetaData):
             moves = []
             for pkm in team.pkm_list:
                 moves.extend(pkm.moves)
-            for move0, move1 in zip(moves, moves):
+            for move0, move1 in itertools.product(moves, moves):
                 d[3] += - exp(-self._d_move[(move0, move1)]) + 1
             # Difference over Pkm on same team.
-            for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+            for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
                 d[4] += - exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
         d[3] /= 2
         d[4] /= 2
