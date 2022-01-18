@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from math import exp
 from typing import Dict, Tuple, List
 
 from framework.balance import DeltaRoster
@@ -159,4 +160,27 @@ class StandardMetaData(MetaData):
         return self._teammates_history[pair] / self._pkm_usage[pair[0]]
 
     def evaluate(self) -> float:
-        return 0.0
+        d = [0., 0., 0., 0., 0.]
+        # Overall number of different Pkm (templates).
+        for pkm0, pkm1 in zip(self._pkm, self._pkm):
+            d[0] += - self._pkm_usage[pkm1] * exp(-self._d_pkm[(pkm0, pkm1)]) + 1
+        d[0] /= 2
+        # Overall number of different Pkm moves.
+        for move0, move1 in zip(self._moves, self._moves):
+            d[1] += - self._move_usage[move1] * exp(-self._d_move[(move0, move1)]) + 1
+        d[1] /= 2
+        # Overall number of different Pkm teams.
+        d[2] = self._d_overall_team
+        for team, win in self._team_history:
+            # Difference over used moves on same Pkm.
+            moves = []
+            for pkm in team.pkm_list:
+                moves.extend(pkm.moves)
+            for move0, move1 in zip(moves, moves):
+                d[3] += - exp(-self._d_move[(move0, move1)]) + 1
+            # Difference over Pkm on same team.
+            for pkm0, pkm1 in zip(team.pkm_list, team.pkm_list):
+                d[4] += - exp(-self._d_pkm[(pkm0, pkm1)]) + 1
+        d[3] /= 2
+        d[4] /= 2
+        return sum(d)
