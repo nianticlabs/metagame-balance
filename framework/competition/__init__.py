@@ -22,14 +22,20 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate):
 
 
 def legal_team(team: PkmFullTeam, roster: PkmRoster) -> bool:
+    # there must be no repeated members
+    for i in range(len(team.pkm_list)):
+        pkm_id = team.pkm_list[i].pkm_id
+        for j in range(i+1, len(team.pkm_list)):
+            if pkm_id == team.pkm_list[j].pkm_id:
+                return False
+    # all members must be instances of roster
     for pkm in team.pkm_list:
-        valid = False
         for template in roster:
-            valid = pkm.type == template.type and pkm.max_hp == template.max_hp and legal_move_set(pkm, template)
-            if valid:
-                break
-        if not valid:
-            return False
+            if pkm.pkm_id == template.pkm_id:
+                valid = pkm.type == template.type and 1.0 <= pkm.max_hp <= template.max_hp and legal_move_set(pkm,
+                                                                                                              template)
+                if not valid:
+                    return False
     return True
 
 

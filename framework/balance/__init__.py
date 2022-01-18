@@ -1,13 +1,14 @@
 from typing import Dict
 
 from framework.datatypes.Objects import PkmRoster, PkmMove, PkmTemplate
+from framework.datatypes.Types import PkmType
 
 
 class DeltaPkm:
 
-    def __init__(self, pkm: PkmTemplate, dpm: Dict[int, PkmMove]):
-        self.max_hp = pkm.max_hp
-        self.type = pkm.type
+    def __init__(self, max_hp: float, pkm_type: PkmType, dpm: Dict[int, PkmMove]):
+        self.max_hp = max_hp
+        self.type = pkm_type
         self.dpm = dpm
 
     def apply(self, pkm: PkmTemplate):
@@ -25,6 +26,6 @@ class DeltaRoster:
         self.dp = dp
 
     def apply(self, roster: PkmRoster):
-        for idx, pkm in enumerate(roster):
-            if idx in self.dp.keys():
-                self.dp[idx].apply(pkm)
+        for pkm in roster:
+            if pkm.pkm_id in self.dp.keys():
+                self.dp[pkm.pkm_id].apply(pkm)
