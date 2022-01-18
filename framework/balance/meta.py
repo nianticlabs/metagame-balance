@@ -181,7 +181,7 @@ class StandardMetaData(MetaData):
         # Overall number of different Pkm teams.
         d[2] = self._d_overall_team
         for team, win in self._team_history:
-            # Difference over used moves on same Pkm.
+            # Difference over moves on same Pkm.
             moves = []
             for pkm in team.pkm_list:
                 moves.extend(pkm.moves)
