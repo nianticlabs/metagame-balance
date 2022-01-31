@@ -1,13 +1,13 @@
 import argparse
 from multiprocessing.connection import Client
 
-from framework.balance.meta import StandardMetaData
-from framework.behaviour.TeamPredictors import NullTeamPredictor
-from framework.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
-from framework.competition import CompetitorManager
-from framework.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
-from framework.network.ProxyCompetitor import ProxyCompetitor
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.balance.meta import StandardMetaData
+from vgc.behaviour.TeamPredictors import NullTeamPredictor
+from vgc.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
+from vgc.competition import CompetitorManager
+from vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
+from vgc.network.ProxyCompetitor import ProxyCompetitor
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main(args):

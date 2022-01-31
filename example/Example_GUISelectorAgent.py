@@ -1,6 +1,6 @@
-from framework.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
-from framework.datatypes.Objects import get_full_team_view
-from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from vgc.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
+from vgc.datatypes.Objects import get_full_team_view
+from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def main():

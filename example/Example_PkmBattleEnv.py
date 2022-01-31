@@ -1,5 +1,5 @@
-from framework.behaviour.BattlePolicies import RandomBattlePolicy
-from framework.engine.PkmBattleEnv import PkmBattleEnv
+from vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():

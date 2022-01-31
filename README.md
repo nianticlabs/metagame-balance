@@ -16,14 +16,14 @@ the container boot.
 
 ## Project Organization
 
-In the example module can be found multiple how to use the framework examples to train or test isolated agents or
+In the example folder it can be found multiple examples for how to use the framework, to train or test isolated agents or
 behaviours or run full ecosystems.
 
-In the framework module is the core implementation of the VGC AI Framework.
+The vgc module is the core implementation of the VGC AI Framework.
 
-In the organization module can be found the multiple entry points for the main ecosystem layers in the VGC AI Framework.
+In the organization folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI Framework.
 
-In the test module is contained some unit tests from the core framework modules.
+In the test folder is contained some unit tests from the core framework modules.
 
 ## Documentation
 

@@ -2,12 +2,12 @@ import argparse
 from multiprocessing.connection import Client
 
 from example.Example_Competitor import ExampleCompetitor
-from framework.balance.meta import StandardMetaData
-from framework.balance.restriction import VGCDesignConstraints
-from framework.competition import CompetitorManager
-from framework.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from framework.network.ProxyCompetitor import ProxyCompetitor
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.balance.meta import StandardMetaData
+from vgc.balance.restriction import VGCDesignConstraints
+from vgc.competition import CompetitorManager
+from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
+from vgc.network.ProxyCompetitor import ProxyCompetitor
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main(args):

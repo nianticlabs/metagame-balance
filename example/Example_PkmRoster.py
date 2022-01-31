@@ -1,8 +1,8 @@
-from framework.balance.meta import MetaData
-from framework.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
-from framework.behaviour.TeamValuators import NullTeamValuator
-from framework.datatypes.Objects import get_pkm_roster_view
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.balance.meta import MetaData
+from vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
+from vgc.behaviour.TeamValuators import NullTeamValuator
+from vgc.datatypes.Objects import get_pkm_roster_view
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main():

@@ -1,7 +1,7 @@
-from framework.behaviour import BattlePolicy, TeamSelectionPolicy
-from framework.behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
-from framework.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
-from framework.competition.Competitor import Competitor
+from vgc.behaviour import BattlePolicy, TeamSelectionPolicy
+from vgc.behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
+from vgc.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
+from vgc.competition.Competitor import Competitor
 
 
 class ExampleCompetitor(Competitor):

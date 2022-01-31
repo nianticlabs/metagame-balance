@@ -1,9 +1,9 @@
 from example.Example_Competitor import ExampleCompetitor
-from framework.balance.meta import MetaData
-from framework.competition import CompetitorManager
-from framework.ecosystem.BattleEcosystem import BattleEcosystem
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.generator.PkmTeamGenerators import RandomTeamFromRoster
+from vgc.balance.meta import MetaData
+from vgc.competition import CompetitorManager
+from vgc.ecosystem.BattleEcosystem import BattleEcosystem
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
 N_PLAYERS = 16
 

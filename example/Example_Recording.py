@@ -1,8 +1,8 @@
 import time
 
-from framework.behaviour.BattlePolicies import SimpleBattlePolicy, RandomBattlePolicy
-from framework.engine.PkmBattleEnv import PkmBattleEnv
-from framework.util.Recording import GamePlayRecorder, Frame
+from vgc.behaviour.BattlePolicies import SimpleBattlePolicy, RandomBattlePolicy
+from vgc.engine.PkmBattleEnv import PkmBattleEnv
+from vgc.util.Recording import GamePlayRecorder, Frame
 
 
 def main():

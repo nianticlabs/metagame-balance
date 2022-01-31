@@ -2,10 +2,10 @@ import unittest
 from random import sample
 from typing import List
 
-from framework.competition import legal_move_set, legal_team
-from framework.datatypes.Objects import PkmTemplate, Pkm, PkmFullTeam
-from framework.datatypes.Types import PkmType
-from framework.util.generator.PkmRosterGenerators import RandomMoveRosterGenerator, RandomPkmRosterGenerator
+from vgc.competition import legal_move_set, legal_team
+from vgc.datatypes.Objects import PkmTemplate, Pkm, PkmFullTeam
+from vgc.datatypes.Types import PkmType
+from vgc.util.generator.PkmRosterGenerators import RandomMoveRosterGenerator, RandomPkmRosterGenerator
 
 
 class TestEncodingMethods(unittest.TestCase):

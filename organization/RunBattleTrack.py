@@ -1,11 +1,11 @@
 import argparse
 from multiprocessing.connection import Client
 
-from framework.competition import CompetitorManager
-from framework.competition.Competition import TreeChampionship
-from framework.network.ProxyCompetitor import ProxyCompetitor
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from vgc.competition import CompetitorManager
+from vgc.competition.Competition import TreeChampionship
+from vgc.network.ProxyCompetitor import ProxyCompetitor
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def main(args):

@@ -1,7 +1,7 @@
 from example.Example_Competitor import ExampleCompetitor
-from framework.competition import CompetitorManager
-from framework.competition.BattleMatch import BattleMatch
-from framework.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from vgc.competition import CompetitorManager
+from vgc.competition.BattleMatch import BattleMatch
+from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def main():

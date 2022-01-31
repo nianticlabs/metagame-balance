@@ -1,11 +1,11 @@
 from typing import List
 
 from example.Example_Competitor import ExampleCompetitor
-from framework.balance.meta import MetaData
-from framework.balance.restriction import DesignConstraints, DesignRule
-from framework.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
-from framework.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from framework.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc.balance.meta import MetaData
+from vgc.balance.restriction import DesignConstraints, DesignRule
+from vgc.datatypes.Objects import PkmRosterView, PkmRoster, PkmTemplate
+from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
+from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 N_PLAYERS = 16
 
