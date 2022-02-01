@@ -74,7 +74,8 @@ class SimpleBattlePolicy(BattlePolicy):
                     effectiveness_to_stay = effectiveness_party
                     best_pkm = i
         if best_pkm > 0:
-            move_id = DEFAULT_PKM_N_MOVES + best_pkm
+            if np.random.uniform() > 0.5:
+                move_id = DEFAULT_PKM_N_MOVES + best_pkm
 
         return move_id
 

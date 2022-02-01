@@ -500,7 +500,8 @@ class PkmBattleEnv(gym.Env):
                 weather = 1.
             stage_level = team.stage[PkmStat.ATTACK] - opp_team.stage[PkmStat.DEFENSE]
             stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
-            damage = TYPE_CHART_MULTIPLIER[move.type][opp_pkm.type] * stab * weather * stage * move.power
+            multiplier = TYPE_CHART_MULTIPLIER[move.type][opp_pkm.type] if move != Struggle else 1.0
+            damage = multiplier * stab * weather * stage * move.power
 
         return round(damage), round(recover)
 
