@@ -34,7 +34,7 @@ class RandomTeamGenerator(PkmTeamGenerator):
             for _ in range(DEFAULT_PKM_N_MOVES):
                 m_type: PkmType = random.choice(LIST_OF_TYPES)
                 m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
-                moves.append(PkmMove(m_power, 1., m_type))
+                moves.append(PkmMove(m_power, move_type=m_type))
             moves[0].type = p_type
             random.shuffle(moves)
             team.append(Pkm(p_type, max_hp, move0=moves[0], move1=moves[1], move2=moves[2], move3=moves[3]))
