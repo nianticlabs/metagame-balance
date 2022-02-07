@@ -13,7 +13,7 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate):
     # there must be no repeated members
     for i in range(len(pkm.moves)):
         move = pkm.moves[i]
-        for j in range(i+1, len(pkm.moves)):
+        for j in range(i + 1, len(pkm.moves)):
             if move == pkm.moves[j]:
                 return False
     # all members must be instances of roster
@@ -32,7 +32,7 @@ def legal_team(team: PkmFullTeam, roster: PkmRoster) -> bool:
     # there must be no repeated members
     for i in range(len(team.pkm_list)):
         pkm_id = team.pkm_list[i].pkm_id
-        for j in range(i+1, len(team.pkm_list)):
+        for j in range(i + 1, len(team.pkm_list)):
             if pkm_id == team.pkm_list[j].pkm_id:
                 return False
     # all members must be instances of roster

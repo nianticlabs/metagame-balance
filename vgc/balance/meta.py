@@ -39,6 +39,14 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
+    def get_team(self, t) -> Tuple[PkmFullTeam, bool]:
+        pass
+
+    @abstractmethod
+    def get_n_teams(self) -> int:
+        pass
+
+    @abstractmethod
     def evaluate(self) -> float:
         pass
 
@@ -167,6 +175,12 @@ class StandardMetaData(MetaData):
         if pair not in self._teammates_history.keys():
             return 0.0
         return self._teammates_history[pair] / self._pkm_usage[pair[0]]
+
+    def get_team(self, t) -> Tuple[PkmFullTeam, bool]:
+        return self._team_history[t][0], self._team_history[t][1]
+
+    def get_n_teams(self) -> int:
+        return len(self._team_history)
 
     def evaluate(self) -> float:
         d = [0., 0., 0., 0., 0.]

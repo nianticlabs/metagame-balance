@@ -2,10 +2,13 @@ import random
 from abc import ABC, abstractmethod
 from typing import List
 
+import numpy as np
+
 from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, \
     DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE
 from vgc.datatypes.Objects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate, PkmTeam
 from vgc.datatypes.Types import PkmType
+from vgc.util.generator import get_stats
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS
@@ -28,12 +31,13 @@ class RandomTeamGenerator(PkmTeamGenerator):
     def get_team(self) -> PkmFullTeam:
         team: List[Pkm] = []
         for i in range(self.party_size + 1):
+            evs = get_stats(np.random.uniform(0, 10, size=5))
             p_type: PkmType = random.choice(LIST_OF_TYPES)
-            max_hp: float = round(random.random() * DELTA_HIT_POINTS + MIN_HIT_POINTS)
+            max_hp: float = evs[0]
             moves: List[PkmMove] = []
-            for _ in range(DEFAULT_PKM_N_MOVES):
+            for i in range(DEFAULT_PKM_N_MOVES):
                 m_type: PkmType = random.choice(LIST_OF_TYPES)
-                m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
+                m_power: float = evs[i + 1]
                 moves.append(PkmMove(m_power, move_type=m_type))
             moves[0].type = p_type
             random.shuffle(moves)
