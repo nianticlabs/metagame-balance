@@ -4,8 +4,7 @@ from typing import Any, Set, Union, List, Tuple
 from vgc.balance import DeltaRoster
 from vgc.balance.meta import MetaData
 from vgc.balance.restriction import VGCDesignConstraints
-from vgc.datatypes.Objects import PkmTeamPrediction, PkmFullTeam, TeamValue, GameStateView, \
-    PkmFullTeamView, PkmRosterView
+from vgc.datatypes.Objects import PkmTeamPrediction, PkmFullTeam, GameStateView, PkmFullTeamView, PkmRosterView
 
 
 class Behaviour(ABC):
@@ -39,7 +38,7 @@ class TeamSelectionPolicy(Behaviour):
 class TeamBuildPolicy(Behaviour):
 
     @abstractmethod
-    def get_action(self, s: Tuple[MetaData, PkmFullTeam, PkmRosterView, TeamValue]) -> PkmFullTeam:
+    def get_action(self, s: Tuple[MetaData, PkmFullTeam, PkmRosterView]) -> PkmFullTeam:
         pass
 
 
@@ -47,13 +46,6 @@ class TeamPredictor(Behaviour):
 
     @abstractmethod
     def get_action(self, s: Tuple[PkmFullTeamView, MetaData]) -> PkmTeamPrediction:
-        pass
-
-
-class TeamValuator(Behaviour):
-
-    @abstractmethod
-    def get_action(self, s: Tuple[PkmFullTeam, MetaData]) -> TeamValue:
         pass
 
 

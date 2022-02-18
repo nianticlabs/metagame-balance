@@ -58,13 +58,6 @@ class RemoteCompetitorManager:
                 self.conn.send(self.competitor.team_predictor.requires_encode())
             elif msg[1] == 'close':
                 self.competitor.team_predictor.close()
-        elif msg[0] == 'TeamValuator':
-            if msg[1] == 'get_action':
-                self.conn.send(self.competitor.team_valuator.get_action(msg[2]))
-            elif msg[1] == 'requires_encode':
-                self.conn.send(self.competitor.team_valuator.requires_encode())
-            elif msg[1] == 'close':
-                self.competitor.team_valuator.close()
         elif msg[0] == 'BalancePolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.balance_policy.get_action(msg[2]))

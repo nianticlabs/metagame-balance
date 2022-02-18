@@ -1,20 +1,17 @@
 from abc import ABC
 
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, TeamValuator, \
-    BalancePolicy
+from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.behaviour.BalancePolicies import IdleBalancePolicy
 from vgc.behaviour.BattlePolicies import RandomBattlePolicy
 from vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
 from vgc.behaviour.TeamPredictors import NullTeamPredictor
 from vgc.behaviour.TeamSelectionPolicies import RandomTeamSelectionPolicy
-from vgc.behaviour.TeamValuators import NullTeamValuator
 
 random_battle_policy = RandomBattlePolicy()
 random_selector_policy = RandomTeamSelectionPolicy()
 random_team_build_policy = RandomTeamBuildPolicy()
 idle_balance_policy = IdleBalancePolicy()
 null_team_predictor = NullTeamPredictor()
-null_team_valuator = NullTeamValuator()
 
 
 class Competitor(ABC):
@@ -34,10 +31,6 @@ class Competitor(ABC):
     @property
     def team_predictor(self) -> TeamPredictor:
         return null_team_predictor
-
-    @property
-    def team_valuator(self) -> TeamValuator:
-        return null_team_valuator
 
     @property
     def balance_policy(self) -> BalancePolicy:

@@ -9,7 +9,6 @@ from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_M
 from vgc.datatypes.Objects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate, PkmTeam
 from vgc.datatypes.Types import PkmType
 from vgc.util import softmax
-from vgc.util.generator import get_stats
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
 DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS
@@ -33,7 +32,7 @@ class RandomTeamGenerator(PkmTeamGenerator):
     def get_team(self) -> PkmFullTeam:
         team: List[Pkm] = []
         for i in range(self.party_size + 1):
-            evs = np.random.multinomial(120, softmax(np.random.normal(0, 1, 5)), size=None) * 3 + self.base_stats
+            evs = np.random.multinomial(10, softmax(np.random.normal(0, 1, 5)), size=None) * 36 + self.base_stats
             p_type: PkmType = random.choice(LIST_OF_TYPES)
             max_hp: float = evs[0]
             moves: List[PkmMove] = []
@@ -42,7 +41,7 @@ class RandomTeamGenerator(PkmTeamGenerator):
                 m_power: float = evs[i + 1]
                 moves.append(PkmMove(m_power, move_type=m_type))
             moves[0].type = p_type
-            random.shuffle(moves)
+            # random.shuffle(moves)
             team.append(Pkm(p_type, max_hp, move0=moves[0], move1=moves[1], move2=moves[2], move3=moves[3]))
         return PkmFullTeam(team)
 

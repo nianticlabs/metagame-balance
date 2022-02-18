@@ -3,12 +3,10 @@ from multiprocessing.connection import Client
 from typing import Set
 
 from vgc.balance import DeltaRoster
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, TeamValuator, \
-    BalancePolicy
+from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.competition.Competition import Competitor
-from vgc.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, TeamValue, GameStateView
-from vgc.network.Serialization import SerializedGameState, SerializedPkmRoster, \
-    SerializedPkmFullTeam
+from vgc.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, GameStateView
+from vgc.network.Serialization import SerializedGameState, SerializedPkmRoster, SerializedPkmFullTeam
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0
@@ -71,9 +69,9 @@ class ProxyTeamBuildPolicy(TeamBuildPolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> PkmFullTeam:
-        md, pft, prv, tv = s
+        md, pft, prv = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamBuildPolicy', 'get_action', (md, pft, SerializedPkmRoster(prv), tv)))
+        self.conn.send(('TeamBuildPolicy', 'get_action', (md, pft, SerializedPkmRoster(prv))))
         action: PkmFullTeam = self.conn.recv()
         return action
 
@@ -110,29 +108,6 @@ class ProxyTeamPredictor(TeamPredictor):
     def close(self):
         # self.conn.settimeout(CLOSE_TIMEOUT)
         self.conn.send(('TeamPredictor', 'close'))
-
-
-class ProxyTeamValuator(TeamValuator):
-
-    def __init__(self, conn: Client, timeout: float):
-        self.conn: Client = conn
-        self.timeout: float = timeout
-
-    def get_action(self, s) -> TeamValue:
-        # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamValuator', 'get_action', s))
-        action: TeamValue = self.conn.recv()
-        return action
-
-    def requires_encode(self) -> bool:
-        # self.conn.settimeout(ENCODE_TIMEOUT)
-        self.conn.send(('TeamValuator', 'requires_encode',))
-        action: bool = self.conn.recv()
-        return action
-
-    def close(self):
-        # self.conn.settimeout(CLOSE_TIMEOUT)
-        self.conn.send(('BalancePolicy', 'close'))
 
 
 class ProxyBalancePolicy(BalancePolicy):
@@ -175,7 +150,6 @@ class ProxyCompetitor(Competitor):
         self.teamSelectionPolicy = ProxyTeamSelectionPolicy(conn, 1.0)
         self.teamBuildPolicy = ProxyTeamBuildPolicy(conn, 1.0)
         self.teamPredictor = ProxyTeamPredictor(conn, 1.0)
-        self.teamValuator = ProxyTeamValuator(conn, 1.0)
         self.balancePolicy = ProxyBalancePolicy(conn, 1.0)
 
     @property
@@ -193,10 +167,6 @@ class ProxyCompetitor(Competitor):
     @property
     def team_predictor(self) -> TeamPredictor:
         return self.teamPredictor
-
-    @property
-    def team_valuator(self) -> TeamValuator:
-        return self.teamValuator
 
     @property
     def balance_policy(self) -> BalancePolicy:

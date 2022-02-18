@@ -845,6 +845,11 @@ class PkmTeamView(ABC):
     def n_turns_confused(self) -> int:
         pass
 
+    @property
+    @abstractmethod
+    def party_size(self) -> int:
+        pass
+
     @abstractmethod
     def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
         pass
@@ -867,7 +872,7 @@ def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, part
                 if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(team.active)
-                # get partial information with an hypothesis
+                # get partial information with  hypothesis
                 return get_partial_pkm_view(team.active, team_prediction.active)
             # get self active pkm information
             return get_pkm_view(team.active)
@@ -877,7 +882,7 @@ def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, part
                 if team_prediction is None:
                     # get partial information without any hypothesis
                     return get_partial_pkm_view(team.party[idx])
-                # get partial information with an hypothesis
+                # get partial information with a hypothesis
                 return get_partial_pkm_view(team.party[idx], team_prediction.party[idx])
             # get self party pkm information
             return get_pkm_view(team.party[idx])
@@ -895,6 +900,10 @@ def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, part
 
         def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
             return team.entry_hazard[hazard]
+
+        @property
+        def party_size(self) -> int:
+            return team.size() - 1
 
     return PkmTeamViewImpl()
 
@@ -1025,10 +1034,3 @@ def get_game_state_view(game_state: GameState, team_prediction: PkmTeamPredictio
             return game_state.weather.n_turns_no_clear
 
     return GameStateViewImpl()
-
-
-class TeamValue(ABC):
-
-    @abstractmethod
-    def compare_to(self, value) -> int:
-        pass

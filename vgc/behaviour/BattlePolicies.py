@@ -45,7 +45,7 @@ class SimpleBattlePolicy(BattlePolicy):
         my_team = g.get_team_view(0)
         my_active = my_team.active_pkm_view
         my_active_type = my_active.type
-        my_party = [my_team.get_party_pkm_view(0), my_team.get_party_pkm_view(1)]
+        my_party = [my_team.get_party_pkm_view(i) for i in range(my_team.party_size)]
         my_active_moves = [my_active.get_move_view(i) for i in range(DEFAULT_PKM_N_MOVES)]
         my_attack_stage = my_team.get_stage(PkmStat.ATTACK)
 

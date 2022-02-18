@@ -3,11 +3,10 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from vgc.balance.meta import MetaData
-from vgc.behaviour.TeamValuators import NullTeamValuator
 from vgc.competition import CompetitorManager
 from vgc.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
 from vgc.competition.Competitor import Competitor
-from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view, PkmFullTeam
+from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
@@ -97,19 +96,7 @@ class TreeChampionship(Championship):
         self.gen = gen
 
     def register(self, cm: CompetitorManager):
-        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view,
-                                                              NullTeamValuator.null_team_value))
-        self.competitors.append(cm)
-
-    def vgc_register(self, cm: CompetitorManager):
-        cm.team = PkmFullTeam()
-        max_value = NullTeamValuator.null_team_value
-        for i in range(cm.n_teams):
-            team = cm.get_archived_team(i)
-            team_value = cm.competitor.team_valuator.get_action((team, self.meta_data))
-            if max_value.compare_to(team_value):
-                max_value = team_value
-                cm.team = team
+        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view))
         self.competitors.append(cm)
 
     def new_tournament(self):

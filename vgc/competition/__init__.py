@@ -1,6 +1,3 @@
-import codecs
-import pickle
-import time
 from typing import Optional
 
 from elo import INITIAL
@@ -52,23 +49,3 @@ class CompetitorManager:
         self.competitor = c
         self.team: Optional[PkmFullTeam] = None
         self.elo: float = INITIAL
-        self.team_archive_path = time.strftime("%Y%m%d-%H%M%S") + '_' + self.competitor.name
-        self.n_teams = 0
-
-    def get_archived_team(self, idx: int) -> PkmFullTeam:
-        index = 0
-        with open(self.team_archive_path, "r") as f:
-            while index < idx:
-                line = f.readline()
-                if not line:
-                    return PkmFullTeam()
-                index += 1
-            line = f.readline()
-            if not line:
-                return PkmFullTeam()
-            return pickle.loads(codecs.decode(line.encode(), "base64"))
-
-    def record_team(self, team: PkmFullTeam):
-        with open(self.team_archive_path, "a+") as f:
-            f.writelines([codecs.encode(pickle.dumps(team), "base64").decode()])
-        self.n_teams += 1
