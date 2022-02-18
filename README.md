@@ -122,7 +122,7 @@ A `CompetitorManager` binds and manages a `Competitor` with its current `PkmFull
 rating). These can be used in the context of a `TreeChampionship` or any full Ecosystem track. 
 
 ```python
-roster = set([PkmTemplate() for _ in range(N_PKMS)])
+roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
 competitors = [ExampleCompetitor('Player ' + str(i)) for i in range(N_PLAYERS)]
 championship = TreeChampionship(roster, debug=True)
 for competitor in competitors:
@@ -136,16 +136,48 @@ The `TeamBuildPolicy` from the `Competitor` is called to request the agent to ch
 
 ### Run Your own Full Competitions
 
-...
+The `BattleEcosystem` allows to run a Battle Competition Track. You just need to instantiate a `PkmRoster`, `MetaData`,
+and register the competitors wrapped under their `CompetitorManager`. You then must set how many epochs you want to run.
+
+```python
+roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+meta_data = MetaData()
+le = BattleEcosystem(meta_data, debug=True)
+epochs = 10
+for i in range(N_PLAYERS):
+    cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
+    cm.team = RandomTeamFromRoster(roster).get_team()
+    le.register(cm)
+le.run(epochs)
+```
+
+For the `ChampionshipEcosystem` the process is similar. The difference resides in you must set both the number of 
+championship epochs and how many battle epochs run inside each championship epoch.
+
+```python
+roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+meta_data = StandardMetaData()
+ce = ChampionshipEcosystem(roster, meta_data, debug=True)
+battle_epochs = 10
+championship_epochs = 10
+for i in range(N_PLAYERS):
+    cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
+    ce.register(cm)
+ce.run(n_epochs=battle_epochs, n_league_epochs=championship_epochs)
+```
+
+### How to use View Objects
+
+TODO
 
 ### Visualize Battles
 
-...
+See and use examples provided in `/vgc/ux`.
 
 ### More
 
 In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated agents
-or behaviours or run full ecosystems.
+or behaviours or run full ecosystems with independent processes controlling each agent.
 
 In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
 Framework.
@@ -183,3 +215,4 @@ Please cite this work if used.
 
 * Add Baseline Agents
 * Improve Framework Performance
+* Improve the Battle Championship class.
