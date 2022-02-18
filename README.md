@@ -1,5 +1,7 @@
 # Pokémon VGC AI Framework
 
+[[_TOC_]]
+
 ## Installation
 
 1. Install Python 3.6.8 or higher.
@@ -26,9 +28,37 @@ Framework.
 
 In the test folder is contained some unit tests from the core framework modules.
 
+## Tutorial
+
+...
+
+### Set a Pokemon Battle
+
+...
+
+### Training a Battle Agent (OpenAI Gym)
+
+...
+
+### Create My VGC AI Agent
+
+...
+
+### Set Competition Managers and a Tree Championship
+
+...
+
+### Run Your own Full Competitions
+
+...
+
+### Visualize Battles
+
+...
+
 ## Documentation
 
-All the documentation from Applicational Programming Interface, VGC Framework architecture to the COmpetition Tracks and
+The full documentation from API, Framework architecture to the COmpetition Tracks and
 Rules can be found in the [Wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
 
 ## Citation
