@@ -85,7 +85,7 @@ pkm = templ.gen_pkm([1, 2, 5, 3])  # 4 max!
 To create a meta is as simple as initializing.
 
 ```python
-meta = StandardMetaData()
+meta_data = StandardMetaData()
 ```
 
 ### Create My VGC AI Agent
@@ -136,9 +136,9 @@ The `TeamBuildPolicy` from the `Competitor` is called to request the agent to ch
 
 ### Run Your own Full Competitions
 
-The `ChampionshipEcosystem` is used to simulate a . You just need to instantiate a `PkmRoster`, `MetaData`, and register
-the competitors wrapped under their `CompetitorManager`. You must set both the number of championship epochs and how 
-many battle epochs run inside each championship epoch.
+The `ChampionshipEcosystem` is used to simulate a Championship Competition Track. You just need to instantiate a 
+`PkmRoster`, `MetaData`, and register the competitors wrapped under their `CompetitorManager`. You must set both the 
+number of championship epochs and how many battle epochs run inside each championship epoch.
 
 ```python
 roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
