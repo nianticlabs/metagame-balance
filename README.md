@@ -202,3 +202,4 @@ Please cite this work if used.
 
 * Add Baseline Agents
 * Improve Framework Performance
+* Add support methods to extract Objects from views and check Pokémon legality.
