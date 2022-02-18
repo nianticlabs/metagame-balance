@@ -16,29 +16,73 @@ Alternatively you may use the Dockerfile to create a ready to run container. All
 vgc-env and project is found in the /vgc-ai folder. User root has vgc as password. A SSH server is installed and run on
 the container boot.
 
-## Project Organization
+## Source Code
 
-In the example folder it can be found multiple examples for how to use the framework, to train or test isolated agents
-or behaviours or run full ecosystems.
+The /vgc module is the core implementation of the VGC AI Framework.
 
-The vgc module is the core implementation of the VGC AI Framework.
-
-In the organization folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
-Framework.
-
-In the test folder is contained some unit tests from the core framework modules.
+In the /test folder is contained some unit tests from the core framework modules.
 
 ## Tutorial
 
-...
+In this section we present a set of introductory tutorials.
 
-### Set a Pokemon Battle
+### Set a Pokemon Battle in the Pokemon Battle Env (OpenAI Gym)
 
-...
+Set Pokemon battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
+by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 
-### Training a Battle Agent (OpenAI Gym)
+```python
+team0, team1 = PkmTeam(), PkmTeam()
+agent0, agent1 = RandomBattlePolicy(), RandomBattlePolicy()
+env = PkmBattleEnv((team0, team1))  # set new environment with teams
+n_battles = 3  # total number of battles
+t = False
+battle = 0
+while battle < n_battles:
+    s = env.reset()
+    while not t:  # True when all pkms of one of the two PkmTeam faint
+        a = [agent0.get_action(s[0]), agent1.get_action(s[1])]
+        s, _, t, _ = env.step(a)  # for inference we don't need reward
+        env.render()
+    t = False
+    battle += 1
+print(env.winner)  # tuple with the victories of agent0 and agent1
+```
 
-...
+`s` is a duple with the game state view encoding for each agent. `r` is a duple with the reward for each agent.
+
+To create custom `PkmTeam` you can just input an array of `Pkm`.
+
+```python
+team = PkmTeam([Pkm(), Pkm(), Pkm()])  # up to three!
+```
+
+The `PkmTeam` represents a in battle team, which is a subset of a `PkmFullTeam`. The later is used for team building 
+settings. You can obtain a battle team from a full team by providing the team indexes.
+
+```python
+full_team = FullPkmTeam([Pkm(), Pkm(), Pkm(), Pkm(), Pkm(), Pkm()])
+team = full_team.get_battle_team([1, 4, 5])
+```
+
+### Create a Pokemon Roster and Meta
+
+A `PkmRoster` represents the entirety of unit selection for a team build competition. It is defined as 
+`set[PkmTemplate]`. A `PkmTemplate` represents a Pokemon species. It defines the legal stats combinations and moveset
+for that Pokemon species. To create a roster you jsut need to convert a list of `PkmTemplate`.
+
+```python
+roster = set([PkmTemplate(), PkmTemplate(), PkmTemplate()])
+```
+
+To get a `Pkm` instance from a `PkmTemplate` you just need to provide the moves indexes.
+
+```python
+templ = PkmTemplate()
+pkm = templ.gen_pkm([1, 2, 5, 3])  # 4 max!
+```
+
+
 
 ### Create My VGC AI Agent
 
@@ -56,9 +100,17 @@ In the test folder is contained some unit tests from the core framework modules.
 
 ...
 
+### More
+
+In the /example folder it can be found multiple examples for how to use the framework, to train or test isolated agents
+or behaviours or run full ecosystems.
+
+In the /organization folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
+Framework.
+
 ## Documentation
 
-The full documentation from API, Framework architecture to the COmpetition Tracks and
+The full documentation from API, Framework architecture to the Competition Tracks and
 Rules can be found in the [Wiki](https://gitlab.com/DracoStriker/pokemon-vgc-engine/-/wikis/home).
 
 ## Citation
@@ -85,6 +137,7 @@ Please cite this work if used.
   doi={10.1109/CoG52621.2021.9618985}}
 ```
 
-## TODO
+## Todo
 
-* Add More Baseline Agents
+* Add Baseline Agents
+* Improve Framework Performance
