@@ -26,9 +26,9 @@ In the `/test` folder is contained some unit tests from the core framework modul
 
 In this section we present a set of introductory tutorials.
 
-### Set a Pokemon Battle in the Pokemon Battle Env (OpenAI Gym)
+### Set a Pokémon  Battle in the Pokémon  Battle Env (OpenAI Gym)
 
-Set Pokemon battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
+Set Pokémon  battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
 by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 
 ```python
@@ -65,11 +65,11 @@ full_team = FullPkmTeam([Pkm(), Pkm(), Pkm(), Pkm(), Pkm(), Pkm()])
 team = full_team.get_battle_team([1, 4, 5])
 ```
 
-### Create a Pokemon Roster and Meta
+### Create a Pokémon  Roster and Meta
 
 A `PkmRoster` represents the entirety of unit selection for a team build competition. It is defined as 
-`set[PkmTemplate]`. A `PkmTemplate` represents a Pokemon species. It defines the legal stats combinations and moveset
-for that Pokemon species. To create a roster you jsut need to convert a list of `PkmTemplate`.
+`set[PkmTemplate]`. A `PkmTemplate` represents a Pokémon  species. It defines the legal stats combinations and moveset
+for that Pokémon  species. To create a roster you jsut need to convert a list of `PkmTemplate`.
 
 ```python
 roster = set([PkmTemplate(), PkmTemplate(), PkmTemplate()])
