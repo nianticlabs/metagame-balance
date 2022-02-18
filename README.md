@@ -136,23 +136,9 @@ The `TeamBuildPolicy` from the `Competitor` is called to request the agent to ch
 
 ### Run Your own Full Competitions
 
-The `BattleEcosystem` allows to run a Battle Competition Track. You just need to instantiate a `PkmRoster`, `MetaData`,
-and register the competitors wrapped under their `CompetitorManager`. You then must set how many epochs you want to run.
-
-```python
-roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
-meta_data = MetaData()
-le = BattleEcosystem(meta_data, debug=True)
-epochs = 10
-for i in range(N_PLAYERS):
-    cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
-    cm.team = RandomTeamFromRoster(roster).get_team()
-    le.register(cm)
-le.run(epochs)
-```
-
-For the `ChampionshipEcosystem` the process is similar. The difference resides in you must set both the number of 
-championship epochs and how many battle epochs run inside each championship epoch.
+The `ChampionshipEcosystem` is used to simulate a . You just need to instantiate a `PkmRoster`, `MetaData`, and register
+the competitors wrapped under their `CompetitorManager`. You must set both the number of championship epochs and how 
+many battle epochs run inside each championship epoch.
 
 ```python
 roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
@@ -215,4 +201,3 @@ Please cite this work if used.
 
 * Add Baseline Agents
 * Improve Framework Performance
-* Improve the Battle Championship class.
