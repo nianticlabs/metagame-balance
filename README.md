@@ -150,6 +150,7 @@ for i in range(N_PLAYERS):
     cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
     ce.register(cm)
 ce.run(n_epochs=battle_epochs, n_league_epochs=championship_epochs)
+print(ce.strongest.name) # determine winner by checking the highest ELO rating!
 ```
 
 ### How to use View Objects
