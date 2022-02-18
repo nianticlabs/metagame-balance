@@ -118,7 +118,21 @@ The battle policy must inherit from `BattlePolicy` and the team build policy mus
 
 ### Set Competition Managers and a Tree Championship
 
-...
+A `CompetitorManager` binds and manages a `Competitor` with its current `PkmFullTeam` and respective performance (ELO 
+rating). These can be used in the context of a `TreeChampionship` or any full Ecosystem track. 
+
+```python
+roster = set([PkmTemplate() for _ in range(N_PKMS)])
+competitors = [ExampleCompetitor('Player ' + str(i)) for i in range(N_PLAYERS)]
+championship = TreeChampionship(roster, debug=True)
+for competitor in competitors:
+    championship.register(CompetitorManager(competitor))  # add competitor to the tournament and set his team
+championship.new_tournament()  # create a tournament tree
+winner = championship.run()  # run tournament
+print(winner.competitor.name + " wins the tournament!")  # fetch winner
+```
+
+The `TeamBuildPolicy` from the `Competitor` is called to request the agent to choose its team.
 
 ### Run Your own Full Competitions
 
