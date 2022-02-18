@@ -18,9 +18,9 @@ the container boot.
 
 ## Source Code
 
-The /vgc module is the core implementation of the VGC AI Framework.
+The `/vgc` module is the core implementation of the VGC AI Framework.
 
-In the /test folder is contained some unit tests from the core framework modules.
+In the `/test` folder is contained some unit tests from the core framework modules.
 
 ## Tutorial
 
@@ -82,11 +82,39 @@ templ = PkmTemplate()
 pkm = templ.gen_pkm([1, 2, 5, 3])  # 4 max!
 ```
 
+To create a meta is as simple as initializing.
 
+```python
+meta = StandardMetaData()
+```
 
 ### Create My VGC AI Agent
 
-...
+To implement a VGC competitor agent you need to create an implementation of the class `Competitor` and override its
+multiple methods that return the various types of behaviours that will be called during an ecosystem simulation.
+Example:
+
+```python
+class Competitor(ABC):
+    
+    def __init__(self):
+        self.my_battle_policy = RandomBattlePolicy()
+        self.my_team_build_policy = MyVGCBuildPolicy()
+        
+    @property
+    def battle_policy(self) -> BattlePolicy:
+        return self.my_battle_policy
+
+    @property
+    def team_build_policy(self) -> TeamBuildPolicy:
+        return self.my_team_build_policy
+
+    @property
+    def name(self) -> str:
+        return "My VGC AI agent"
+```
+
+The battle policy must inherit from `BattlePolicy` and the team build policy must inherit from `TeamBuildPolicy`.
 
 ### Set Competition Managers and a Tree Championship
 
@@ -102,10 +130,10 @@ pkm = templ.gen_pkm([1, 2, 5, 3])  # 4 max!
 
 ### More
 
-In the /example folder it can be found multiple examples for how to use the framework, to train or test isolated agents
+In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated agents
 or behaviours or run full ecosystems.
 
-In the /organization folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
+In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
 Framework.
 
 ## Documentation
