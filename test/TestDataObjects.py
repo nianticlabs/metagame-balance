@@ -9,7 +9,7 @@ import numpy as np
 from vgc.datatypes.Constants import MIN_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate
 from vgc.datatypes.Types import PkmType
-from vgc.util.generator.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class TestEncodingMethods(unittest.TestCase):

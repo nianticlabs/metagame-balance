@@ -13,7 +13,7 @@ from vgc.datatypes.Types import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, Pkm
 
 class PkmMove:
 
-    def __init__(self, power: float = 90., acc: float = 1., max_pp: int = MOVE_MED_PP,
+    def __init__(self, power: float = 30., acc: float = 1., max_pp: int = MOVE_MED_PP,
                  move_type: PkmType = PkmType.NORMAL, name: str = None, priority: bool = False,
                  prob=0.0, target=1, recover=0.0, status: PkmStatus = PkmStatus.NONE,
                  stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,

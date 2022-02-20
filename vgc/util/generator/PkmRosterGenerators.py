@@ -7,7 +7,7 @@ from vgc.datatypes.Constants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROST
 from vgc.datatypes.Objects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
 from vgc.datatypes.Types import PkmType
 from vgc.util.generator.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
-from vgc.util.generator.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class MoveRosterGenerator(ABC):

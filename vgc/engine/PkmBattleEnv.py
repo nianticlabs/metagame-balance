@@ -12,7 +12,7 @@ from vgc.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, 
 from vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from vgc.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
-from vgc.util.generator.StandardPkmMoves import Struggle
+from vgc.competition.StandardPkmMoves import Struggle
 
 
 class PkmBattleEnv(gym.Env):

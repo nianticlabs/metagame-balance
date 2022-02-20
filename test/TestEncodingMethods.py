@@ -8,7 +8,7 @@ from vgc.datatypes.Objects import PkmTemplate, PkmTeam, GameState, Weather
 from vgc.datatypes.Types import PkmType
 from vgc.util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, \
     encode_game_state, decode_game_state
-from vgc.util.generator.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class TestEncodingMethods(unittest.TestCase):
