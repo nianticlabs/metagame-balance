@@ -1,4 +1,4 @@
-from example.Example_Competitor import ExampleCompetitor
+from agent.Example_Competitor import ExampleCompetitor
 from vgc.competition import CompetitorManager
 from vgc.competition.Competition import TreeChampionship
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator

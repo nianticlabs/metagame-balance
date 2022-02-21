@@ -43,7 +43,6 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
 
     def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRosterView]) -> PkmFullTeam:
         r_view = d[2]
-        pkm_full_team: PkmFullTeam
         pre_selection: List[PkmTemplate] = [pkm_template_from_view(r_view.get_pkm_template_view(i)) for i in
                                             random.sample(range(r_view.n_pkms), MAX_TEAM_SIZE)]
         team: List[Pkm] = []

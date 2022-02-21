@@ -1,6 +1,6 @@
 import argparse
 
-from example.Example_Competitor import ExampleCompetitor
+from agent.Example_Competitor import ExampleCompetitor
 from vgc.network.RemoteCompetitorManager import RemoteCompetitorManager
 
 
