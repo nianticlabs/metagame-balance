@@ -51,7 +51,7 @@ DynamicPunch = PkmMove(100., .5, 5, PkmType.FIGHT, "Dynamic Punch", status=PkmSt
 Poison = PkmMove(0., 1., 5, PkmType.POISON, "Poison", status=PkmStatus.POISONED, prob=1.)
 GunkShot = PkmMove(110., .8, 5, PkmType.POISON, "Gunk Shot", status=PkmStatus.POISONED, prob=.3)
 PoisonJab = PkmMove(80., 1., 5, PkmType.POISON, "Poison Jab", status=PkmStatus.POISONED, prob=.3)
-AcidSpray = PkmMove(40., 1., 20, PkmType.POISON, "Acid Spray ", stat=PkmStat.DEFENSE, stage=-2, prob=1.)
+AcidSpray = PkmMove(40., 1., 20, PkmType.POISON, "Acid Spray", stat=PkmStat.DEFENSE, stage=-2, prob=1.)
 
 # Ground Moves
 Spikes = PkmMove(0., 1., 20, PkmType.GROUND, "Spikes", hazard=PkmEntryHazard.SPIKES, prob=1.)
@@ -63,7 +63,7 @@ EarthPower = PkmMove(90., 1., 10, PkmType.GROUND, "Earth Power", stat=PkmStat.DE
 Roost = PkmMove(0., 1., 5, PkmType.FLYING, "Roost", recover=80., target=0, prob=1.)
 Chatter = PkmMove(65., 1., 20, PkmType.FLYING, "Chatter", status=PkmStatus.CONFUSED, prob=1.)
 Hurricane = PkmMove(110., .7, 10, PkmType.FLYING, "Hurricane", status=PkmStatus.CONFUSED, prob=.3)
-WingAttack = PkmMove(60., 100., 20, PkmType.FLYING, "WingAttack")
+WingAttack = PkmMove(60., 100., 20, PkmType.FLYING, "Wing Attack")
 
 # Psychic Moves
 CalmMind = PkmMove(0., 1., 5, PkmType.PSYCHIC, "Calm Mind", stat=PkmStat.DEFENSE, stage=2, target=0, prob=1.)
@@ -89,7 +89,7 @@ ShadowSneak = PkmMove(40., 1., 20, PkmType.GHOST, "Mach Punch", priority=True)
 
 # Dragon Moves
 DragonRage = PkmMove(0., 1., 10, PkmType.DRAGON, "Dragon Rage", fixed_damage=40., prob=1.)
-DracoMeteor = PkmMove(130., .9, 5, PkmType.DRAGON, "Draco Meteor", stat=PkmStat.ATTACK, stage=-2, prob=1.)
+DracoMeteor = PkmMove(130., .9, 5, PkmType.DRAGON, "Draco Meteor", stat=PkmStat.ATTACK, stage=-2, target=0, prob=1.)
 DragonBreath = PkmMove(60., 1., 20, PkmType.DRAGON, "Dragon Breath", status=PkmStatus.PARALYZED, prob=1.)
 Outrage = PkmMove(120., 1., 10, PkmType.DRAGON, "Outrage", status=PkmStatus.CONFUSED, target=0, prob=1.)
 

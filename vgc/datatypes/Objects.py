@@ -128,8 +128,8 @@ class PkmMove:
         if random.random() < self.prob:
             v.set_recover(self.recover)
             v.set_fixed_damage(self.fixed_damage)
-            if self.stage > 0:
-                v.set_stage(self.stat, self.target, self.stage)
+            if self.stage != 0:
+                v.set_stage(self.stat, self.stage, self.target)
             if self.status != self.status.NONE:
                 v.set_status(self.status, self.target)
             if self.weather != self.weather.CLEAR:

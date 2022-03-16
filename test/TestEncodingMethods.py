@@ -3,7 +3,7 @@ import random
 import unittest
 from copy import deepcopy
 
-from vgc.datatypes.Constants import MIN_HIT_POINTS, MAX_HIT_POINTS
+from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate, PkmTeam, GameState, Weather
 from vgc.datatypes.Types import PkmType
 from vgc.util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, \
@@ -23,7 +23,7 @@ class TestEncodingMethods(unittest.TestCase):
     def test_encode_pkm(self):
         for _ in range(100):
             pkm_type = random.choice(list(PkmType))
-            max_hp = random.randint(MIN_HIT_POINTS, MAX_HIT_POINTS)
+            max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
             template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
             move_combinations = itertools.combinations(range(10), 4)
@@ -37,7 +37,7 @@ class TestEncodingMethods(unittest.TestCase):
     def test_encode_team(self):
         for _ in range(10):
             pkm_type = random.choice(list(PkmType))
-            max_hp = random.randint(MIN_HIT_POINTS, MAX_HIT_POINTS)
+            max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
             template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
             move_combinations = itertools.combinations(range(10), 4)
@@ -53,7 +53,7 @@ class TestEncodingMethods(unittest.TestCase):
     def test_encode_game_state(self):
         for _ in range(10):
             pkm_type = random.choice(list(PkmType))
-            max_hp = random.randint(MIN_HIT_POINTS, MAX_HIT_POINTS)
+            max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
             template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
             move_combinations = itertools.combinations(range(10), 4)

@@ -410,6 +410,10 @@ class PkmBattleEnv(gym.Env):
                 team = self._team[t_id]
                 if MIN_STAGE < team.stage[stat] < MAX_STAGE:
                     team.stage[stat] += delta_stage
+                    if team.stage[stat] < MIN_STAGE:
+                        team.stage[stat] = MIN_STAGE
+                    elif team.stage[stat] > MAX_STAGE:
+                        team.stage[stat] = MAX_STAGE
                     if self.__engine.debug:
                         self.__engine.log += 'STAGE: %s %s %s\n' % (
                             str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')

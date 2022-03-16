@@ -3,10 +3,12 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List
 
-from vgc.datatypes.Constants import MIN_HIT_POINTS, MOVE_POWER_MIN, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM
+from vgc.competition import STANDARD_TOTAL_POINTS, get_move_points
+from vgc.datatypes.Constants import BASE_HIT_POINTS, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM, MAX_HIT_POINTS, \
+    MIN_HIT_POINTS
 from vgc.datatypes.Objects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
 from vgc.datatypes.Types import PkmType
-from vgc.util.generator.PkmTeamGenerators import LIST_OF_TYPES, DELTA_HIT_POINTS, DELTA_MOVE_POWER
+from vgc.util.generator.PkmTeamGenerators import LIST_OF_TYPES
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
@@ -27,16 +29,11 @@ class RandomMoveRosterGenerator(MoveRosterGenerator):
 
     def gen_roster(self) -> PkmMoveRoster:
         base_move_roster = deepcopy(self.base_roster)
-        moves = random.sample(list(filter(lambda _m: _m.type == self.pkm_type, base_move_roster)), 2)
+        moves = random.sample(list(filter(lambda _m: _m.type == self.pkm_type, base_move_roster)), 1)
         for m in moves:
             base_move_roster.remove(m)
         move_roster: List[PkmMove] = moves
-        for _ in range(self.n_moves_pkm - 2):
-            #if random.random() < .2:
-            #    m_type: PkmType = random.choice(LIST_OF_TYPES)
-            #    m_power: float = round(random.random() * DELTA_MOVE_POWER + MOVE_POWER_MIN)
-            #    move = PkmMove(power=m_power, move_type=m_type)
-            #else:
+        for _ in range(self.n_moves_pkm - 1):
             move = random.choice(list(base_move_roster))
             base_move_roster.remove(move)
             move_roster.append(move)
@@ -69,7 +66,14 @@ class RandomPkmRosterGenerator(PkmRosterGenerator):
         roster: List[PkmTemplate] = []
         for i in range(self.roster_size):
             p_type: PkmType = random.choice(LIST_OF_TYPES)
-            max_hp: float = round(random.random() * DELTA_HIT_POINTS + MIN_HIT_POINTS)
             move_roster = RandomMoveRosterGenerator(self.base_move_roster, p_type, self.n_moves_pkm).gen_roster()
+            points = 0
+            for move in move_roster:
+                points += get_move_points(move)
+            max_hp: float = BASE_HIT_POINTS + 30. * (STANDARD_TOTAL_POINTS - points)
+            if max_hp > MAX_HIT_POINTS:
+                max_hp = MAX_HIT_POINTS
+            if max_hp < MIN_HIT_POINTS:
+                max_hp = MIN_HIT_POINTS
             roster.append(PkmTemplate(move_roster, p_type, max_hp, i))
         return set(roster)

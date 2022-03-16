@@ -203,7 +203,6 @@ Please cite this work if used.
 ### Short Term
 
 * Add support methods to extract Objects from views and check Pokémon legality.
-* add support to generate standard Pokémon (i.e.) using only standard legal moves.
 * Finish tutorial.
 
 ### Long Term

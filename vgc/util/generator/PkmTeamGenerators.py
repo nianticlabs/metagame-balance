@@ -4,14 +4,14 @@ from typing import List
 
 import numpy as np
 
-from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, MIN_HIT_POINTS, \
+from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, BASE_HIT_POINTS, \
     DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE
 from vgc.datatypes.Objects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate, PkmTeam
 from vgc.datatypes.Types import PkmType
 from vgc.util import softmax
 
 LIST_OF_TYPES: List[PkmType] = list(PkmType)
-DELTA_HIT_POINTS = MAX_HIT_POINTS - MIN_HIT_POINTS
+DELTA_HIT_POINTS = MAX_HIT_POINTS - BASE_HIT_POINTS
 DELTA_MOVE_POWER = MOVE_POWER_MAX - MOVE_POWER_MIN
 
 

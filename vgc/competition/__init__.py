@@ -3,10 +3,36 @@ from typing import Optional
 from elo import INITIAL
 
 from vgc.competition import Competitor
-from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam
+from vgc.datatypes.Constants import BASE_HIT_POINTS
+from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
+from vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
 
 
-def legal_move_set(pkm: Pkm, template: PkmTemplate):
+STANDARD_TOTAL_POINTS = 11
+
+
+def get_move_points(move: PkmMove) -> int:
+    points = 0
+    points += max(int((move.power - 30.) / 30.) + ((move.power - 30.) % 30. > 0), 0)
+    points += int(move.priority)
+    points += int(move.recover > 0.)
+    points += int(move.stage > 0.)
+    points += int(move.status != PkmStatus.NONE)
+    points += int(move.fixed_damage > 0.)
+    points += int(move.weather != WeatherCondition.CLEAR)
+    points += int(move.hazard != PkmEntryHazard.NONE)
+    return points
+
+
+def get_pkm_points(pkm: Pkm) -> int:
+    points = 0
+    points += int((pkm.hp - BASE_HIT_POINTS) / 30.) + ((pkm.hp - BASE_HIT_POINTS) % 30. > 0)
+    for i in range(4):
+        points += get_move_points(pkm.moves[i])
+    return points
+
+
+def legal_move_set(pkm: Pkm, template: PkmTemplate) -> bool:
     # there must be no repeated members
     for i in range(len(pkm.moves)):
         move = pkm.moves[i]

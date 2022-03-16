@@ -6,7 +6,7 @@ from random import sample
 
 import numpy as np
 
-from vgc.datatypes.Constants import MIN_HIT_POINTS, MAX_HIT_POINTS
+from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate
 from vgc.datatypes.Types import PkmType
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
@@ -93,11 +93,11 @@ class TestEncodingMethods(unittest.TestCase):
     def test_PkmTemplate(self):
         for _ in range(10):
             pkm_type = random.choice(list(PkmType))
-            max_hp = np.random.uniform(MIN_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
+            max_hp = np.random.uniform(BASE_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
             move_roster = set(sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
             template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
             pkm_type = random.choice(list(PkmType))
-            max_hp = np.random.uniform(MIN_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
+            max_hp = np.random.uniform(BASE_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
             move_roster = set(sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
             template2 = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
             move_combinations = itertools.combinations(range(10), 4)
