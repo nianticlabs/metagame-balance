@@ -122,7 +122,7 @@ A `CompetitorManager` binds and manages a `Competitor` with its current `PkmFull
 rating). These can be used in the context of a `TreeChampionship` or any full Ecosystem track. 
 
 ```python
-roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+roster = RandomPkmRosterGenerator().gen_roster()
 competitors = [ExampleCompetitor('Player ' + str(i)) for i in range(N_PLAYERS)]
 championship = TreeChampionship(roster, debug=True)
 for competitor in competitors:
@@ -141,7 +141,7 @@ The `ChampionshipEcosystem` is used to simulate a Championship Competition Track
 number of championship epochs and how many battle epochs run inside each championship epoch.
 
 ```python
-roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+roster = RandomPkmRosterGenerator().gen_roster()
 meta_data = StandardMetaData()
 ce = ChampionshipEcosystem(roster, meta_data, debug=True)
 battle_epochs = 10
