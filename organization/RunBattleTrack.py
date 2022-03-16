@@ -10,7 +10,7 @@ from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 def main(args):
     n_agents = args.n_agents
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     championship = TreeChampionship(roster, debug=True, gen=RandomTeamGenerator(2))
     conns = []
     for i in range(n_agents):

@@ -5,7 +5,7 @@ from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main():
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     for pt in roster:
         print(pt)
 

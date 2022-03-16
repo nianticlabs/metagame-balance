@@ -14,11 +14,11 @@ from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
 def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullTeamView,
-                   opp_team_view: PkmFullTeamView) -> PkmTeam:
+                   opp_team_view: PkmFullTeamView, full_team_size=DEFAULT_TEAM_SIZE) -> PkmTeam:
     try:
         team_ids = list(c.team_selection_policy.get_action((my_team_view, opp_team_view)))
     except:
-        team_ids = sample(range(6), DEFAULT_TEAM_SIZE)
+        team_ids = sample(range(full_team_size), DEFAULT_TEAM_SIZE)
     return full_team.get_battle_team(team_ids)
 
 

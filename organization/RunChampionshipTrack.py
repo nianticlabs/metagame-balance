@@ -15,7 +15,7 @@ def main(args):
     n_epochs = args.n_epochs
     n_league_epochs = args.n_league_epochs
     base_port = args.base_port
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     meta_data = StandardMetaData()
     meta_data.set_moves_and_pkm(roster)
     conns = []

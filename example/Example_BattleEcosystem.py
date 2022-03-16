@@ -9,7 +9,7 @@ N_PLAYERS = 16
 
 
 def main():
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     meta_data = StandardMetaData()
     le = BattleEcosystem(meta_data, debug=True)
     for i in range(N_PLAYERS):

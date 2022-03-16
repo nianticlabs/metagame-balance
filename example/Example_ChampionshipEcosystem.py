@@ -8,7 +8,7 @@ N_PLAYERS = 16
 
 
 def main():
-    roster = RandomPkmRosterGenerator(None, n_moves_pkm=10, roster_size=100).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     meta_data = StandardMetaData()
     meta_data.set_moves_and_pkm(roster)
     ce = ChampionshipEcosystem(roster, meta_data, debug=True)

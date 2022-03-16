@@ -5,7 +5,7 @@ from typing import List
 import numpy as np
 
 from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, BASE_HIT_POINTS, \
-    DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE
+    DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE, DEFAULT_TEAM_SIZE, DEFAULT_N_MOVES_PKM
 from vgc.datatypes.Objects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate, PkmTeam
 from vgc.datatypes.Types import PkmType
 from vgc.util import softmax
@@ -48,15 +48,16 @@ class RandomTeamGenerator(PkmTeamGenerator):
 
 class RandomTeamFromRoster(PkmTeamGenerator):
 
-    def __init__(self, roster: PkmRoster, size=6):
+    def __init__(self, roster: PkmRoster, team_size=DEFAULT_TEAM_SIZE, n_moves_pkm=DEFAULT_N_MOVES_PKM):
         self.roster = list(roster)
-        self.size = size
+        self.team_size = team_size
+        self.n_moves_pkm = n_moves_pkm
 
     def get_team(self) -> PkmFullTeam:
         pkms = []
-        templates: List[PkmTemplate] = random.sample(self.roster, self.size)
+        templates: List[PkmTemplate] = random.sample(self.roster, self.team_size)
         for template in templates:
-            move_combination = random.sample(range(10), 4)
+            move_combination = random.sample(range(self.n_moves_pkm), 4)
             pkms.append(template.gen_pkm(move_combination))
         return PkmFullTeam(pkms)
 

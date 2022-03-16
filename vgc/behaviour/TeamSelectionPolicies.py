@@ -60,7 +60,7 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
 class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
-    def __init__(self, teams_size: int = MAX_TEAM_SIZE, selection_size: int = DEFAULT_TEAM_SIZE):
+    def __init__(self, teams_size: int = DEFAULT_TEAM_SIZE, selection_size: int = DEFAULT_TEAM_SIZE):
         self.teams_size = teams_size
         self.selection_size = selection_size
 

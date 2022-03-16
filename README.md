@@ -207,5 +207,6 @@ Please cite this work if used.
 
 ### Long Term
 
-* Add Baseline Agents
-* Improve Framework Performance
+* Add Baseline Agents.
+* Improve Framework Performance.
+* Support point distribution with templates of any size.
