@@ -180,12 +180,13 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
 
 ### Visualize Battles
 
-See and use examples provided in `/vgc/ux`.
+See and use examples provided in `vgc/ux`. Run `vgc/ux/PkmBattleClientTest.py` and `vgc/ux/PkmBattleUX.py` in that 
+order.
 
 ### More
 
-In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated agents
-or behaviours or run full ecosystems with independent processes controlling each agent.
+In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated 
+agents or behaviours or run full ecosystems with independent processes controlling each agent.
 
 In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
 Framework.
