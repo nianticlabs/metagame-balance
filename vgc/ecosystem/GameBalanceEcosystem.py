@@ -30,7 +30,7 @@ class GameBalanceEcosystem:
         while epoch < n_epochs:
             self.vgc.run(n_vgc_epochs, n_league_epochs)
             self.accumulated_points += self.meta_data.evaluate()
-            delta_roster = self.c.balance_policy.get_action((get_pkm_roster_view(self.vgc.roster), self.meta_data,
+            delta_roster = self.c.balance_policy.get_action((self.vgc.roster, self.meta_data,
                                                              self.constraints))
             copy_roster = deepcopy(self.vgc.roster)
             delta_roster.apply(copy_roster)

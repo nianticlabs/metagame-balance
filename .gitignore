@@ -1,0 +1,6 @@
+*.pyc
+*.o
+.*.swp
+__pycache__
+pgo_datamaster_parser.py
+tags

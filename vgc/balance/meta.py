@@ -2,6 +2,7 @@ import itertools
 from abc import ABC, abstractmethod
 from math import exp
 from typing import Dict, Tuple, List
+import copy
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
@@ -100,15 +101,18 @@ class StandardMetaData(MetaData):
             self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
 
     def update_with_delta_roster(self, delta: DeltaRoster):
+
+        d_move_copy = copy.deepcopy(self._d_move)
         for idx in delta.dp.keys():
             for m_idx in delta.dp[idx].dpm.keys():
                 for move_pair in self._d_move.keys():
                     if self._moves[idx * 4 + m_idx] in move_pair:
-                        self._d_move[(move_pair[0], move_pair[1])] = std_move_dist(move_pair[0], move_pair[1])
+                        d_move_copy[(move_pair[0], move_pair[1])] = std_move_dist(move_pair[0], move_pair[1])
             for pkm_pair in self._d_pkm.keys():
-                if self._pkm[idx] in pkm_pair:
+                if self._pkm[idx].pkm_id in pkm_pair:
                     self._d_pkm[(pkm_pair[0], pkm_pair[1])] = std_pkm_dist(self._pkm[pkm_pair[0]],
                                                                            self._pkm[pkm_pair[1]])
+        self._d_move = d_move_copy
 
     def update_with_team(self, team: PkmFullTeam, won: bool):
         self._team_history.append((team.get_copy(), won))
