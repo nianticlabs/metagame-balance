@@ -7,9 +7,10 @@ from policies.CMAESBalancePolicy import CMAESBalancePolicy
 
 class ProposedCompetitor(Competitor):
 
-    def __init__(self, name: str = "Niantic Policy"):
+    def __init__(self, num_pkm, name: str = "Niantic Policy"):
         self._name = name
-        self._balance_policy = CMAESBalancePolicy()
+        self.num_pkm = num_pkm
+        self._balance_policy = CMAESBalancePolicy(num_pkm)
 
     @property
     def name(self):

@@ -90,6 +90,10 @@ class StandardMetaData(MetaData):
         self._moves = []
         for pkm in self._pkm:
             self._moves += list(pkm.move_roster)
+        self.clear_stats()
+
+    def clear_stats(self):
+        for pkm in self._pkm:
             self._pkm_usage[pkm.pkm_id] = 0
             self._pkm_wins[pkm.pkm_id] = 0
         for move in self._moves:
@@ -99,6 +103,13 @@ class StandardMetaData(MetaData):
             self._d_move[(m0, m1)] = std_move_dist(m0, m1)
         for p0, p1 in itertools.product(self._pkm, self._pkm):
             self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
+        self._move_history = []
+        self._pkm_history = []
+        self._teammates_history = {}
+        self._team_history = []
+        # total usage count - moves, pkm, teams
+        self._total_move_usage = 0
+        self._total_pkm_usage = 0
 
     def update_with_delta_roster(self, delta: DeltaRoster):
 
