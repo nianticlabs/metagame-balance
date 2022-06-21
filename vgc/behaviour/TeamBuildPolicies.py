@@ -4,7 +4,7 @@ from typing import List, Tuple, Optional
 from vgc.balance.meta import MetaData
 from vgc.behaviour import TeamBuildPolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_TEAM_SIZE
-from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmRosterView, PkmFullTeam, PkmTemplateView, PkmMove, MoveView
+from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmRoster, PkmFullTeam, PkmTemplateView, PkmMove, MoveView, PkmRosterView
 
 
 def move_template_from_view(mv: MoveView) -> PkmMove:
@@ -41,11 +41,13 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
     def close(self):
         pass
 
-    def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRosterView]) -> PkmFullTeam:
-        r_view: PkmRosterView = d[2]
-        pre_selection: List[PkmTemplate] = [pkm_template_from_view(r_view.get_pkm_template_view(i)) for i in
-                                            random.sample(range(r_view.n_pkms), DEFAULT_TEAM_SIZE)]
+    def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRoster]) -> PkmFullTeam:
+        roster = d[2]
+        
+        pre_selection = random.sample(list(roster), DEFAULT_TEAM_SIZE)
+        #pre_selection: List[PkmTemplate] = [pkm_template_from_view(r_view.get_pkm_template_view(i)) for i in
+        #                                    random.sample(range(r_view.n_pkms), DEFAULT_TEAM_SIZE)]
         team: List[Pkm] = []
         for pt in pre_selection:
-            team.append(pt.gen_pkm(random.sample(range(len(pt.move_roster)), DEFAULT_PKM_N_MOVES)))
+            team.append(pt.gen_pkm())
         return PkmFullTeam(team)

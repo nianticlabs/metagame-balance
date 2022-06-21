@@ -12,9 +12,12 @@ class MetaRosterStateParser():
         self.move_roster = move_roster
         self.num_pkm = num_pkm
         self.base_state = self.get_init_state() ## NOTE: Health is all zero!! 
-
+    
+    def length_state_vector(self):
+        return STATS_OPT_PER_MOVE * len(self.move_roster) + self.num_pkm
+    
     def get_init_state(self) -> np.ndarray:
-        state_vec = np.zeros((STATS_OPT_PER_MOVE * len(self.move_roster) + self.num_pkm))
+        state_vec = np.zeros((self.length_state_vector()))
         for i, move in enumerate(self.move_roster):
                 itr = i * 3
                 state_vec[itr] = move.power

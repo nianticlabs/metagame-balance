@@ -9,7 +9,7 @@ from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
-NUM_PKM = 5
+NUM_PKM = 100 
 def plot_rewards(rewards: list) -> None:
     import matplotlib.pyplot as plt
     print(rewards)
@@ -17,7 +17,6 @@ def plot_rewards(rewards: list) -> None:
     plt.xlabel("Iterations")
     plt.ylabel("Reward")
     plt.title("Reward for Stage 1 per iteration")
-    plt.xticks(range(len(rewards)))
     plt.show()
 
 
@@ -41,7 +40,8 @@ def main(args):
     winner_name = ""
     max_score = 0.0
 
-    plot_rewards(gbe.rewards)
+    if args.visualize:
+        plot_rewards(gbe.rewards)
     """
     for name, score in results:
         if score > max_score:
@@ -81,5 +81,6 @@ if __name__ == '__main__':
     parser.add_argument('--n_vgc_epochs', type=int, default=1)
     parser.add_argument('--n_league_epochs', type=int, default=1)
     parser.add_argument('--population_size', type=int, default=2)
+    parser.add_argument('--visualize', type=bool, default=False)
     args = parser.parse_args()
     main(args)
