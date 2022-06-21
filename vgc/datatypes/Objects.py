@@ -56,6 +56,9 @@ class PkmMove:
         self.owner = None
 
     def __eq__(self, other):
+        """
+        Moves equal if name is equal (use name as id)
+        """
         return self.name == other.name
 
     def __hash__(self):

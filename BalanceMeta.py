@@ -21,6 +21,13 @@ def plot_rewards(rewards: list) -> None:
 
 
 def main(args):
+    """
+    Main function: used to balance meta as well as learn the policy (TBI)
+    This runs for `n_epochs' stage 1 optimization epochs 'n_vgc_epochs' stage 2 optimization epochs
+    This also plots rewards per stage 1 iteration 
+    TODO Stage 2 plots log to files
+    TODO Handle the noise in stage 1 plots (by smoonthing and plotting varience)
+    """
     n_epochs = args.n_epochs
     n_vgc_epochs = args.n_vgc_epochs
     n_league_epochs = args.n_league_epochs
@@ -42,38 +49,6 @@ def main(args):
 
     if args.visualize:
         plot_rewards(gbe.rewards)
-    """
-    for name, score in results:
-        if score > max_score:
-            winner_name = name
-    print(winner_name + " wins the competition with score", max_score)
-    for i in base_roster:
-        print(i, i.pkm_id)
-
-    check_dict = {}
-    correct_count = 0
-    change_id = -1
-    for i in base_roster:
-        if i.max_hp == 2:
-            change_id = i.pkm_id
-            for j in i.move_roster:
-                check_dict[str(j)] = j.power
-        break
-    
-    print(check_dict, correct_count, meta_data._moves[4*change_id])
-    for i in range(len(meta_data._pkm)):
-        if meta_data._pkm[i].pkm_id == change_id:
-            for move in meta_data._moves[4 * i: 4 * i + 4]:
-                print(move.power, move)
-
-    for i in base_roster:
-        for j in i.move_roster:
-            if str(j) in check_dict:
-                print(j.power, j)
-                assert(j.power == check_dict[str(j)])
-                correct_count += 1
-    print(check_dict, correct_count, meta_data._moves[4*change_id])
-    """
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
