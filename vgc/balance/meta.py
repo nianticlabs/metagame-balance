@@ -2,6 +2,7 @@ import itertools
 from abc import ABC, abstractmethod
 from math import exp
 from typing import Dict, Tuple, List
+import copy
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
@@ -89,26 +90,43 @@ class StandardMetaData(MetaData):
         self._moves = []
         for pkm in self._pkm:
             self._moves += list(pkm.move_roster)
+        for m0, m1 in itertools.product(self._moves, self._moves):
+            self._d_move[(m0, m1)] = std_move_dist(m0, m1)
+        self.clear_stats()
+
+    def clear_stats(self):
+        for pkm in self._pkm:
             self._pkm_usage[pkm.pkm_id] = 0
             self._pkm_wins[pkm.pkm_id] = 0
         for move in self._moves:
             self._move_usage[move] = 0
             self._move_wins[move] = 0
         for m0, m1 in itertools.product(self._moves, self._moves):
-            self._d_move[(m0, m1)] = std_move_dist(m0, m1)
+            self._d_move[(m0, m1)] = 0 #std_move_dist(m0, m1)
         for p0, p1 in itertools.product(self._pkm, self._pkm):
             self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
+        self._move_history = []
+        self._pkm_history = []
+        self._teammates_history = {}
+        self._team_history = []
+        self._d_overall_team = 0.0
+        # total usage count - moves, pkm, teams
+        self._total_move_usage = 0
+        self._total_pkm_usage = 0
 
     def update_with_delta_roster(self, delta: DeltaRoster):
+
+        d_move_copy = copy.deepcopy(self._d_move)
         for idx in delta.dp.keys():
             for m_idx in delta.dp[idx].dpm.keys():
                 for move_pair in self._d_move.keys():
                     if self._moves[idx * 4 + m_idx] in move_pair:
-                        self._d_move[(move_pair[0], move_pair[1])] = std_move_dist(move_pair[0], move_pair[1])
+                        d_move_copy[(move_pair[0], move_pair[1])] = std_move_dist(move_pair[0], move_pair[1])
             for pkm_pair in self._d_pkm.keys():
-                if self._pkm[idx] in pkm_pair:
+                if self._pkm[idx].pkm_id in pkm_pair:
                     self._d_pkm[(pkm_pair[0], pkm_pair[1])] = std_pkm_dist(self._pkm[pkm_pair[0]],
                                                                            self._pkm[pkm_pair[1]])
+        self._d_move = d_move_copy
 
     def update_with_team(self, team: PkmFullTeam, won: bool):
         self._team_history.append((team.get_copy(), won))

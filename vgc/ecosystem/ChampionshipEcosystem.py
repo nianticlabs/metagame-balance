@@ -40,12 +40,14 @@ class ChampionshipEcosystem:
             epoch += 1
 
     def __set_new_team(self, cm: CompetitorManager):
-        try:
-            cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view))
-            if not legal_team(cm.team, self.roster):
-                cm.team = self.rand_gen.get_team()
-        except:
-            cm.team = cm.team
+        
+        """
+        No try except (masks the error). I do not see any reason why it should fail
+        """
+        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
+        if not legal_team(cm.team, self.roster):
+            print("Not legal team") 
+            cm.team = self.rand_gen.get_team()
 
     def strongest(self) -> CompetitorManager:
         return max(self.league.competitors, key=operator.attrgetter('elo'))

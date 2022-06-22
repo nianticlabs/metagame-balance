@@ -56,42 +56,18 @@ class PkmMove:
         self.owner = None
 
     def __eq__(self, other):
-        if self.power != other.power:
-            return False
-        if self.acc != other.acc:
-            return False
-        if self.max_pp != other.max_pp:
-            return False
-        if self.type != other.type:
-            return False
-        if self.priority != other.priority:
-            return False
-        if self.prob > 0.:
-            if self.prob != other.prob:
-                return False
-            if self.target != self.target:
-                return False
-            if self.recover != self.recover:
-                return False
-            if self.status != self.status:
-                return False
-            if self.stat != self.stat:
-                return False
-            if self.stage != self.stage:
-                return False
-            if self.fixed_damage != self.fixed_damage:
-                return False
-            if self.weather != self.weather:
-                return False
-            if self.hazard != self.hazard:
-                return False
-        return True
+        """
+        Moves equal if name is equal (use name as id)
+        """
+        return self.name == other.name
 
     def __hash__(self):
-        if self.prob == 0.:
-            return hash((self.power, self.acc, self.max_pp, self.type, self.priority))
-        return hash((self.power, self.acc, self.max_pp, self.type, self.priority, self.prob, self.target, self.recover,
-                     self.status, self.stat, self.stage, self.fixed_damage, self.weather, self.hazard))
+        """
+        Just hash based on name for meta balance!
+        """
+        if self.name == None:
+            print(self)
+        return hash(self.name)
 
     def __str__(self):
         if self.name:
@@ -583,7 +559,7 @@ class PkmTemplate:
             s += str(move) + ', '
         return s + '})'
 
-    def gen_pkm(self, moves: List[int]) -> Pkm:
+    def gen_pkm(self, moves: List[int] = None) -> Pkm:
         """
         Given the indexes of the moves generate a pokemon of this species.
 
@@ -591,6 +567,16 @@ class PkmTemplate:
         :return: the requested pokemon
         """
         move_list = list(self.move_roster)
+
+        if moves is None:
+            return Pkm(p_type=self.type, max_hp=self.max_hp,
+                       move0=move_list[0],
+                       move1=move_list[1],
+                       move2=move_list[2],
+                       move3=move_list[3],
+                       pkm_id=self.pkm_id)
+
+
         return Pkm(p_type=self.type, max_hp=self.max_hp,
                    move0=move_list[moves[0]],
                    move1=move_list[moves[1]],
@@ -598,6 +584,7 @@ class PkmTemplate:
                    move3=move_list[moves[3]],
                    pkm_id=self.pkm_id)
 
+        
     def is_speciman(self, pkm: Pkm) -> bool:
         """
         Check if input pokemon is a speciman of this species

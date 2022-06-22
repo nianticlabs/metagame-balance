@@ -1,3 +1,7 @@
+*.pyc
+*.o
+.*.swp
 __pycache__
-.*swp
-*tags
+tags
+.idea
+
