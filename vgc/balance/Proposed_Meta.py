@@ -27,8 +27,11 @@ class ProposedMetaData(MetaData):
         self._moves = []
         for pkm in self._pkm:
             self._moves += list(pkm.move_roster)
-        self._init_pkm = deepcopy(self._pkm)
-        self._init_moves = deepcopy(self._moves)
+
+        init_metadata = copy.deepcopy(self)
+        self.parser = MetaRosterStateParser(len(self._pkm))
+        self.init_state = self.parser.metadata_to_state(init_metadata)
+
 
     def clear_stats(self):
         for pkm in self._pkm:
@@ -57,15 +60,9 @@ class ProposedMetaData(MetaData):
 
     def distance_from_init_meta(self):
 
-        init_metadata = copy.deepcopy(self)
-        init_metadata._pkm = self._init_pkm
-        init_metadata._moves = self._init_moves
+        state = self.parser.metadata_to_state(self)
 
-        parser = MetaRosterStateParser(len(self._pkm))
-        state = parser.metadata_to_state(self)
-        init_state = parser.metadata_to_state(init_metadata)
-
-        return (state - init_state).mean(axis=0)
+        return ((state - self.init_state) ** 2).mean(axis=0) / 100 ##something reasonable
 
 
     def evaluate(self) -> float:
