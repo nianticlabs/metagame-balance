@@ -3,13 +3,14 @@ import sys
 
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
-from vgc.balance.meta import StandardMetaData, ProposedMetaData
+from vgc.balance.meta import StandardMetaData
+from vgc.balance.proposed_meta import ProposedMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
-NUM_PKM = 30 
+NUM_PKM = 30
 def plot_rewards(rewards: list) -> None:
     import matplotlib.pyplot as plt
     print(rewards)
@@ -24,7 +25,7 @@ def main(args):
     """
     Main function: used to balance meta as well as learn the policy (TBI)
     This runs for `n_epochs' stage 1 optimization epochs 'n_vgc_epochs' stage 2 optimization epochs
-    This also plots rewards per stage 1 iteration 
+    This also plots rewards per stage 1 iteration
     TODO Stage 2 plots log to files
     TODO Handle the noise in stage 1 plots (by smoonthing and plotting varience)
     """
