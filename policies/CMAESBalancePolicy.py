@@ -48,4 +48,4 @@ class CMAESBalancePolicy(BalancePolicy):
         """
         TODO: use this in main loop for early stopping/ testing convergence
         """
-        return False if self.optimizer is None else self.optimizer.stop() == {}
+        return False if self.optimizer is None else self.optimizer.stop()
