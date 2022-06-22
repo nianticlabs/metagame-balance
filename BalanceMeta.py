@@ -3,13 +3,13 @@ import sys
 
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
-from vgc.balance.meta import StandardMetaData
+from vgc.balance.meta import StandardMetaData, ProposedMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
-NUM_PKM = 100 
+NUM_PKM = 30 
 def plot_rewards(rewards: list) -> None:
     import matplotlib.pyplot as plt
     print(rewards)
@@ -39,7 +39,7 @@ def main(args):
         print(i, i.pkm_id)
     results = []
     competitor = ProposedCompetitor(NUM_PKM)
-    meta_data = StandardMetaData()
+    meta_data = ProposedMetaData()
     meta_data.set_moves_and_pkm(base_roster)
     gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=False)
     gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)

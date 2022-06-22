@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from math import exp
 from typing import Dict, Tuple, List
 import copy
+from scipy.stats import entropy
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
@@ -43,51 +44,42 @@ class ProposedMetaData(MetaData):
         self._moves: List[PkmMove] = []
         self._pkm: List[PkmTemplate] = []
        
+        self._pkm_wins: Dict[PkmId, int] = {}
+
     def set_moves_and_pkm(self, roster: PkmRoster):
         self._pkm = list(roster)
         self._moves = []
         for pkm in self._pkm:
             self._moves += list(pkm.move_roster)
 
+    def clear_stats(self):
+        for pkm in self._pkm:
+            self._pkm_wins[pkm.pkm_id] = 0
+
     def update_with_delta_roster(self, delta: DeltaRoster):
         return
 
     def update_metadata(self, **kwargs):
+         
         self.update_with_delta_roster(kwargs['delta'])
         #stage 2 policy
         #delta roster
 
+    def update_with_policy(self, policy):
+        raise NotImplementedError
+
     def update_with_team(self, team: PkmFullTeam, won: bool):
 
+        for pkm in team.pkm_list:
+            if won:
+                self._pkm_wins[pkm.pkm_id] += 1
         """
         update the meta with team if required in future 
         """
 
     def evaluate(self) -> float:
-        d = [0., 0., 0., 0., 0.]
-        # Overall number of different Pkm (templates).
-        for pkm0, pkm1 in itertools.product(self._pkm, self._pkm):
-            d[0] += - self._pkm_usage[pkm1.pkm_id] * exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
-        d[0] /= 2
-        # Overall number of different Pkm moves.
-        for move0, move1 in itertools.product(self._moves, self._moves):
-            d[1] += - self._move_usage[move1] * exp(-self._d_move[(move0, move1)]) + 1
-        d[1] /= 2
-        # Overall number of different Pkm teams.
-        d[2] = self._d_overall_team
-        for team, win in self._team_history:
-            # Difference over moves on same Pkm.
-            moves = []
-            for pkm in team.pkm_list:
-                moves.extend(pkm.moves)
-            for move0, move1 in itertools.product(moves, moves):
-                d[3] += - exp(-self._d_move[(move0, move1)]) + 1
-            # Difference over Pkm on same team.
-            for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
-                d[4] += - exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
-        d[3] /= 2
-        d[4] /= 2
-        return sum(d)
+        print(self._pkm_wins)
+        return entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()], base=2)
 
 class StandardMetaData(MetaData):
 
