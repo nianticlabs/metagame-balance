@@ -70,7 +70,7 @@ class ProposedMetaData(MetaData):
 
     def evaluate(self) -> float:
         #print(self._pkm_wins)
-        return - entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()], base=2)
+        return - entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()])
 
 class StandardMetaData(MetaData):
 

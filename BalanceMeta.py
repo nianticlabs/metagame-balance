@@ -4,7 +4,7 @@ import sys
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
 from vgc.balance.meta import StandardMetaData
-from vgc.balance.proposed_meta import ProposedMetaData
+from vgc.balance.Proposed_Meta import ProposedMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
