@@ -20,40 +20,74 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
-    def get_global_pkm_usage(self, pkm_id: int) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_pkm_winrate(self, pkm_id: int) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_move_usage(self, move: PkmMove) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_move_winrate(self, move: PkmMove) -> float:
-        pass
-
-    @abstractmethod
-    def get_pair_usage(self, pkm_ids: Tuple[int, int]) -> float:
-        pass
-
-    @abstractmethod
-    def get_team(self, t) -> Tuple[PkmFullTeam, bool]:
-        pass
-
-    @abstractmethod
-    def get_n_teams(self) -> int:
-        pass
-
-    @abstractmethod
     def evaluate(self) -> float:
         pass
 
+    @abstractmethod
+    def set_moves_and_pkm(self, roster: PkmRoster) -> None:
+        pass
+
+    @abstractmethod
+    def update_metadata(self, **kwargs):
+        """
+        Update the meta data following an iteration of stage 2 optimization
+        """
+        pass
 
 PkmId = int
 
+class ProposedMetaData(MetaData):
+
+    def __init__(self):
+        # listings - moves, pkm, teams
+        self._moves: List[PkmMove] = []
+        self._pkm: List[PkmTemplate] = []
+       
+    def set_moves_and_pkm(self, roster: PkmRoster):
+        self._pkm = list(roster)
+        self._moves = []
+        for pkm in self._pkm:
+            self._moves += list(pkm.move_roster)
+
+    def update_with_delta_roster(self, delta: DeltaRoster):
+        return
+
+    def update_metadata(self, **kwargs):
+        self.update_with_delta_roster(kwargs['delta'])
+        #stage 2 policy
+        #delta roster
+
+    def update_with_team(self, team: PkmFullTeam, won: bool):
+
+        """
+        update the meta with team if required in future 
+        """
+
+    def evaluate(self) -> float:
+        d = [0., 0., 0., 0., 0.]
+        # Overall number of different Pkm (templates).
+        for pkm0, pkm1 in itertools.product(self._pkm, self._pkm):
+            d[0] += - self._pkm_usage[pkm1.pkm_id] * exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
+        d[0] /= 2
+        # Overall number of different Pkm moves.
+        for move0, move1 in itertools.product(self._moves, self._moves):
+            d[1] += - self._move_usage[move1] * exp(-self._d_move[(move0, move1)]) + 1
+        d[1] /= 2
+        # Overall number of different Pkm teams.
+        d[2] = self._d_overall_team
+        for team, win in self._team_history:
+            # Difference over moves on same Pkm.
+            moves = []
+            for pkm in team.pkm_list:
+                moves.extend(pkm.moves)
+            for move0, move1 in itertools.product(moves, moves):
+                d[3] += - exp(-self._d_move[(move0, move1)]) + 1
+            # Difference over Pkm on same team.
+            for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
+                d[4] += - exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
+        d[3] /= 2
+        d[4] /= 2
+        return sum(d)
 
 class StandardMetaData(MetaData):
 
@@ -84,6 +118,10 @@ class StandardMetaData(MetaData):
         self._max_pkm_history_size: int = _max_history_size * 3
         self._max_team_history_size: int = _max_history_size
         self._unlimited = unlimited
+
+
+    def update_metadata(self, **kwargs):
+        self.update_with_delta_roster(kwargs['delta'])
 
     def set_moves_and_pkm(self, roster: PkmRoster):
         self._pkm = list(roster)
