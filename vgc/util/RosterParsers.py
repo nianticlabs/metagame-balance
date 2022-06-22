@@ -53,7 +53,7 @@ class MetaRosterStateParser():
                 state_vec[itr + 1] = move.acc
                 state_vec[itr + 2] = move.max_pp
             pkm_idx = len(self.move_roster) * STATS_OPT_PER_MOVE + pkm.pkm_id
-            state_vec[pkm_idx] = pkm.max_hp
+            state_vec[pkm_idx] = np.ceil(pkm.max_hp)
         return state_vec
 
     def state_to_delta_roster(self, state_vec:np.ndarray, meta_data: MetaData) -> DeltaRoster:
