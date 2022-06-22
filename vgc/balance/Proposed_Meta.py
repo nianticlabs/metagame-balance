@@ -57,20 +57,20 @@ class ProposedMetaData(MetaData):
 
     def distance_from_init_meta(self):
 
-        init_metadata = ProposedMetaDeta()
+        init_metadata = copy.deepcopy(self)
         init_metadata._pkm = self._init_pkm
         init_metadata._moves = self._init_moves
 
-        parser = MetaRosterStateParser(num_pkm)
+        parser = MetaRosterStateParser(len(self._pkm))
         state = parser.metadata_to_state(self)
-        init_state = parser.meta_data_to_state(init_metadata)
+        init_state = parser.metadata_to_state(init_metadata)
 
         return (state - init_state).mean(axis=0)
 
 
     def evaluate(self) -> float:
-        #print(self._pkm_wins)
-        return - entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()])
+        print(self.distance_from_init_meta())
+        return -entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()]) + self.distance_from_init_meta()
 
 class StandardMetaData(MetaData):
 
