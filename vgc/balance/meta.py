@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from math import exp
 from typing import Dict, Tuple, List
 import copy
-
+from scipy.stats import entropy
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
 from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
@@ -20,40 +20,21 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
-    def get_global_pkm_usage(self, pkm_id: int) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_pkm_winrate(self, pkm_id: int) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_move_usage(self, move: PkmMove) -> float:
-        pass
-
-    @abstractmethod
-    def get_global_move_winrate(self, move: PkmMove) -> float:
-        pass
-
-    @abstractmethod
-    def get_pair_usage(self, pkm_ids: Tuple[int, int]) -> float:
-        pass
-
-    @abstractmethod
-    def get_team(self, t) -> Tuple[PkmFullTeam, bool]:
-        pass
-
-    @abstractmethod
-    def get_n_teams(self) -> int:
-        pass
-
-    @abstractmethod
     def evaluate(self) -> float:
         pass
 
+    @abstractmethod
+    def set_moves_and_pkm(self, roster: PkmRoster) -> None:
+        pass
+
+    @abstractmethod
+    def update_metadata(self, **kwargs):
+        """
+        Update the meta data following an iteration of stage 2 optimization
+        """
+        pass
 
 PkmId = int
-
 
 class StandardMetaData(MetaData):
 
@@ -84,6 +65,10 @@ class StandardMetaData(MetaData):
         self._max_pkm_history_size: int = _max_history_size * 3
         self._max_team_history_size: int = _max_history_size
         self._unlimited = unlimited
+
+
+    def update_metadata(self, **kwargs):
+        self.update_with_delta_roster(kwargs['delta'])
 
     def set_moves_and_pkm(self, roster: PkmRoster):
         self._pkm = list(roster)
