@@ -34,6 +34,10 @@ class MetaData(ABC):
         """
         pass
 
+    @abstractmethod
+    def clear_stats(self):
+        pass
+
 PkmId = int
 
 class StandardMetaData(MetaData):

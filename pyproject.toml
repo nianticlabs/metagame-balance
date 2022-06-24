@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pokemon-vgc-engine"
+version = "0.1.0"
+description = "Fork of the pokemon vgc engine for a niantic-internal research project."
+authors = []
+license = "All rights reserved"
+
+[tool.poetry.dependencies]
+python = "~3.6.15"
+numpy = ">=0.15.4"
+gym = ">=0.10.9"
+PySimpleGUI = ">=4.20.0"
+elo = "~=0.1.1"
+arcade = "~=2.6.7"
+cma = "~=3.2.2"
+scipy = "^1.5"
+matplotlib = "^3.3.3"
+simple-plugin-loader = "^2.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

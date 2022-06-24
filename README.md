@@ -4,13 +4,16 @@
 
 ## Installation
 
-1. Install Python 3.6.8 or higher.
+1. Install Python 3.6.8 or higher. (Consider using [asdf](https://skeptric.com/asdf-python/) or [pyenv](https://github.com/pyenv/pyenv) to manage your disparate
+   python environments.)
 
 2. Clone this project.
 
-3. Install the requirements.txt
+3. Install this project.
+   1. `poetry run pip install setuptools==58` - this is needed to install elo, which will not install with modern setuptools.
+   2. `poetry install`
 
-4. Use you preferred Interactive Development Environment.
+4. Use your preferred Interactive Development Environment.
 
 Alternatively you may use the Dockerfile to create a ready to run container. All dependencies are installed in the venv
 vgc-env and project is found in the /vgc-ai folder. User root has vgc as password. A SSH server is installed and run on
