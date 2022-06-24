@@ -2,5 +2,7 @@ numpy>=1.15.4
 gym>=0.10.9
 PySimpleGUI>=4.20.0
 simple-plugin-loader>=1.6
-elo~=0.1.1
-arcade~=2.6.7
+# setuptools==58 # other versions break elo library install
+elo>=0.1.1, <0.2.0
+arcade>=2.6.7, <2.7.0
+cma==3.2.2

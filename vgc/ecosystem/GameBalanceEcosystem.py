@@ -28,7 +28,7 @@ class GameBalanceEcosystem:
     def run(self, n_epochs, n_vgc_epochs: int, n_league_epochs: int) -> List:
         epoch = 0
         while epoch < n_epochs:
-            self.meta_data.clear_stats() #consider doing it inside the league as well! or
+            self.meta_data.clear_stats()  #consider doing it inside the league as well! or
             self.vgc.run(n_vgc_epochs, n_league_epochs)
             self.rewards += [self.meta_data.evaluate()]
             delta_roster = self.c.balance_policy.get_action((self.vgc.roster, self.meta_data,

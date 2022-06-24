@@ -1,9 +1,7 @@
 import argparse
-import sys
 
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
-from vgc.balance.meta import StandardMetaData
 from vgc.balance.Winrate_Entropy_Meta import WinrateEntropyMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
@@ -11,6 +9,8 @@ from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 NUM_PKM = 30
+
+
 def plot_rewards(rewards: list) -> None:
     import matplotlib.pyplot as plt
     print(rewards)
@@ -50,6 +50,7 @@ def main(args):
 
     if args.visualize:
         plot_rewards(gbe.rewards)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
