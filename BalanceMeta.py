@@ -47,6 +47,8 @@ def main(args):
     utility_fn_manager = UtilityFunctionManager(delay_by = 10)
     surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
 
+    #base_roster = list(base_roster)
+    #base_roster[0].max_hp = 2000
     """
     Code below is to generate roster pokmeons with same move set but different (random max hp)
     """
