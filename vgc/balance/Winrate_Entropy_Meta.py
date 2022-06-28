@@ -65,6 +65,8 @@ class WinrateEntropyMetaData(MetaData):
         return ((state - self.init_state) ** 2).mean(axis=0) / 100 ##something reasonable
 
 
-    def evaluate(self) -> float:
-        return -entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()]) #+ self.distance_from_init_meta()
-
+    def evaluate(self, distance_loss = False) -> float:
+        loss = -entropy([x / sum(self._pkm_wins.values())  for x in self._pkm_wins.values()])
+        if distance_loss:
+            return loss + self.distance_from_init_meta()
+        return loss
