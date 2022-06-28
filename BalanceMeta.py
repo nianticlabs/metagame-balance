@@ -40,6 +40,8 @@ def main(args):
     population_size = args.population_size
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
 
+    #base_roster = list(base_roster)
+    #base_roster[0].max_hp = 2000
     """
     Code below is to generate roster pokmeons with same move set but different (random max hp)
     """

@@ -41,7 +41,9 @@ class GameBalanceEcosystem:
                 self.meta_data.update_with_delta_roster(delta_roster)
             else:
                 raise AssertionError
-            print('-' * 30 + "VGC EPOCH DONE" + '-' * 30)
+            print('-' * 30 + "VGC EPOCH " + str(epoch) + " DONE" + '-' * 30)
             for pkm in self.vgc.roster:
                 print(pkm)
+                for move in pkm.move_roster:
+                    print(move.power, move.acc, move.max_pp)
             epoch += 1
