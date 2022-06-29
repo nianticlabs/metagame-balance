@@ -29,11 +29,15 @@ def main(args):
     TODO Stage 2 plots log to files
     TODO Handle the noise in stage 1 plots (by smoonthing and plotting varience)
     """
+
+    assert(args.population_size == 2) # Limit scope to two agents
     n_epochs = args.n_epochs
     n_vgc_epochs = args.n_vgc_epochs
     n_league_epochs = args.n_league_epochs
     population_size = args.population_size
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
+    #surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    utility_fn_manager =
     surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
