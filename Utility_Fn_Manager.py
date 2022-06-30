@@ -1,4 +1,5 @@
 from collections import deque
+from FCNN import FCNN
 
 class UtilityFunctionManager():
     """
@@ -8,8 +9,8 @@ class UtilityFunctionManager():
     2) return/retain two versions for two agents
     3) Perhaps keep pointer to them
     """
-    def __init__(self, delay_by: int = 10): #TODO: tuen this delay_by
-        self.list_U_fn = deque([NN()], delay_by) # Neural network!!
+    def __init__(self, delay_by: int = 10): #TODO: turn this delay_by
+        self.list_U_fn = deque([FCNN([100,231,1])], delay_by) # Neural network!!
 
     def update(self, team, reward) -> None:
 

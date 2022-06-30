@@ -17,6 +17,7 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
         """
         Removed views (access the roster's directly!)
         """
+        import random
         pre_selection = random.sample(list(roster), DEFAULT_TEAM_SIZE)
         team: List[Pkm] = []
         for pt in pre_selection:

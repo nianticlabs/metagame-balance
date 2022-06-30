@@ -37,16 +37,21 @@ class ChampionshipEcosystem:
             if self.debug:
                 print("LEAGUE\n")
             self.league.run(n_league_epochs)
+
+            for cm in self.league.competitors:
+                reward = 1 #get reward from somewhere!
+                cm.competitor.team_build_policy.update(reward) #TODO: Define a reward function
+
             epoch += 1
 
     def __set_new_team(self, cm: CompetitorManager):
-        
+
         """
         No try except (masks the error). I do not see any reason why it should fail
         """
         cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
         if not legal_team(cm.team, self.roster):
-            print("Not legal team") 
+            print("Not legal team")
             cm.team = self.rand_gen.get_team()
 
     def strongest(self) -> CompetitorManager:

@@ -3,13 +3,14 @@ import sys
 
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
+from agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.balance.Winrate_Entropy_Meta import WinrateEntropyMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-
+from Utility_Fn_Manager import UtilityFunctionManager
 NUM_PKM = 30
 def plot_rewards(rewards: list) -> None:
     import matplotlib.pyplot as plt
@@ -31,14 +32,14 @@ def main(args):
     """
 
     assert(args.population_size == 2) # Limit scope to two agents
+    agent_names = ['agent', 'adversary']
     n_epochs = args.n_epochs
     n_vgc_epochs = args.n_vgc_epochs
     n_league_epochs = args.n_league_epochs
     population_size = args.population_size
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
-    #surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
-    utility_fn_manager =
-    surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    utility_fn_manager = UtilityFunctionManager(delay_by = 10)
+    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
         print(i, i.pkm_id)
