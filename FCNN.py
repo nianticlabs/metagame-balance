@@ -5,98 +5,6 @@ import torch.optim as optim
 import math
 from collections import defaultdict
 
-class search_expanded_loss(nn.Module):
-    def __init__(self, branching_factor = 3):
-        super(search_expanded_loss, self).__init__()
-        self.bf = branching_factor
-
-    def forward(self, target, output):
-        distance_from_goal = target[:, 0]
-        weight = 1 / self.bf ** (distance_from_goal)
-        return torch.mean(weight * (target[:, 0] - output[:, 0]) ** 2)
-
-class balanced_data_loss(nn.Module):
-    def __init__(self):
-        super(balanced_data_loss, self).__init__()
-
-    def get_weights(self, values):
-        rounded_values = torch.round(values[:, 0])
-        _, inverses, counts = torch.unique(rounded_values, \
-                return_counts = True, return_inverse = True)
-        return counts[inverses[range(rounded_values.shape[0])]]
-
-    def forward(self, target, output):
-        w = self.get_weights(target)
-        max_w = torch.max(w)
-        #print(max_w.item() / w.float())
-        #print(max_w.item() / w)
-        return torch.mean((max_w.item() / w.float()) * ((target[:, 0] - output[:, 0]) ** 2))
-
-class discor_loss(nn.Module):
-
-    def __init__(self, update_freq):
-        super(discor_loss, self).__init__()
-        self.delta = defaultdict(int)
-        self.gamma = 1
-        self.tau = 10
-        self.update_freq = update_freq
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    def forward(self, target, output, input):
-
-        input = input.cpu()
-        with torch.no_grad():
-            diff = torch.abs(target[:, 0] - output[:, 0])
-        weights = torch.zeros((len(input)), device = self.device)
-
-        for i in range(len(input)):
-            input_tup = tuple(input[i].numpy())
-            weights[i] = math.exp(-self.gamma * self.delta[input_tup] / self.tau)
-
-        delta_mean = 0
-        for i in range(len(input)):
-            input_tup = tuple(input[i].numpy())
-            self.delta[input_tup] = diff[i] + self.gamma * self.delta[input_tup]
-            delta_mean += self.delta[input_tup]
-
-        delta_mean = delta_mean / len(input)
-        self.tau = (1 - self.update_freq) * self.tau + self.update_freq * delta_mean
-        print(weights[:15])
-        #return torch.mean(weights * (target[:, 0] - output[:, 0]) ** 2)
-        return torch.mean(weights * (target[:, 0] - output[:, 0]) ** 2)
-
-class discor_nn_loss(nn.Module):
-
-    def __init__(self, nn, update_freq = 0.01):
-        super(discor_nn_loss, self).__init__()
-        self.delta = nn # make delta neural network
-        delta = nn # make delta neural network
-        self.gamma = 1
-        self.tau = 10
-        self.update_freq = update_freq
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    def forward(self, target, output, input):
-
-        #return torch.mean((target[:, 0] - output[:, 0]) ** 2)
-        with torch.no_grad():
-            diff = torch.abs(target[:, 0] - output[:, 0]).unsqueeze(1)
-            deltas = self.delta.predict(input)
-            weights = torch.exp(-self.gamma * deltas / self.tau)
-
-            delta_target = diff + self.gamma * deltas
-
-        delta_mean = 0
-
-        self.delta.run_epoch(input, delta_target)
-
-        delta_mean = torch.mean(self.delta.predict(input)) # want to approximate as original mean for speed up?
-
-        self.tau = (1 - self.update_freq) * self.tau + self.update_freq * delta_mean
-        print("weights", weights[:15], weights.min(), weights.max())
-        #return torch.mean(weights * (target[:, 0] - output[:, 0]) ** 2)
-        return torch.mean((target[:, 0] - output[:, 0]) ** 2)
-
 class FCNN(nn.Module):
     def __init__(self, layers, use_batch_norm=True):
         super(FCNN, self).__init__()
@@ -215,6 +123,7 @@ class FCNN(nn.Module):
         if verbose == 1:
             print("Samples used: {} Epoch Loss:{}".format(x.shape[0], running_loss))
         return running_loss
+
     def set_weights(self, weights):
         self.params.load_state_dict(weights)
 
