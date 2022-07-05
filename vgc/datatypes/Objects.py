@@ -584,7 +584,7 @@ class PkmTemplate:
                    move3=move_list[moves[3]],
                    pkm_id=self.pkm_id)
 
-        
+
     def is_speciman(self, pkm: Pkm) -> bool:
         """
         Check if input pokemon is a speciman of this species
@@ -930,6 +930,11 @@ class PkmFullTeam:
     def get_copy(self):
         return PkmFullTeam(self.pkm_list)
 
+    def __len__(self):
+        return len(self.pkm_list)
+
+    def __getitem__(self, index):
+        return self.pkm_list[index]
 
 class PkmFullTeamView(ABC):
 
