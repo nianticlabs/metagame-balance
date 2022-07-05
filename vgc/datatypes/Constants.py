@@ -33,6 +33,11 @@ STATE_DAMAGE = MAX_HIT_POINTS / 8.
 SPIKES_2 = MAX_HIT_POINTS / 6.
 SPIKES_3 = MAX_HIT_POINTS / 4.
 
+#OPT parameters
+STATS_OPT_PER_MOVE = 3
+STATS_OPT_PER_PKM = 1
+TEAM_SIZE = 3
+
 # Pkm type chart
 TYPE_CHART_MULTIPLIER = (
     (1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., .5, .0, 1., 1., .5, 1.),  # NORMAL

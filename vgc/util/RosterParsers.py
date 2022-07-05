@@ -3,6 +3,7 @@ from vgc.balance import DeltaRoster, DeltaPkm
 from vgc.balance.meta import MetaData
 import copy
 import numpy as np
+<<<<<<< HEAD
 
 """
 TODO: Put them in vgc/datatypes/constants or something
@@ -13,6 +14,8 @@ MAX_MOVE_POWER = 150
 MAX_MOVE_ACC = 100.
 MAX_MOVE_MAX_PP = 20
 MAX_PKM_HP = 500
+from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, STATS_OPT_PER_MOVE, STATS_OPT_PER_PKM
+
 class MetaRosterStateParser():
 
     def __init__(self, num_pkm = 5, move_roster = STANDARD_MOVE_ROSTER):
