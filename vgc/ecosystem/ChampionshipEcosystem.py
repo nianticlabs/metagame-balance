@@ -40,7 +40,7 @@ class ChampionshipEcosystem:
 
             for cm in self.league.competitors:
                 reward = 1 #get reward from somewhere!
-                cm.competitor.team_build_policy.update(reward) #TODO: Define a reward function
+                cm.competitor.team_build_policy.update(cm.team, reward) #TODO: Define a reward function
 
             epoch += 1
 

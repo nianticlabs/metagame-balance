@@ -1,33 +1,118 @@
 from vgc.behaviour import TeamBuildPolicy
-from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_TEAM_SIZE
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES
 from typing import List, Tuple, Optional
 
 from vgc.balance.meta import MetaData
-from vgc.datatypes.Objects import PkmFullTeam, PkmRoster
+from vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
+import numpy as np
+from scipy.special import softmax
+from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, TEAM_SIZE, STATS_OPT_PER_PKM, STATS_OPT_PER_MOVE
+
+"""
+Replace type to List[] by importing from `typing' library
+"""
+
 class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
+    """
+    Ignore S_g as of now
+    """
 
     def __init__(self, utility_function, update_policy: bool):
 
         self.u = utility_function ### This should be function pointer
         self._updatable = update_policy
+        self.update_after = 100 #### perform an update after completion of certain number of episode, hacks for on-policy learning
+        self.buffer = {'x':[], 'y':[]} #NOT replay buffer, just because neural networks don't work well with small batch sizes
 
     def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRoster]) -> PkmFullTeam:
 
         team: List[Pkm] = []
+        team_idxs: List[int] = []
         roster = list(d[2])
-        for i in range(DEFAULT_TEAM_SIZE):
-            #create vector
-            import random
-            selection_idx = int(random.random() * len(roster))
-            team.append(roster[selection_idx].gen_pkm())
+        size = self._size_state_vector()
+        base_team = np.zeros((size))
+        for i in range(TEAM_SIZE):
 
-        #update if you are the primary agent else discard
+            S = np.repeat(base_team.reshape(1,-1), len(roster), axis=0)
+            for j, pkm in enumerate(roster):
+                s = self._mark(S[j,:], team, pkm)
+                S[j,:] = s
+            utilities = self.u.predict(S)
+
+            #avoid selecting the same team
+            for idx in team_idxs:
+                utilities[idx] = -float("inf")
+
+            selection_idx = np.random.choice(range(len(roster)), p=softmax(utilities))
+            selected_pkm = roster[selection_idx]
+
+            #mark before you append
+            team_idxs.append(selection_idx)
+            self._mark(base_team, team, selected_pkm)
+            team.append(selected_pkm.gen_pkm())
+
         return PkmFullTeam(team)
 
-    def update(self, reward: float) -> None:
+    @staticmethod
+    def _size_state_vector():
+        return TEAM_SIZE * (STATS_OPT_PER_PKM + DEFAULT_PKM_N_MOVES * STATS_OPT_PER_MOVE)
+
+    def _mark(self, state: np.ndarray, team: list, pkm) -> np.ndarray:
+        """
+        Function marks team and the new one vector
+        """
+        """
+        maybe use parser?
+        """
+        def get_moves(pkm):
+            if type(pkm) == PkmTemplate:
+                return pkm.move_roster
+            if type(pkm) == Pkm:
+                return pkm.moves
+
+        idx_to_move_stat_map = {0:lambda pkm: pkm.power, 1:lambda pkm: pkm.acc, 2:lambda pkm: pkm.max_pp}
+        stats_per_pkm = (STATS_OPT_PER_PKM + DEFAULT_PKM_N_MOVES * STATS_OPT_PER_MOVE)
+        base_idx = len(team) * stats_per_pkm
+        state[base_idx] = pkm.max_hp
+        for i, move in enumerate(get_moves(pkm)):
+            for j in range(STATS_OPT_PER_MOVE):
+                move_idx = 1 + i * STATS_OPT_PER_MOVE + j
+                state[base_idx] = idx_to_move_stat_map[j](move)
+        return state
+
+    def update(self, team:PkmFullTeam, reward: float) -> None: #do we want to use metadata to get reward? do we assume meta data doesn't change across iterations?
+        def team_to_state(team: PkmFullTeam):
+            state = np.zeros((self._size_state_vector()))
+            for i, pkm in enumerate(team):
+                self._mark(state, team[:i], pkm)
+            return state
+
+        def team_to_states(team:PkmFullTeam):
+
+            states = []
+            for i in range(len(team)):
+                states.append(team_to_state(team[i:]))
+            return states
 
         if self._updatable is False:
             return
+        states = team_to_states(team)
+        get_target_wrapper = lambda s: self._get_target(s, reward)
+        targets = map(get_target_wrapper, states)
+        self.buffer['x'] += states
+        self.buffer['y'] += targets
+        if len(self.buffer['x']) > self.update_after:
+            print("Updating..", reward)
+            self.u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
+            self.buffer = {'x':[], 'y':[]}
+        return
+
+    def _get_target(self, state, reward) -> float:
+        """
+        couuld be either just reward
+        or alpha * self.u.predict(state) + (1 - alpha) reward
+        """
+        return reward
 
     def close(self) -> None:
         """
