@@ -63,9 +63,8 @@ def main(args):
 
     """
 
-    #surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
-    utility_fn_manager =
-    surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    utility_fn_manager = UtilityFunctionManager(delay_by = 10)
+    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
         print(i, i.pkm_id)
