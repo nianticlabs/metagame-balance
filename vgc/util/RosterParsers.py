@@ -3,7 +3,6 @@ from vgc.balance import DeltaRoster, DeltaPkm
 from vgc.balance.meta import MetaData
 import copy
 import numpy as np
-<<<<<<< HEAD
 
 """
 TODO: Put them in vgc/datatypes/constants or something
