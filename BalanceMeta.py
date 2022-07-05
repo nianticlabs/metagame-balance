@@ -63,6 +63,8 @@ def main(args):
 
     """
 
+    #surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    utility_fn_manager =
     surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:

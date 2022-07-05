@@ -1,5 +1,8 @@
 from collections import deque
+<<<<<<< HEAD
 from FCNN import FCNN
+=======
+>>>>>>> defc635 (merge issue 1)
 
 class UtilityFunctionManager():
     """
