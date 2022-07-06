@@ -44,8 +44,6 @@ def main(args):
     n_league_epochs = args.n_league_epochs
     population_size = args.population_size
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
-    utility_fn_manager = UtilityFunctionManager(delay_by = 10)
-    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
 
     #base_roster = list(base_roster)
     #base_roster[0].max_hp = 2000
