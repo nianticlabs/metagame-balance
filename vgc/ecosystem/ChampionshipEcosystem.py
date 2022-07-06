@@ -39,10 +39,14 @@ class ChampionshipEcosystem:
             self.league.run(n_league_epochs)
 
             for cm in self.league.competitors:
-                reward = 1 #get reward from somewhere!
+                reward = self.get_reward(cm)
                 cm.competitor.team_build_policy.update(cm.team, reward) #TODO: Define a reward function
 
+            self.league.clear_wins() # do we really need this?
             epoch += 1
+
+    def get_reward(self, cm: CompetitorManager):
+        return self.league.get_team_wins(cm)
 
     def __set_new_team(self, cm: CompetitorManager):
 

@@ -26,13 +26,16 @@ class BattleEcosystem:
         self.n_battles = n_battles
         self.pairings_strategy = pairings_strategy
         self.update_meta = update_meta
+        self.team_wins = {}
 
     def register(self, cm: CompetitorManager):
         if cm not in self.competitors:
             self.competitors.append(cm)
+            self.team_wins[cm] = 0
 
     def unregister(self, cm: CompetitorManager):
         self.competitors.remove(cm)
+        del self.team_wins[cm]
 
     def run(self, n_epochs: int):
         epoch = 0
@@ -59,5 +62,14 @@ class BattleEcosystem:
             match.run()
             if match.winner() == 0:
                 cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)
+                self.team_wins[cm0] += 1
             elif match.winner() == 1:
+                self.team_wins[cm1] += 1
                 cm1.elo, cm0.elo = rate_1vs1(cm1.elo, cm0.elo)
+
+    def clear_wins(self):
+        for t in self.team_wins.keys():
+            self.team_wins[t] = 0
+
+    def get_team_wins(self, cm:CompetitorManager):
+        return self.team_wins[cm]
