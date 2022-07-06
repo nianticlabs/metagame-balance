@@ -1,12 +1,14 @@
-from vgc.behaviour import TeamBuildPolicy
-from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES
 from typing import List, Tuple, Optional
+from scipy.special import softmax
+from copy import deepcopy
 
 from vgc.balance.meta import MetaData
+from vgc.behaviour import TeamBuildPolicy
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES
 from vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
-from scipy.special import softmax
 from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, TEAM_SIZE, STATS_OPT_PER_PKM, STATS_OPT_PER_MOVE
+from Utility_Fn_Manager import UtilityFunctionManager
 
 """
 Replace type to List[] by importing from `typing' library
@@ -17,9 +19,10 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
     Ignore S_g as of now
     """
 
-    def __init__(self, utility_function, update_policy: bool):
+    def __init__(self, utility_manager: UtilityFunctionManager, get_u_fn, update_policy: bool):
 
-        self.u = utility_function ### This should be function pointer
+        self.get_u_fn = get_u_fn### This should be function pointer
+        self.utility_manager = utility_manager
         self._updatable = update_policy
         self.update_after = 100 #### perform an update after completion of certain number of episode, hacks for on-policy learning
         self.buffer = {'x':[], 'y':[]} #NOT replay buffer, just because neural networks don't work well with small batch sizes
@@ -31,13 +34,14 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         roster = list(d[2])
         size = self._size_state_vector()
         base_team = np.zeros((size))
+        u = self.get_u_fn()
         for i in range(TEAM_SIZE):
 
             S = np.repeat(base_team.reshape(1,-1), len(roster), axis=0)
             for j, pkm in enumerate(roster):
                 s = self._mark(S[j,:], team, pkm)
                 S[j,:] = s
-            utilities = self.u.predict(S)
+            utilities = u.predict(S)
 
             #avoid selecting the same team
             for idx in team_idxs:
@@ -103,7 +107,9 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self.buffer['y'] += targets
         if len(self.buffer['x']) > self.update_after:
             print("Updating..", reward)
-            self.u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
+            u = deepcopy(self.get_u_fn())
+            u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
+            self.utility_manager.add(u)
             self.buffer = {'x':[], 'y':[]}
         return
 

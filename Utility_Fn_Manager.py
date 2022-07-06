@@ -15,12 +15,15 @@ class UtilityFunctionManager():
         input_dim = TEAM_SIZE * (STATS_OPT_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_PER_MOVE) #seems like a wrong place
         init_nn = FCNN([input_dim, 128, 64, 1])
         init_nn.compile() #consider using SGD over Adam
-        self.list_U_fn = deque([init_nn], delay_by) # Neural network!!
+        self.list_u_fn = deque([init_nn], delay_by) # Neural network!!
+
+    def add(self, u: FCNN):
+        self.list_u_fn.append(u)
 
     def agent_U_function(self):
 
-        return self.list_U_fn[-1] # or a predict function
+        return self.list_u_fn[-1] # or a predict function
 
     def adversary_U_function(self):
 
-        return self.list_U_fn[0]
+        return self.list_u_fn[0]
