@@ -43,10 +43,44 @@ def main(args):
     n_vgc_epochs = args.n_vgc_epochs
     n_league_epochs = args.n_league_epochs
     population_size = args.population_size
-    base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
 
-    #base_roster = list(base_roster)
-    #base_roster[0].max_hp = 2000
+    if args.roster_path == '':
+        base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
+    else:
+        import pickle
+        base_roster = pickle.load(open(args.roster_path, 'rb'))
+    """
+    Code below is to create a an Roster with a OP pokmeon
+    OP is defined as max health and max stats for one unique move to that pokemon
+    TODO: use json instead of pickle
+    """
+    """
+    base_roster = list(base_roster)
+    from collections import defaultdict
+    seen_moves = defaultdict(int)
+    for pkm in base_roster:
+        for move in pkm.move_roster:
+            seen_moves[move] += 1
+
+    for pkm in base_roster:
+        for move in pkm.move_roster:
+            if seen_moves[move] == 1:
+                pkm.max_hp = 500
+                move.power = 150
+                move.acc = 100
+                move.max_pp = 20
+                break
+        if pkm.max_hp == 500:
+            break
+    print(base_roster[0].max_hp)
+    if base_roster[0].max_hp == 500:
+        for move in base_roster[0].move_roster:
+            print(move.name, move.power, move.acc, move.max_pp)
+        import pickle
+        pickle.dump(base_roster, open("roster_30_OP_1.pkl", 'wb'))
+    import sys
+    sys.exit(0)
+    """
     """
     Code below is to generate roster pokmeons with same move set but different (random max hp)
     """
@@ -86,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_vgc_epochs', type=int, default=1)
     parser.add_argument('--n_league_epochs', type=int, default=1)
     parser.add_argument('--population_size', type=int, default=2)
+    parser.add_argument('--roster_path', type=str, default='')
     parser.add_argument('--visualize', type=bool, default=False)
     args = parser.parse_args()
     main(args)
