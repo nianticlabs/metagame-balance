@@ -20,31 +20,42 @@ class ChampionshipEcosystem:
                                                        update_meta=True)
         self.debug = debug
 
+        self.test_rewards = []
+
     def register(self, cm: CompetitorManager):
         self.league.register(cm)
+
+    def simulate_league(self, n_league_epochs:int):
+
+        if self.debug:
+            print("TEAM BUILD\n")
+        for cm in self.league.competitors:
+            self.__set_new_team(cm)
+            if self.debug:
+                print(cm.competitor.name)
+                print(cm.team)
+                print()
+        if self.debug:
+            print("LEAGUE\n")
+        self.league.run(n_league_epochs)
+
 
     def run(self, n_epochs: int, n_league_epochs: int):
         epoch = 0
         while epoch < n_epochs:
-            if self.debug:
-                print("TEAM BUILD\n")
-            for cm in self.league.competitors:
-                self.__set_new_team(cm)
-                if self.debug:
-                    print(cm.competitor.name)
-                    print(cm.team)
-                    print()
-            if self.debug:
-                print("LEAGUE\n")
-            self.league.run(n_league_epochs)
+
+            self.simulate_league(n_league_epochs)
 
             for cm in self.league.competitors:
                 reward = self.get_reward(cm)
                 cm.competitor.team_build_policy.update(cm.team, reward) #TODO: Define a reward function
 
             self.league.clear_wins() # do we really need this?
+            if epoch % 100 == 0:
+                #after every 100 matches check how good are we against random bot
+                self.test_agent(n_league_epochs)
             epoch += 1
-
+        print(self.test_rewards)
     def get_reward(self, cm: CompetitorManager):
         return self.league.get_team_wins(cm)
 
@@ -60,3 +71,30 @@ class ChampionshipEcosystem:
 
     def strongest(self) -> CompetitorManager:
         return max(self.league.competitors, key=operator.attrgetter('elo'))
+
+    def test_agent(self, n_league_epochs: int):
+        """
+        TODO: Check for instabilities introduced by this!
+        """
+        from agent.Example_Competitor import ExampleCompetitor
+        random_agent = CompetitorManager(ExampleCompetitor())
+
+        learnt_cm = None
+        adversary_cm = None
+        for cm in self.league.competitors:
+            if cm.competitor.name == "adversary":
+                adversary_cm = cm
+            if cm.competitor.name == "agent":
+                learnt_cm = cm
+        self.league.unregister(adversary_cm)
+        self.register(random_agent)
+        rewards = 0
+        learnt_cm.competitor.team_build_policy.set_greedy(greedy = True)
+        for i in range(100):
+            self.simulate_league(n_league_epochs)
+            #print(self.get_reward(learnt_cm), self.get_reward(random_agent))
+        self.test_rewards.append(self.get_reward(learnt_cm))
+        self.league.clear_wins() # do we really need this?
+        self.register(adversary_cm)
+        self.league.unregister(random_agent)
+        learnt_cm.competitor.team_build_policy.set_greedy(greedy = False)

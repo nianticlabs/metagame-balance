@@ -26,6 +26,10 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self._updatable = update_policy
         self.update_after = 100 #### perform an update after completion of certain number of episode, hacks for on-policy learning
         self.buffer = {'x':[], 'y':[]} #NOT replay buffer, just because neural networks don't work well with small batch sizes
+        self.greedy = False
+
+    def set_greedy(self, greedy: bool):
+        self.greedy = greedy
 
     def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRoster]) -> PkmFullTeam:
 
@@ -47,7 +51,10 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
             for idx in team_idxs:
                 utilities[idx] = -float("inf")
 
-            selection_idx = np.random.choice(range(len(roster)), p=softmax(utilities))
+            if self.greedy:
+                selection_idx = np.argmax(utilities)
+            else:
+                selection_idx = np.random.choice(range(len(roster)), p=softmax(utilities))
             selected_pkm = roster[selection_idx]
 
             #mark before you append
