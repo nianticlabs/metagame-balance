@@ -1,7 +1,7 @@
 from collections import deque
 from FCNN import FCNN
 import copy
-from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, TEAM_SIZE, STATS_OPT_PER_PKM, STATS_OPT_PER_MOVE
+from vgc.datatypes.Constants import STAGE_2_STATE_DIM
 
 class UtilityFunctionManager():
     """
@@ -12,7 +12,7 @@ class UtilityFunctionManager():
     3) Perhaps keep pointer to them
     """
     def __init__(self, delay_by: int = 10): #TODO: tune this delay_by
-        input_dim = TEAM_SIZE * (STATS_OPT_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_PER_MOVE) #seems like a wrong place
+        input_dim = STAGE_2_STATE_DIM
         init_nn = FCNN([input_dim, 128, 64, 1])
         init_nn.compile() #consider using SGD over Adam
         self.list_u_fn = deque([init_nn], delay_by) # Neural network!!

@@ -38,6 +38,9 @@ STATS_OPT_PER_MOVE = 3
 STATS_OPT_PER_PKM = 1
 TEAM_SIZE = 3
 
+# Stage 2 STATE DIM
+STAGE_2_STATE_DIM = TEAM_SIZE * (STATS_OPT_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_PER_MOVE) #seems like a wrong place
+
 # Pkm type chart
 TYPE_CHART_MULTIPLIER = (
     (1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., .5, .0, 1., 1., .5, 1.),  # NORMAL

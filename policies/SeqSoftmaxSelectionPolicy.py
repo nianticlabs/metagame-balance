@@ -7,7 +7,7 @@ from vgc.behaviour import TeamBuildPolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES
 from vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
-from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, TEAM_SIZE, STATS_OPT_PER_PKM, STATS_OPT_PER_MOVE
+from vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_PER_MOVE
 from Utility_Fn_Manager import UtilityFunctionManager
 
 """
@@ -66,7 +66,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
 
     @staticmethod
     def _size_state_vector():
-        return TEAM_SIZE * (STATS_OPT_PER_PKM + DEFAULT_PKM_N_MOVES * STATS_OPT_PER_MOVE)
+        return STAGE_2_STATE_DIM
 
     def _mark(self, state: np.ndarray, team: list, pkm) -> np.ndarray:
         """
@@ -82,7 +82,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
                 return pkm.moves
 
         idx_to_move_stat_map = {0:lambda pkm: pkm.power, 1:lambda pkm: pkm.acc, 2:lambda pkm: pkm.max_pp}
-        stats_per_pkm = (STATS_OPT_PER_PKM + DEFAULT_PKM_N_MOVES * STATS_OPT_PER_MOVE)
+        stats_per_pkm = self._size_state_vector() // TEAM_SIZE
         base_idx = len(team) * stats_per_pkm
         state[base_idx] = pkm.max_hp
         for i, move in enumerate(get_moves(pkm)):
@@ -113,7 +113,6 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self.buffer['x'] += states
         self.buffer['y'] += targets
         if len(self.buffer['x']) > self.update_after:
-            print("Updating..", reward)
             u = deepcopy(self.get_u_fn())
             u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
             self.utility_manager.add(u)
