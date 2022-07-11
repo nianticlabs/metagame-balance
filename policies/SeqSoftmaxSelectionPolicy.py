@@ -61,7 +61,6 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
             team_idxs.append(selection_idx)
             self._mark(base_team_state, team, selected_pkm)
             team.append(selected_pkm.gen_pkm())
-
         return PkmFullTeam(team)
 
     @staticmethod
@@ -96,6 +95,10 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
                 move_idx = i * STATS_OPT_PER_MOVE + j
                 state[base_idx + move_idx] = idx_to_move_stat_map[j](move)
             state[base_idx + move_idx + type_to_idx(move.type) + 1] = 1
+            print(pkm.max_hp, pkm.type, move.power, move.acc, move.max_pp, move.type, int(move.type))
+        print(state)
+        import sys
+        sys.exit(0)
         return state
 
     def update(self, team:PkmFullTeam, reward: float) -> None: #do we want to use metadata to get reward? do we assume meta data doesn't change across iterations?
