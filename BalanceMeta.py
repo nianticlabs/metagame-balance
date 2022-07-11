@@ -2,12 +2,14 @@ import argparse
 import numpy as np
 from agent.Example_Competitor import ExampleCompetitor
 from agent.Proposed_Competitor import ProposedCompetitor
+from agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
+from vgc.balance.meta import StandardMetaData
 from vgc.balance.Winrate_Entropy_Meta import WinrateEntropyMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-
+from Utility_Fn_Manager import UtilityFunctionManager
 NUM_PKM = 30
 
 
@@ -34,14 +36,51 @@ def main(args):
     TODO Stage 2 plots log to files
     TODO Handle the noise in stage 1 plots (by smoonthing and plotting varience)
     """
+
+    assert(args.population_size == 2) # Limit scope to two agents
+    agent_names = ['agent', 'adversary']
     n_epochs = args.n_epochs
     n_vgc_epochs = args.n_vgc_epochs
     n_league_epochs = args.n_league_epochs
     population_size = args.population_size
-    base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
 
-    #base_roster = list(base_roster)
-    #base_roster[0].max_hp = 2000
+    if args.roster_path == '':
+        base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=NUM_PKM).gen_roster()
+    else:
+        import pickle
+        base_roster = pickle.load(open(args.roster_path, 'rb'))
+    """
+    Code below is to create a an Roster with a OP pokmeon
+    OP is defined as max health and max stats for one unique move to that pokemon
+    TODO: use json instead of pickle
+    """
+    """
+    base_roster = list(base_roster)
+    from collections import defaultdict
+    seen_moves = defaultdict(int)
+    for pkm in base_roster:
+        for move in pkm.move_roster:
+            seen_moves[move] += 1
+
+    for pkm in base_roster:
+        for move in pkm.move_roster:
+            if seen_moves[move] == 1:
+                pkm.max_hp = 500
+                move.power = 150
+                move.acc = 100
+                move.max_pp = 20
+                break
+        if pkm.max_hp == 500:
+            break
+    print(base_roster[0].max_hp)
+    if base_roster[0].max_hp == 500:
+        for move in base_roster[0].move_roster:
+            print(move.name, move.power, move.acc, move.max_pp)
+        import pickle
+        pickle.dump(base_roster, open("roster_30_OP_1.pkl", 'wb'))
+    import sys
+    sys.exit(0)
+    """
     """
     Code below is to generate roster pokmeons with same move set but different (random max hp)
     """
@@ -56,7 +95,8 @@ def main(args):
 
     """
 
-    surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    utility_fn_manager = UtilityFunctionManager(delay_by = 10)
+    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
         print(i, i.pkm_id)
@@ -80,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_vgc_epochs', type=int, default=1)
     parser.add_argument('--n_league_epochs', type=int, default=1)
     parser.add_argument('--population_size', type=int, default=2)
+    parser.add_argument('--roster_path', type=str, default='')
     parser.add_argument('--visualize', type=bool, default=False)
     args = parser.parse_args()
     main(args)
