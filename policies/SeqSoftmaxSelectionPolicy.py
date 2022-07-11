@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from vgc.balance.meta import MetaData
 from vgc.behaviour import TeamBuildPolicy
-from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, NUM_TYPES
 from vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
 from vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_PER_MOVE
@@ -37,11 +37,11 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         team_idxs: List[int] = []
         roster = list(d[2])
         size = self._size_state_vector()
-        base_team = np.zeros((size))
+        base_team_state = np.zeros((size))
         u = self.get_u_fn()
         for i in range(TEAM_SIZE):
 
-            S = np.repeat(base_team.reshape(1,-1), len(roster), axis=0)
+            S = np.repeat(base_team_state.reshape(1,-1), len(roster), axis=0)
             for j, pkm in enumerate(roster):
                 s = self._mark(S[j,:], team, pkm)
                 S[j,:] = s
@@ -59,7 +59,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
 
             #mark before you append
             team_idxs.append(selection_idx)
-            self._mark(base_team, team, selected_pkm)
+            self._mark(base_team_state, team, selected_pkm)
             team.append(selected_pkm.gen_pkm())
 
         return PkmFullTeam(team)
@@ -81,14 +81,21 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
             if type(pkm) == Pkm:
                 return pkm.moves
 
+        def type_to_idx(type_):
+            return int(type_)
+
         idx_to_move_stat_map = {0:lambda pkm: pkm.power, 1:lambda pkm: pkm.acc, 2:lambda pkm: pkm.max_pp}
         stats_per_pkm = self._size_state_vector() // TEAM_SIZE
         base_idx = len(team) * stats_per_pkm
         state[base_idx] = pkm.max_hp
+        state[base_idx + 1 + type_to_idx(pkm.type)] = 1
+        base_idx += 1 + NUM_TYPES
+
         for i, move in enumerate(get_moves(pkm)):
-            for j in range(STATS_OPT_PER_MOVE):
-                move_idx = 1 + i * STATS_OPT_PER_MOVE + j
+            for j in range(len(idx_to_move_stat_map)):
+                move_idx = i * STATS_OPT_PER_MOVE + j
                 state[base_idx + move_idx] = idx_to_move_stat_map[j](move)
+            state[base_idx + move_idx + type_to_idx(move.type) + 1] = 1
         return state
 
     def update(self, team:PkmFullTeam, reward: float) -> None: #do we want to use metadata to get reward? do we assume meta data doesn't change across iterations?
