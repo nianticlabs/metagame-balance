@@ -38,7 +38,12 @@ class GameBalanceEcosystem:
             violated_rules = self.constraints.check_every_rule(copy_roster)
             if len(violated_rules) == 0:
                 delta_roster.apply(self.vgc.roster)
-                self.meta_data.update_with_delta_roster(delta_roster)
+                """
+                Hacky way to get the policy. TODO Structure it
+                Probably have a function in league to return the agent and advserial agent
+                """
+                agent = list(filter(lambda agent: agent.competitor.name == "agent", self.vgc.league.competitors))[0]
+                self.meta_data.update_metadata(delta=delta_roster, policy=agent)
             else:
                 raise AssertionError
             print('-' * 30 + "VGC EPOCH " + str(epoch) + " DONE" + '-' * 30)
