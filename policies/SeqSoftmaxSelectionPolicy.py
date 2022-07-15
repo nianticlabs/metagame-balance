@@ -7,7 +7,7 @@ from vgc.behaviour import TeamBuildPolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, NUM_TYPES
 from vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
-from vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_PER_MOVE
+from vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_2_PER_MOVE
 from Utility_Fn_Manager import UtilityFunctionManager
 
 """
@@ -70,6 +70,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
     def _mark(self, state: np.ndarray, team: list, pkm) -> np.ndarray:
         """
         Function marks team and the new one vector
+        TODO: make this static
         """
         """
         maybe use parser?
@@ -92,7 +93,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
 
         for i, move in enumerate(get_moves(pkm)):
             for j in range(len(idx_to_move_stat_map)):
-                move_idx = i * STATS_OPT_PER_MOVE + j
+                move_idx = i * STATS_OPT_2_PER_MOVE + j
                 state[base_idx + move_idx] = idx_to_move_stat_map[j](move)
             state[base_idx + move_idx + type_to_idx(move.type) + 1] = 1
             #print(pkm.max_hp, pkm.type, move.power, move.acc, move.max_pp, move.type, int(move.type))

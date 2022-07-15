@@ -55,7 +55,10 @@ class ChampionshipEcosystem:
                 #after every 100 matches check how good are we against random bot
                 self.test_agent(n_league_epochs)
             epoch += 1
-        print(self.test_rewards)
+
+        #info for debugging and resseting test rewards
+        print(self.test_rewards, sum(self.test_rewards) / len(self.test_rewards))
+        self.test_rewards = []
     def get_reward(self, cm: CompetitorManager):
         return self.league.get_team_wins(cm)
 
