@@ -33,6 +33,7 @@ class PolicyEntropyMetaData(MetaData):
         init_metadata = deepcopy(self)
         self.parser = MetaRosterStateParser(len(self._pkm))
         self.init_state = self.parser.metadata_to_state(init_metadata)
+        self.update_params = ['policy', 'delta']
 
     def clear_stats(self):
         for pkm in self._pkm:
@@ -43,6 +44,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def update_metadata(self, **kwargs):
 
+        assert(sum([k not in self.update_params for k in kwargs.keys()]) == 0)
         if 'delta' in kwargs.keys():
             self.update_with_delta_roster(kwargs['delta'])
 
