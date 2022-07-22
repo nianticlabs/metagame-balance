@@ -32,7 +32,7 @@ ThunderShock = PkmMove(40., 1., 20, PkmType.ELECTRIC, "Thunder Shock", status=Pk
 # Grass Moves
 Spore = PkmMove(0., 1., 5, PkmType.GRASS, "Spore", status=PkmStatus.SLEEP, prob=1)
 GigaDrain = PkmMove(75., 1., 15, PkmType.GRASS, "Giga Drain", recover=30., prob=1.)
-RazorLeaf = PkmMove(55., 95., 20, PkmType.GRASS, "Razor Leaf")
+RazorLeaf = PkmMove(55., .95, 20, PkmType.GRASS, "Razor Leaf")
 EnergyBall = PkmMove(90., 1., 10, PkmType.GRASS, "Energy Ball", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 
 # Ice Moves
@@ -56,14 +56,14 @@ AcidSpray = PkmMove(40., 1., 20, PkmType.POISON, "Acid Spray", stat=PkmStat.DEFE
 # Ground Moves
 Spikes = PkmMove(0., 1., 20, PkmType.GROUND, "Spikes", hazard=PkmEntryHazard.SPIKES, prob=1.)
 Earthquake = PkmMove(100., 1., 10, PkmType.GROUND, "Earthquake")
-MudShot = PkmMove(55., 95., 15, PkmType.GROUND, "Mud Shot", stat=PkmStat.SPEED, stage=-1, prob=1.)
+MudShot = PkmMove(55., .95, 15, PkmType.GROUND, "Mud Shot", stat=PkmStat.SPEED, stage=-1, prob=1.)
 EarthPower = PkmMove(90., 1., 10, PkmType.GROUND, "Earth Power", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 
 # Flying Moves
 Roost = PkmMove(0., 1., 5, PkmType.FLYING, "Roost", recover=80., target=0, prob=1.)
 Chatter = PkmMove(65., 1., 20, PkmType.FLYING, "Chatter", status=PkmStatus.CONFUSED, prob=1.)
 Hurricane = PkmMove(110., .7, 10, PkmType.FLYING, "Hurricane", status=PkmStatus.CONFUSED, prob=.3)
-WingAttack = PkmMove(60., 100., 20, PkmType.FLYING, "Wing Attack")
+WingAttack = PkmMove(60., 1., 20, PkmType.FLYING, "Wing Attack")
 
 # Psychic Moves
 CalmMind = PkmMove(0., 1., 5, PkmType.PSYCHIC, "Calm Mind", stat=PkmStat.DEFENSE, stage=2, target=0, prob=1.)

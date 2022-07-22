@@ -4,16 +4,7 @@ from vgc.balance.meta import MetaData
 import copy
 import numpy as np
 
-"""
-TODO: Put them in vgc/datatypes/constants or something
-"""
-STATS_OPT_PER_MOVE = 3
-STATS_OPT_PER_PKM = 1
-MAX_MOVE_POWER = 150
-MAX_MOVE_ACC = 100.
-MAX_MOVE_MAX_PP = 20
-MAX_PKM_HP = 500
-from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, STATS_OPT_PER_MOVE, STATS_OPT_PER_PKM
+from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, STATS_OPT_1_PER_MOVE, STATS_OPT_1_PER_PKM, MAX_MOVE_POWER, MAX_MOVE_ACC, MAX_MOVE_MAX_PP, MAX_PKM_HP
 
 class MetaRosterStateParser():
 
@@ -30,7 +21,7 @@ class MetaRosterStateParser():
         """
         Returns length of state vector
         """
-        return STATS_OPT_PER_MOVE * len(self.move_roster) + self.num_pkm
+        return STATS_OPT_1_PER_MOVE * len(self.move_roster) + self.num_pkm
 
     def get_init_state(self) -> np.ndarray:
         """
@@ -72,13 +63,13 @@ class MetaRosterStateParser():
 
             delta_move_dict = {}
             for i, move in enumerate(pkm.move_roster):
-                itr = self.move_roster.index(move) * STATS_OPT_PER_MOVE
+                itr = self.move_roster.index(move) * STATS_OPT_1_PER_MOVE
                 state_vec[itr] = move.power
                 state_vec[itr + 1] = move.acc
                 state_vec[itr + 2] = move.max_pp
                 #print(state_vec[itr:itr+3], self.norm_vec[itr:itr+3], itr)
                 assert((state_vec[itr:itr+3] <= self.norm_vec[itr:itr+3]).all())
-            pkm_idx = len(self.move_roster) * STATS_OPT_PER_MOVE + pkm.pkm_id
+            pkm_idx = len(self.move_roster) * STATS_OPT_1_PER_MOVE + pkm.pkm_id
             state_vec[pkm_idx] = max(1, np.round(pkm.max_hp)) #Make sure an HP of atleast 1
         return state_vec / self.norm_vec
 
@@ -95,12 +86,12 @@ class MetaRosterStateParser():
                 """
                 IS META DATA UPDATED HERE????
                 """
-                itr = self.move_roster.index(move) * STATS_OPT_PER_MOVE
+                itr = self.move_roster.index(move) * STATS_OPT_1_PER_MOVE
                 move.power = state_vec[itr]
                 move.acc = state_vec[itr + 1]
                 move.max_pp = state_vec[itr + 2]
                 delta_move_dict[i] = move
-            pkm_idx = len(self.move_roster) * STATS_OPT_PER_MOVE + pkm.pkm_id ### get idx of pokemon HP from here
+            pkm_idx = len(self.move_roster) * STATS_OPT_1_PER_MOVE + pkm.pkm_id ### get idx of pokemon HP from here
             hp =  max(1, np.round(state_vec[pkm_idx]))
             delta_dict[pkm.pkm_id] = DeltaPkm(hp, pkm.type, delta_move_dict) # update max hhp here!
 

@@ -30,6 +30,14 @@ class GameBalanceEcosystem:
         while epoch < n_epochs:
             self.meta_data.clear_stats()  #consider doing it inside the league as well! or
             self.vgc.run(n_vgc_epochs, n_league_epochs)
+            """
+            Hacky way to get the policy. TODO Structure it
+            Probably have a function in league to return the agent and advserial agent
+            """
+            agent = list(filter(lambda agent: agent.competitor.name == "agent", self.vgc.league.competitors))[0]
+
+            self.meta_data.update_metadata(policy=agent.competitor.team_build_policy)
+
             self.rewards += [self.meta_data.evaluate()]
             delta_roster = self.c.balance_policy.get_action((self.vgc.roster, self.meta_data,
                                                              self.constraints))
@@ -38,7 +46,7 @@ class GameBalanceEcosystem:
             violated_rules = self.constraints.check_every_rule(copy_roster)
             if len(violated_rules) == 0:
                 delta_roster.apply(self.vgc.roster)
-                self.meta_data.update_with_delta_roster(delta_roster)
+                self.meta_data.update_metadata(delta=delta_roster)
             else:
                 raise AssertionError
             print('-' * 30 + "VGC EPOCH " + str(epoch) + " DONE" + '-' * 30)

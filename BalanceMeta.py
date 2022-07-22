@@ -5,6 +5,7 @@ from agent.Proposed_Competitor import ProposedCompetitor
 from agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.balance.Winrate_Entropy_Meta import WinrateEntropyMetaData
+from vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
@@ -20,7 +21,6 @@ def plot_rewards(loss: list, smoothing_over = 10) -> None:
     conv_filter = np.ones((smoothing_over)) / smoothing_over
     smooth_rewards = np.convolve(conv_filter, rewards, 'valid')
 
-    print(rewards)
     plt.plot(range(len(smooth_rewards)), smooth_rewards)
     plt.xlabel("Iterations")
     plt.ylabel("Reward")
@@ -102,7 +102,7 @@ def main(args):
         print(i, i.pkm_id)
     results = []
     competitor = ProposedCompetitor(NUM_PKM)
-    meta_data = WinrateEntropyMetaData()
+    meta_data = PolicyEntropyMetaData()
     meta_data.set_moves_and_pkm(base_roster)
     gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=False)
     gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
@@ -110,6 +110,7 @@ def main(args):
     winner_name = ""
     max_score = 0.0
 
+    print(gbe.rewards)
     if args.visualize:
         plot_rewards(gbe.rewards)
 
