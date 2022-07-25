@@ -9,7 +9,7 @@ from copy import deepcopy
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
 from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from vgc.datatypes.Constants import  STAGE_2_STATE_DIM
+from vgc.datatypes.Constants import STAGE_2_STATE_DIM
 from vgc.balance.meta import MetaData, PkmId
 from vgc.util.RosterParsers import MetaRosterStateParser
 import numpy as np
@@ -24,6 +24,16 @@ class PolicyEntropyMetaData(MetaData):
         self._pkm_wins: Dict[PkmId, int] = {}
         self.current_policy = None # I don't see another way to do, rather than taking input as P(A_j) as input in evaluate
 
+        self.reg_weights = np.zeros(())
+        self.update_params = ['policy', 'delta']
+
+    def set_mask_weights(self, w):
+        """
+        Consider adding utility functions that go like
+        ``mask pkm idx, move idx etc.
+        """
+        self.reg_weights = w
+
     def set_moves_and_pkm(self, roster: PkmRoster):
         self._pkm = list(roster)
         self._moves = []
@@ -33,7 +43,11 @@ class PolicyEntropyMetaData(MetaData):
         init_metadata = deepcopy(self)
         self.parser = MetaRosterStateParser(len(self._pkm))
         self.init_state = self.parser.metadata_to_state(init_metadata)
-        self.update_params = ['policy', 'delta']
+        self.init_reg_weights(self.parser.length_state_vector())
+
+    def init_reg_weights(self, size):
+
+        self.set_mask_weights(np.zeros((size)))
 
     def clear_stats(self):
         for pkm in self._pkm:
@@ -67,13 +81,15 @@ class PolicyEntropyMetaData(MetaData):
         """
 
     def distance_from_init_meta(self):
-
+        """
+        Returns L2 distance from inital meta scaled with reg weights
+        """
         state = self.parser.metadata_to_state(self)
 
-        return ((state - self.init_state) ** 2).mean(axis=0) / 100 ##something reasonable
+        return ((self.reg_weights * (state - self.init_state)) ** 2).mean(axis=0) / 100 ##something reasonable
 
 
-    def evaluate(self, distance_loss = False) -> float:
+    def evaluate(self) -> float:
 
         #TODO: write a function here, so that I don't have to create numpy arrays in object
         A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
@@ -83,7 +99,5 @@ class PolicyEntropyMetaData(MetaData):
         u = self.current_policy.get_u_fn()
         P_A = softmax(u.predict(A))
 
-        loss = -entropy(P_A)
-        if distance_loss:
-            return loss + self.distance_from_init_meta()
-        return loss
+        entropy_loss = -entropy(P_A)
+        return entropy_loss + self.distance_from_init_meta()
