@@ -185,8 +185,9 @@ class RandomBattlePolicy(BattlePolicy):
                  n_switches: int = DEFAULT_PARTY_SIZE):
         super().__init__()
         self.n_actions: int = n_moves + n_switches
-        self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
-                [switch_probability / n_switches] * n_switches)
+        self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves)
+        if n_switches > 0:
+            self.pi.extend([switch_probability / n_switches] * n_switches)
 
     def get_action(self, g: GameStateView) -> int:
         """
