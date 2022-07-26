@@ -1,7 +1,8 @@
-from vgc.behaviour import TeamBuildPolicy
+from vgc.behaviour import TeamBuildPolicy, BattlePolicy
 from vgc.competition.Competitor import Competitor
 from Utility_Fn_Manager import UtilityFunctionManager
 from policies.SeqSoftmaxSelectionPolicy import SeqSoftmaxSelectionPolicy
+from vgc.behaviour.BattlePolicies import RandomBattlePolicy, BetterRandomBattlePolicy
 
 class SeqSoftmaxCompetitor(Competitor):
 
@@ -14,7 +15,7 @@ class SeqSoftmaxCompetitor(Competitor):
             self.get_u_fn = utility_manager.agent_U_function
             update_policy = True
         self._team_build_policy = SeqSoftmaxSelectionPolicy(utility_manager, self.get_u_fn, update_policy) #create a policy based on U!
-
+        self.battle_policy = BetterRandomBattlePolicy()
     @property
     def name(self):
         return self._name
@@ -22,3 +23,9 @@ class SeqSoftmaxCompetitor(Competitor):
     @property
     def team_build_policy(self) -> TeamBuildPolicy:
         return self._team_build_policy
+
+    @property
+    def battle_policy(self) -> BattlePolicy:
+        return self.battle_policy
+
+

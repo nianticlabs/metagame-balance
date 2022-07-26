@@ -98,7 +98,6 @@ class GUIBattlePolicy(BattlePolicy):
     def get_action(self, g: GameStateView) -> int:
         """
         Decision step.
-
         :param g: game state
         :return: action
         """
@@ -177,7 +176,7 @@ class GUIBattlePolicy(BattlePolicy):
 
 
 SWITCH_PROBABILITY = .15
-
+from scipy.special import softmax
 
 class RandomBattlePolicy(BattlePolicy):
 
@@ -197,6 +196,33 @@ class RandomBattlePolicy(BattlePolicy):
         :return: action
         """
         return np.random.choice(self.n_actions, p=self.pi)
+
+    def close(self):
+        pass
+
+class BetterRandomBattlePolicy(BattlePolicy):
+
+    def __init__(self, switch_probability: float = SWITCH_PROBABILITY, n_moves: int = DEFAULT_PKM_N_MOVES,
+                 n_switches: int = DEFAULT_PARTY_SIZE):
+
+        super().__init__()
+        self.n_moves = n_moves
+        self.n_switches = n_switches
+        self.p_switch = switch_probability
+        #redefine the PI
+
+    def get_action(self, g: GameStateView) -> int:
+
+        pokemon_view = g.get_team_view().active_pkm_view()
+
+        moves_view = [pokemon_view.get_move_view(i) for i in range(self.n_moves)]
+        move_vals = [m.acc * m.pow + 50 for m in moves_view]
+        pi = softmax(move_vals)
+
+        if np.random.random() > self.p_switch or n_switches == 0:
+            return np.random.choice(self.n_moves, p = pi)
+
+        return np.random.randint(self.n_moves, self.n_moves + self.n_switches)
 
     def close(self):
         pass
