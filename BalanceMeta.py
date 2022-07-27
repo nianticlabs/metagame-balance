@@ -100,6 +100,8 @@ def main(args):
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
         print(i, i.pkm_id)
+        for move in i.move_roster:
+            print(move.power, move.acc, move.max_pp)
     results = []
     competitor = ProposedCompetitor(NUM_PKM)
     meta_data = PolicyEntropyMetaData()
