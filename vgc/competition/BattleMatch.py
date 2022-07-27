@@ -92,14 +92,8 @@ class BattleMatch:
         while not t:
             o0 = s[0] if a0.requires_encode() else v[0]
             o1 = s[1] if a1.requires_encode() else v[1]
-            try:
-                act0 = a0.get_action(o0)
-            except:
-                act0 = random.randint(0, 6)
-            try:
-                act1 = a1.get_action(o1)
-            except:
-                act1 = random.randint(0, 6)
+            act0 = a0.get_action(o0)
+            act1 = a1.get_action(o1)
             a = [act0, act1]
             s, _, t, v = env.step(a)
             if self.debug:
