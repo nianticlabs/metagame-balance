@@ -1,6 +1,6 @@
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy
-from vgc.behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
-from vgc.behaviour.BalancePolicies import BalancePolicy 
+from vgc.behaviour.BattlePolicies import GUIBattlePolicy
+from vgc.behaviour.BalancePolicies import BalancePolicy
 from vgc.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
 from vgc.competition.Competitor import Competitor
 from policies.CMAESBalancePolicy import CMAESBalancePolicy
