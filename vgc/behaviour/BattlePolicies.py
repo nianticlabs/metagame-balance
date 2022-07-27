@@ -213,13 +213,14 @@ class BetterRandomBattlePolicy(BattlePolicy):
 
     def get_action(self, g: GameStateView) -> int:
 
-        pokemon_view = g.get_team_view().active_pkm_view()
+        my_team = g.get_team_view(0)
+        pokemon_view = my_team.active_pkm_view
+
 
         moves_view = [pokemon_view.get_move_view(i) for i in range(self.n_moves)]
-        move_vals = [m.acc * m.pow + 50 for m in moves_view]
+        move_vals = [m.acc * m.power + 50 for m in moves_view]
         pi = softmax(move_vals)
-
-        if np.random.random() > self.p_switch or n_switches == 0:
+        if np.random.random() > self.p_switch or self.n_switches == 0:
             return np.random.choice(self.n_moves, p = pi)
 
         return np.random.randint(self.n_moves, self.n_moves + self.n_switches)
