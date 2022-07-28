@@ -2,12 +2,12 @@ from abc import ABC
 
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.behaviour.BalancePolicies import IdleBalancePolicy
-from vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from vgc.behaviour.BattlePolicies import BetterRandomBattlePolicy
 from vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
 from vgc.behaviour.TeamPredictors import NullTeamPredictor
 from vgc.behaviour.TeamSelectionPolicies import RandomTeamSelectionPolicy
 
-random_battle_policy = RandomBattlePolicy()
+random_battle_policy = BetterRandomBattlePolicy()
 random_selector_policy = RandomTeamSelectionPolicy()
 random_team_build_policy = RandomTeamBuildPolicy()
 idle_balance_policy = IdleBalancePolicy()
