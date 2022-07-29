@@ -14,9 +14,9 @@ class MetaRosterStateParser():
         """
         self.move_roster = move_roster
         self.num_pkm = num_pkm
+        self.consider_hp = consider_hp
         self.base_state = self.get_init_state() ## NOTE: Health is all zero!!
         self.norm_vec = self.get_normalization_vector()
-        self.consider_hp = consider_hp
 
     def length_state_vector(self):
         """
