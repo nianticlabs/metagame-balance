@@ -8,7 +8,7 @@ from vgc.datatypes.Constants import DEFAULT_N_MOVES_PKM, STATS_OPT_1_PER_MOVE, S
 
 class MetaRosterStateParser():
 
-    def __init__(self, num_pkm = 5, move_roster = STANDARD_MOVE_ROSTER):
+    def __init__(self, num_pkm, move_roster = STANDARD_MOVE_ROSTER):
         """
         state vector [move_id_1_feat_1, move_id_1_feat_2, .. move_id_2_feat1, .... pkm_1_feat_1, pkm_1_feat_2, ..]
         """
