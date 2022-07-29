@@ -209,7 +209,6 @@ class BetterRandomBattlePolicy(BattlePolicy):
         self.n_moves = n_moves
         self.n_switches = n_switches
         self.p_switch = switch_probability
-        #redefine the PI
 
     def get_action(self, g: GameStateView) -> int:
 
