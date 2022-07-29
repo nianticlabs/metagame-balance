@@ -209,13 +209,13 @@ class BetterRandomBattlePolicy(BattlePolicy):
         self.n_moves = n_moves
         self.n_switches = n_switches
         self.p_switch = switch_probability
-
+        """
+        Consider fixing/unfixing seed here. Could also consider fixing seeds throughout the project
+        """
     def get_action(self, g: GameStateView) -> int:
 
         my_team = g.get_team_view(0)
         pokemon_view = my_team.active_pkm_view
-
-
         moves_view = [pokemon_view.get_move_view(i) for i in range(self.n_moves)]
         move_vals = [m.acc * m.power + 50 for m in moves_view]
         pi = softmax(move_vals)
