@@ -38,7 +38,7 @@ class CMAESBalancePolicy(BalancePolicy):
                 self.optimizer.tell(self.results['x'], self.results['y'])
             else:
                 bounds = self.parser.get_state_bounds()
-                self.optimizer = cma.CMAEvolutionStrategy(state, 0.33, {'bounds': bounds})
+                self.optimizer = cma.CMAEvolutionStrategy(state, 0.05, {'bounds': bounds})
             self.generation_samples = self.optimizer.ask()
             self.results = {'x' : [], 'y' : []}
         next_state = self.generation_samples.pop(0)
