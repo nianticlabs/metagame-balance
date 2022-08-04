@@ -21,8 +21,11 @@ the container boot.
 
 ## Usage
 For help
+
 `python BalanceMeta.py --help`
+
 To run balancing
+
 `python BalanceMeta.py --n_epochs <stage 1 iterations> --n_vgc_epochs <stage 2 iterations> --roster_path [OPTIONAL]<path to roster.pkl>`
 
 ## Source Code
