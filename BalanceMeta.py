@@ -101,11 +101,13 @@ def main(args):
     for i in base_roster:
         print(i, i.pkm_id)
         for move in i.move_roster:
-            print(move.power, move.acc, move.max_pp)
+            print(move.name, move.power, move.acc, move.max_pp)
     results = []
     competitor = ProposedCompetitor(NUM_PKM)
     meta_data = PolicyEntropyMetaData()
     meta_data.set_moves_and_pkm(base_roster)
+    reg_weights = np.ones((meta_data.parser.length_state_vector())) / 7
+    meta_data.set_mask_weights(reg_weights)
     gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=False)
     gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
     results.append((competitor.name, sum(gbe.rewards)))
