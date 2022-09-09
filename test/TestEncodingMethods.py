@@ -3,12 +3,12 @@ import random
 import unittest
 from copy import deepcopy
 
-from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
+from src.metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate, PkmTeam, GameState, Weather
 from vgc.datatypes.Types import PkmType
 from vgc.util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, \
     encode_game_state, decode_game_state
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from src.metagame_balance.vgc.competition import STANDARD_MOVE_ROSTER
 
 
 class TestEncodingMethods(unittest.TestCase):

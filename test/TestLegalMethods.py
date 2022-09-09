@@ -2,7 +2,7 @@ import unittest
 from random import sample
 from typing import List
 
-from vgc.competition import legal_move_set, legal_team
+from src.metagame_balance.vgc.competition import legal_move_set, legal_team
 from vgc.datatypes.Objects import PkmTemplate, Pkm, PkmFullTeam
 from vgc.datatypes.Types import PkmType
 from vgc.util.generator.PkmRosterGenerators import RandomMoveRosterGenerator, RandomPkmRosterGenerator
