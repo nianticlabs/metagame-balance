@@ -1,5 +1,4 @@
 from enum import IntEnum
-#Some type defs
 
 class RPSFWItems(IntEnum):
     ROCK = 0

@@ -1,5 +1,5 @@
 from metagame_balance.rpsfw.battle import RPSFWBattle
-from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData 
+from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 
 class RPSFWEcosystem():
 
@@ -17,7 +17,7 @@ class RPSFWEcosystem():
 
     def unregister(self, player):
 
-        if len(self.players) == 0 :
+        if len(self.players) == 0:
             raise Exception("Number of players in rock.. cannot be less than 0")
         self.players.remove(player)
 
