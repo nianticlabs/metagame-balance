@@ -1,4 +1,4 @@
-
+from metagame_balance.rpsfw.battle import RPSFWBattle
 
 class RPSFWEcosystem():
 
@@ -19,7 +19,6 @@ class RPSFWEcosystem():
         if len(self.players) == 0 :
             raise Exception("Number of players in rock.. cannot be less than 0")
         self.players.remove(player)
-
 
     def run(self, epochs):
 
