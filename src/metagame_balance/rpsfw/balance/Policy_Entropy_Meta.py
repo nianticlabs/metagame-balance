@@ -9,7 +9,7 @@ from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
-from metagame_balance.rpsfw.util.Constants import ROCK, PAPER, SCISSOR, FIRE, WATER
+from metagame_balance.rpsfw.util.Constants import RPSFWTypes
 import numpy as np
 
 class PolicyEntropyMetaData(MetaData):
@@ -35,7 +35,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def clear_stats(self) -> None:
 
-        self.win_probs[ROCK][SCISSOR] = 1
+        self.win_probs[RSPFWTypes.ROCK][SCISSOR] = 1
         self.win_probs[PAPER][ROCK] = 1
         self.win_probs[SCISSOR][PAPER] = 1
         self.win_probs[FIRE][PAPER] = 1
