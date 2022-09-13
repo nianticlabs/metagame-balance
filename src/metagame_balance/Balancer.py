@@ -93,3 +93,22 @@ class Balancer(Generic[G]):
             evaluation_result = self.game_environment.evaluate(state)
             i += 1
 
+
+import argparse
+from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RSPFWStateDelta
+from metagame_balance.vgc_scratch import VGCEnvironment, VGCStateDelta
+
+def setup_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--n_epochs', type=int, help='Number of updates to be done', default=1)
+    parser.add_argument('--n_vgc_epochs', type=int, default=1)
+    parser.add_argument('--roster_path', type=str, default='')
+    parser.add_argument('--domain', type=str, default='rpsfw')
+    parser.add_argument('--visualize', type=bool, default=False)
+    return parser
+
+if __name__ == "__main__":
+
+    parser = setup_argparser()
+    balancer = Balancer()
+    balancer.run()
