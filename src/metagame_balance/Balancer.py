@@ -95,8 +95,11 @@ class Balancer(Generic[G]):
 
 
 import argparse
-from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RSPFWStateDelta
+from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RPSFWStateDelta
+from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser as RSPFWParser
+from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser as VGCParser
 from metagame_balance.vgc_scratch import VGCEnvironment, VGCStateDelta
+from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 
 def setup_argparser():
     parser = argparse.ArgumentParser()
@@ -109,6 +112,9 @@ def setup_argparser():
 
 if __name__ == "__main__":
 
+    domain_mapper = {'rpsfw': {'env':RPSFWEnvironment, 'state-delta':RPSFWStateDelta, 'parser': RSPFWParser},
+                'vgc': {'env':VGCEnvironment, 'state-delta':VGCStateDelta, 'parser': VGCParser}}
     parser = setup_argparser()
-    balancer = Balancer()
+    domains = domain_mapper[parser.domain]
+    balancer = Balancer(CMAESBalancePolicyV2, domains['env'], domains['parser'])
     balancer.run()
