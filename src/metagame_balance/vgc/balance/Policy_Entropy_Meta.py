@@ -12,6 +12,7 @@ from metagame_balance.vgc.balance.meta import MetaData, PkmId
 from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
 import numpy as np
 
+
 class PolicyEntropyMetaData(MetaData):
 
     def __init__(self):
@@ -88,6 +89,12 @@ class PolicyEntropyMetaData(MetaData):
 
 
     def evaluate(self) -> float:
+        # A: set of all pokemon statistics
+        # does this actually need the whole policy
+        # needs the winrate
+        # won't sample from the policy
+        # we would have to do importance sampling over the historical trajectories
+
         #TODO: write a function here, so that I don't have to create numpy arrays in object
         A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
 

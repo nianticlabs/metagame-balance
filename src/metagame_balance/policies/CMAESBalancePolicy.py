@@ -3,7 +3,7 @@ from typing import Tuple, Callable
 import cma
 import numpy as np
 
-from metagame_balance.Balancer import MetagameBalancePolicy, State, G, StateDelta, EvaluationResult
+from metagame_balance.framework import MetagameBalancePolicy, State, G, StateDelta, EvaluationResult
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.balance.restriction import DesignConstraints

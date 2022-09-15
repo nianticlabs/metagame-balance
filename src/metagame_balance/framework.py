@@ -15,6 +15,21 @@ class EvaluationResult(Generic[G], metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
+class EvaluationContext(Generic[G], metaclass=abc.ABCMeta):
+    pass
+
+
+class Evaluator(Generic[G], metaclass=abc.ABCMeta):
+    """Evaluates a gameplay policy on its environment. This will probably need a reference to the gameplay policy,
+    and receives updates on the historical performance"""
+    @abc.abstractmethod
+    def update(self, state_delta: "StateDelta[G]"):
+        raise NotImplementedError
+
+    def evaluate(self, state: "State[G]") -> EvaluationResult[G]:
+        raise NotImplementedError
+
+
 class State(Generic[G], metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def encode(self) -> np.array:
@@ -30,8 +45,13 @@ class StateDelta(Generic[G], metaclass=abc.ABCMeta):
 
 
 class GameEnvironment(abc.ABC):
+    @property
     @abc.abstractmethod
-    def evaluate(self, state: State[G]) -> EvaluationResult[G]:
+    def evaluator(self) -> Evaluator[G]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def evaluate(self) -> EvaluationResult[G]:
         # evaluate the balance of a metagame state.
         raise NotImplementedError
 
@@ -70,8 +90,8 @@ class MetagameBalancePolicy(abc.ABC):
 
 
 class Balancer(Generic[G]):
-    # this takes the place of BalanceMeta
-    def __init__(self, balance_policy: MetagameBalancePolicy,
+    def __init__(self,
+                 balance_policy: MetagameBalancePolicy,
                  game_environment: G,
                  state_delta_constructor: Callable[[np.array], StateDelta[G]]):
         self.balance_policy = balance_policy
@@ -80,7 +100,8 @@ class Balancer(Generic[G]):
 
     def run(self):
         state = self.game_environment.reset()
-        evaluation_result = self.game_environment.evaluate(state)
+        # where do I get the evaluation context from?
+        evaluation_result = self.game_environment.evaluator.evaluate(state)
         i = 0
 
         logging.info("Starting balancer")
@@ -90,6 +111,6 @@ class Balancer(Generic[G]):
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
             self.game_environment.apply(suggestion)
             state = self.game_environment.get_state()
-            evaluation_result = self.game_environment.evaluate(state)
+            evaluation_result = self.game_environment.evaluator.evaluate(state)
             i += 1
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 
-from metagame_balance.Balancer import Balancer, GameEnvironment, EvaluationResult, State, StateDelta
+from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta
 from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
