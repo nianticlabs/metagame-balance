@@ -9,6 +9,7 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
+from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 
 class RPSFWState(State["RPSFWEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
@@ -49,7 +50,7 @@ class RPSFWEnvironment(GameEnvironment):
         agent_names = ['agent', 'adversary']
         self.metadata = PolicyEntropyMetaData()
         self.utility_fn_manager = UtilityFunctionManager(delay_by=10)
-        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager)) for a in agent_names]
+        surrogate = [SoftmaxCompetitor(a, self.utility_fn_manager) for a in agent_names]
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
