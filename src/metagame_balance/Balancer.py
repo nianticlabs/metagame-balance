@@ -78,13 +78,13 @@ class Balancer(Generic[G]):
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
 
-    def run(self):
+    def run(self, epochs):
         state = self.game_environment.reset()
         evaluation_result = self.game_environment.evaluate(state)
         i = 0
 
         logging.info("Starting balancer")
-        while not self.balance_policy.converged(evaluation_result):
+        while i < epochs and not self.balance_policy.converged(evaluation_result):
             logging.info(f"Iteration {i}")
             # t + 1 step
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
@@ -104,7 +104,7 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 def setup_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_epochs', type=int, help='Number of updates to be done', default=1)
-    parser.add_argument('--n_vgc_epochs', type=int, default=1)
+    parser.add_argument('--n_game_epochs', type=int, default=1)
     parser.add_argument('--roster_path', type=str, default='')
     parser.add_argument('--domain', type=str, default='rpsfw')
     parser.add_argument('--visualize', type=bool, default=False)
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     parser = setup_argparser()
     domains = domain_mapper[parser.domain]
     balancer = Balancer(CMAESBalancePolicyV2, domains['env'], domains['parser'])
-    balancer.run()
+    balancer.run(parser.n_epochs)
