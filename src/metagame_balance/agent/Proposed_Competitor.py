@@ -1,7 +1,7 @@
 from vgc.behaviour import BattlePolicy
 from vgc.behaviour.BalancePolicies import BalancePolicy
-from src.metagame_balance.vgc.competition import Competitor
-from src.metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicy
+from metagame_balance.vgc.competition import Competitor
+from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicy
 
 class ProposedCompetitor(Competitor):
 

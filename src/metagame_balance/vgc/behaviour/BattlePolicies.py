@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 import numpy as np
 
 from vgc.behaviour import BattlePolicy
-from src.metagame_balance.vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
+from metagame_balance.vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
 from vgc.datatypes.Objects import PkmMove, GameStateView
 from vgc.datatypes.Types import PkmStat, PkmType, WeatherCondition, PkmStatus
 

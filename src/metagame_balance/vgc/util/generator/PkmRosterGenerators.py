@@ -4,8 +4,8 @@ from copy import deepcopy
 from typing import List
 
 from metagame_balance.vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from src.metagame_balance.vgc.competition import STANDARD_TOTAL_POINTS, get_move_points
-from src.metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM, MAX_HIT_POINTS, \
+from metagame_balance.vgc.competition import STANDARD_TOTAL_POINTS, get_move_points
+from metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM, MAX_HIT_POINTS, \
     MIN_HIT_POINTS
 from metagame_balance.vgc.datatypes.Objects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
 from metagame_balance.vgc.datatypes.Types import PkmType

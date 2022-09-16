@@ -4,8 +4,8 @@ from multiprocessing.connection import Client
 from vgc.balance.meta import StandardMetaData
 from vgc.behaviour.TeamPredictors import NullTeamPredictor
 from vgc.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
-from src.metagame_balance.vgc.competition import CompetitorManager
-from src.metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
+from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 

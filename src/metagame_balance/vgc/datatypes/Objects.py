@@ -6,8 +6,8 @@ from typing import List, Tuple, Set, Union
 
 import numpy as np
 
-from src.metagame_balance.vgc.datatypes.Constants import MOVE_MED_PP, MAX_HIT_POINTS
-from vgc.datatypes.Types import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
+from metagame_balance.vgc.datatypes.Constants import MOVE_MED_PP, MAX_HIT_POINTS
+from metagame_balance.vgc.datatypes.Types import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
     PkmEntryHazard
 
 

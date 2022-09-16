@@ -2,8 +2,8 @@ from typing import Optional
 
 from elo import INITIAL
 
-from src.metagame_balance.vgc.competition import Competitor
-from src.metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS
+from metagame_balance.vgc.competition import Competitor
+from metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS
 from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
 from vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
 

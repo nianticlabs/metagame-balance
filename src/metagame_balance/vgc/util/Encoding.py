@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from src.metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
+from metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, PkmTeamPrediction, null_pkm, \
     Weather
 from vgc.datatypes.Types import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, \

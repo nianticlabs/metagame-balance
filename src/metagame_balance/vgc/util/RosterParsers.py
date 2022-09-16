@@ -8,7 +8,7 @@ from metagame_balance.vgc.balance.meta import MetaData
 import copy
 import numpy as np
 
-from src.metagame_balance.vgc.datatypes.Constants import STATS_OPT_1_PER_MOVE, MAX_MOVE_POWER, MAX_MOVE_ACC, MAX_MOVE_MAX_PP, MAX_PKM_HP
+from metagame_balance.vgc.datatypes.Constants import STATS_OPT_1_PER_MOVE, MAX_MOVE_POWER, MAX_MOVE_ACC, MAX_MOVE_MAX_PP, MAX_PKM_HP
 
 
 class MetaRosterStateParser:

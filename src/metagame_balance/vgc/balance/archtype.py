@@ -1,6 +1,6 @@
 from copy import copy
 
-from src.metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP
+from metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP
 from vgc.datatypes.Objects import PkmMove, PkmTemplate, PkmFullTeam
 from vgc.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
 

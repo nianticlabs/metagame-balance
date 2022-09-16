@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional
 
 from vgc.balance.meta import MetaData
 from vgc.behaviour import TeamBuildPolicy
-from src.metagame_balance.vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_TEAM_SIZE
+from metagame_balance.vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmRoster, PkmFullTeam, PkmTemplateView, PkmMove, MoveView, PkmRosterView
 
 

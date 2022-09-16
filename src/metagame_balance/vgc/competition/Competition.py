@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from vgc.balance.meta import MetaData
-from src.metagame_balance.vgc.competition import CompetitorManager
-from src.metagame_balance.vgc.competition import BattleMatch, RandomTeamsBattleMatch
-from src.metagame_balance.vgc.competition import Competitor
+from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.competition import BattleMatch, RandomTeamsBattleMatch
+from metagame_balance.vgc.competition import Competitor
 from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 

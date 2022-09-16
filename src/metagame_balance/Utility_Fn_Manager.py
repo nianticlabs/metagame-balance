@@ -1,6 +1,6 @@
 from collections import deque
 from metagame_balance.FCNN import FCNN
-from src.metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 
 class UtilityFunctionManager():
     """

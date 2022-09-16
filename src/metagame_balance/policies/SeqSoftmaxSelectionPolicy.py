@@ -7,7 +7,7 @@ from metagame_balance.vgc.behaviour import TeamBuildPolicy
 from metagame_balance.vgc.datatypes.Constants import NUM_TYPES
 from metagame_balance.vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
-from src.metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_2_PER_MOVE
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_2_PER_MOVE
 from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
 
 """

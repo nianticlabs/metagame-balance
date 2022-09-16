@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MIN, MOVE_POWER_MAX, BASE_HIT_POINTS
+from metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MIN, MOVE_POWER_MAX, BASE_HIT_POINTS
 from vgc.util import softmax
 
 

@@ -1,10 +1,10 @@
 import argparse
 from multiprocessing.connection import Client
 
-from src.metagame_balance.agent.Example_Competitor import ExampleCompetitor
+from metagame_balance.agent.Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.balance.restriction import VGCDesignConstraints
-from src.metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator

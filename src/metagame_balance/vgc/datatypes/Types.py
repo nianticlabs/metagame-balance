@@ -1,7 +1,7 @@
 import random
 from enum import IntEnum
 
-from src.metagame_balance.vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER
+from metagame_balance.vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER
 
 
 class PkmType(IntEnum):

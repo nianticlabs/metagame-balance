@@ -4,7 +4,7 @@ from typing import List
 
 import numpy as np
 
-from src.metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, BASE_HIT_POINTS, \
+from metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MAX, MOVE_POWER_MIN, BASE_HIT_POINTS, \
     DEFAULT_PKM_N_MOVES, MAX_TEAM_SIZE, DEFAULT_TEAM_SIZE, DEFAULT_N_MOVES_PKM
 from vgc.datatypes.Objects import Pkm, PkmMove, PkmFullTeam, PkmRoster, PkmTemplate, PkmTeam
 from vgc.datatypes.Types import PkmType
