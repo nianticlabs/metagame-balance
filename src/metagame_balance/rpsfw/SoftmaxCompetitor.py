@@ -6,21 +6,6 @@ from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.utility import UtilityFunctionManager
 
 
-class SoftmaxUtilityFunction:
-    def __init__(self, size: int):
-        # optimistic initialization maybe
-        self.values = np.ones(size)
-
-    def __getitem__(self, key: RPSFWItems) -> float:
-        return self.values[key]
-
-    def __setitem__(self, key: RPSFWItems, value: float):
-        self.values[key] = value
-
-    def get_vals(self) -> np.ndarray:
-        return self.values
-
-
 class SoftmaxCompetitor:
     def __init__(self, name, utility_fn, lr: float = 1e-2):
         self.name = name

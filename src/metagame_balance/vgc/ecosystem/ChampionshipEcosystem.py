@@ -27,7 +27,7 @@ class ChampionshipEcosystem:
     def register(self, cm: CompetitorManager):
         self.league.register(cm)
 
-    def simulate_league(self, n_league_epochs:int):
+    def simulate_league(self, n_league_epochs: int):
         if self.debug:
             print("TEAM BUILD\n")
         for cm in self.league.competitors:
@@ -41,21 +41,25 @@ class ChampionshipEcosystem:
         self.league.run(n_league_epochs)
 
     def run(self, n_epochs: int, n_league_epochs: int):
+        """
+        For every epoch in n_epochs, simulate the whole league for n_league_epochs.
+        """
         for epoch in tqdm(range(n_epochs), desc="evaluation outer", position=0, leave=True):
             self.simulate_league(n_league_epochs)
 
             for cm in self.league.competitors:
                 reward = self.get_reward(cm)
-                cm.competitor.team_build_policy.update(cm.team, reward) #TODO: Define a reward function
+                cm.competitor.team_build_policy.update(cm.team, reward)  # TODO: Define a reward function
 
-            self.league.clear_wins() # do we really need this?
+            self.league.clear_wins()  # do we really need this?
             if epoch % 100 == 0:
-                #after every 100 matches check how good are we against random bot
+                # after every 100 matches check how good are we against random bot
                 self.test_agent(n_league_epochs)
 
-        #info for debugging and resseting test rewards
+        # info for debugging and resseting test rewards
         print(self.test_rewards, sum(self.test_rewards) / len(self.test_rewards))
         self.test_rewards = []
+
     def get_reward(self, cm: CompetitorManager):
         return self.league.get_team_wins(cm)
 

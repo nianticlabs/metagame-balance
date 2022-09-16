@@ -2,6 +2,7 @@ import abc
 import logging
 from typing import TypeVar, Generic, Callable
 import numpy as np
+from tqdm import tqdm
 
 G = TypeVar("G", bound="GameEnvironment")
 
@@ -93,18 +94,23 @@ class Balancer:
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
 
-    def run(self, epochs):
+    def run(self, epochs: int):
         state = self.game_environment.reset()
-        # where do I get the evaluation context from?
+        logging.info("Baseline evaluation")
         evaluation_result = self.game_environment.evaluate()
-        i = 0
 
         logging.info("Starting balancer")
-        while i < epochs and not self.balance_policy.converged(evaluation_result):
+        
+        def epoch_counter():
+            _i = 0
+            while _i < epochs and not self.balance_policy.converged(evaluation_result):
+                yield _i
+                _i += 1
+
+        for i in tqdm(epoch_counter(), desc="balancer"):
             logging.info(f"Iteration {i}")
             # t + 1 step
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
             self.game_environment.apply(suggestion)
             state = self.game_environment.get_state()
             evaluation_result = self.game_environment.evaluate()
-            i += 1

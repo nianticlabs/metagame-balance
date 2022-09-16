@@ -40,7 +40,7 @@ class BattleEcosystem:
         del self.team_wins[cm]
 
     def run(self, n_epochs: int):
-        for _ in tqdm(range(n_epochs), desc="battle", position=0, leave=True):
+        for _ in tqdm(range(n_epochs), desc="league epochs", position=0, leave=True):
             self.__run_matches(self.__schedule_matches())
 
     def __schedule_matches(self) -> List[Tuple[CompetitorManager, CompetitorManager]]:
@@ -55,7 +55,7 @@ class BattleEcosystem:
         return matches
 
     def __run_matches(self, pairs: List[Tuple[CompetitorManager, CompetitorManager]]):
-        for pair in pairs:
+        for pair in tqdm(pairs, desc="battle", leave=True, position=0):
             cm0, cm1 = pair
             match = BattleMatch(cm0, cm1, self.n_battles, self.debug, self.render, meta_data=self.meta_data,
                                 update_meta=self.update_meta)

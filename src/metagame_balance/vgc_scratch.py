@@ -43,13 +43,12 @@ class VGCState(APEState["VGCEnvironment"]):
 
 
 class VGCStateDelta(StateDelta["VGCEnvironment"]):
-
     def __init__(self, delta_roster: DeltaRoster):
         self.delta_roster = delta_roster
 
     @classmethod
     def decode(cls, encoded: np.ndarray, state: VGCState) -> "VGCStateDelta":
-        delta_roster = state.policy_entropy_metadata.parser\
+        delta_roster = state.policy_entropy_metadata.parser \
             .state_to_delta_roster(encoded, state.policy_entropy_metadata)
         return cls(delta_roster)
 
@@ -76,14 +75,18 @@ class VGCApproximatePolicyEntropyEvaluator(ApproximatePolicyEntropyEvaluator["VG
 
 
 class VGCEnvironment(GameEnvironment):
-    def __init__(self, roster_path: Optional[str] = None, verbose: bool = True):
+    def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
+                 n_league_epochs: int = 10, n_battles_per_league: int = 10):
         self._evaluator = VGCApproximatePolicyEntropyEvaluator()
         # todo stupid config stuff
-        n_battles = 1  # number of battles to do
-        n_league_epochs = 1
         n_vgc_epochs = 1
 
+        # number of championships to run
         self.n_vgc_epochs = n_vgc_epochs
+
+        # number of battles in a championship
+
+        #
         self.n_league_epochs = n_league_epochs
 
         agent_names = ['agent', 'adversary']
@@ -107,7 +110,8 @@ class VGCEnvironment(GameEnvironment):
 
         # this partially reimplements GameBalanceEcosystem
         self.rewards = []
-        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, 10, strategy=Strategy.RANDOM_PAIRING)
+        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, n_battles_per_league,
+                                         strategy=Strategy.RANDOM_PAIRING)
 
         for a in surrogate:
             self.vgc.register(a)
