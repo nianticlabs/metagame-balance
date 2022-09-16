@@ -1,12 +1,13 @@
-
+from metagame_balance.rpsfw.battle import RPSFWBattle
+from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 
 class RPSFWEcosystem():
 
-    def __init__(self, metadata):
+    def __init__(self, metadata: PolicyEntropyMetaData):
 
         self.players = []
         self.metadata = metadata
-        self.battle_env = RPSFWBattle()
+        self.battle_env = RPSFWBattle(metadata)
 
     def register(self, player):
 
@@ -16,14 +17,12 @@ class RPSFWEcosystem():
 
     def unregister(self, player):
 
-        if len(self.players) == 0 :
+        if len(self.players) == 0:
             raise Exception("Number of players in rock.. cannot be less than 0")
         self.players.remove(player)
-
 
     def run(self, epochs):
 
         for _ in epochs:
-            selt.battle_env.batttle()
-
-
+            item1, item2 = self.players[0].select(), self.players[1].select()
+            self.battle_env.battle(item1, item2)

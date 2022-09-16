@@ -6,24 +6,42 @@ from scipy.special import softmax
 from copy import deepcopy
 #from vgc.util.RosterParsers import MetaRosterStateParser
 from metagame_balance.vgc.balance import DeltaRoster
-from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
-from metagame_balance.vgc.balance.meta import MetaData, PkmId
-from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
+from metagame_balance.rpsfw.util.RosterParsers import MetaRosterStateParser
+from metagame_balance.rpsfw.util.Constants import RPSFWItems
 import numpy as np
+
+class MetaData():
+
+    @abstractmethod
+    def clear_stats(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_metadata(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def evaluate(self) -> float:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_win_probs(self):
+        raise NotImplementedError
 
 class PolicyEntropyMetaData(MetaData):
 
     def __init__(self):
         # listings - moves, pkm, teams
-        self._moves: List[PkmMove] = []
-        self._pkm: List[PkmTemplate] = []
 
-        self._pkm_wins: Dict[PkmId, int] = {}
+        self.items = 5 #fixed RPSFW
+        self.win_probs = np.zeros((self.items, self.items))
+
+        self.clear_stats()
         self.current_policy = None # I don't see another way to do, rather than taking input as P(A_j) as input in evaluate
 
-        self.reg_weights = np.zeros(())
+        self.reg_weights = np.zeros((self.items ** 2))
         self.update_params = ['policy', 'delta']
+        self.parser = MetaRosterStateParser()
 
     def set_mask_weights(self, w):
         """
@@ -32,27 +50,15 @@ class PolicyEntropyMetaData(MetaData):
         """
         self.reg_weights = w
 
-    def set_moves_and_pkm(self, roster: PkmRoster):
-        self._pkm = list(roster)
-        self._moves = []
-        for pkm in self._pkm:
-            self._moves += list(pkm.move_roster)
-
-        init_metadata = deepcopy(self)
-        self.parser = MetaRosterStateParser(len(self._pkm))
-        self.init_state = self.parser.metadata_to_state(init_metadata)
-        self.init_reg_weights(self.parser.length_state_vector())
-
-    def init_reg_weights(self, size):
-
-        self.set_mask_weights(np.zeros((size)))
-
     def clear_stats(self) -> None:
-        for pkm in self._pkm:
-            self._pkm_wins[pkm.pkm_id] = 0
 
-    def update_with_delta_roster(self, delta: DeltaRoster):
-        return
+        self.win_probs[RPSFWItems.ROCK][RPSFWItems.SCISSOR] = 1
+        self.win_probs[RPSFWItems.PAPER][RPSFWItems.ROCK] = 1
+        self.win_probs[RPSFWItems.SCISSOR][RPSFWItems.PAPER] = 1
+        self.win_probs[RPSFWItems.FIRE][RPSFWItems.PAPER] = 1
+        self.win_probs[RPSFWItems.FIRE][RPSFWItems.ROCK] = 1
+        self.win_probs[RPSFWItems.FIRE][RPSFWItems.SCISSOR] = 1
+        self.win_probs[RPSFWItems.WATER][RPSFWItems.FIRE] = 1
 
     def update_metadata(self, **kwargs):
 
@@ -69,14 +75,13 @@ class PolicyEntropyMetaData(MetaData):
 
         self.current_policy = policy
 
-    def update_with_team(self, team: PkmFullTeam, won: bool):
+    def update_with_delta_roster(self, delta: DeltaRoster):
 
-        for pkm in team.pkm_list:
-            if won:
-                self._pkm_wins[pkm.pkm_id] += 1
-        """
-        update the meta with team if required in future
-        """
+        self.win_probs = delta.get_win_probs()
+
+    def get_win_probs(self):
+
+        return self.win_probs
 
     def distance_from_init_meta(self):
         """
