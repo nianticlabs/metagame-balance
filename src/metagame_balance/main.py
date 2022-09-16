@@ -49,7 +49,13 @@ def run():
     args = parser.parse_args()
 
     # fun trick from argparse docs, this calls the "func" defined in set_defaults above
-    domain = args.func(args)
+    domain = None
+    try:
+        domain = args.func(args)
+    except AttributeError:
+        # if no subcommand was called
+        parser.print_help()
+        parser.exit()
     balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['parser'])
     balancer.run(args.n_epochs)
 
