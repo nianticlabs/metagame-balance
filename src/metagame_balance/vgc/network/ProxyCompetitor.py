@@ -2,11 +2,11 @@
 from multiprocessing.connection import Client
 from typing import Set
 
-from vgc.balance import DeltaRoster
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
-from src.metagame_balance.vgc.competition import Competitor
-from vgc.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, GameStateView
-from vgc.network.Serialization import SerializedGameState, SerializedPkmRoster, SerializedPkmFullTeam
+from metagame_balance.vgc.balance import DeltaRoster
+from metagame_balance.vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
+from metagame_balance.vgc.competition import Competitor
+from metagame_balance.vgc.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, GameStateView
+from metagame_balance.vgc.network.Serialization import SerializedGameState, SerializedPkmRoster, SerializedPkmFullTeam
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0

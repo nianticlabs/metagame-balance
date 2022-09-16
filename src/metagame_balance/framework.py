@@ -45,11 +45,6 @@ class StateDelta(Generic[G], metaclass=abc.ABCMeta):
 
 
 class GameEnvironment(abc.ABC):
-    @property
-    @abc.abstractmethod
-    def evaluator(self) -> Evaluator[G]:
-        raise NotImplementedError
-
     @abc.abstractmethod
     def evaluate(self) -> EvaluationResult[G]:
         # evaluate the balance of a metagame state.
@@ -89,7 +84,7 @@ class MetagameBalancePolicy(abc.ABC):
         raise NotImplementedError
 
 
-class Balancer(Generic[G]):
+class Balancer:
     def __init__(self,
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
@@ -101,7 +96,7 @@ class Balancer(Generic[G]):
     def run(self, epochs):
         state = self.game_environment.reset()
         # where do I get the evaluation context from?
-        evaluation_result = self.game_environment.evaluator.evaluate(state)
+        evaluation_result = self.game_environment.evaluate()
         i = 0
 
         logging.info("Starting balancer")
@@ -111,31 +106,5 @@ class Balancer(Generic[G]):
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
             self.game_environment.apply(suggestion)
             state = self.game_environment.get_state()
-            evaluation_result = self.game_environment.evaluator.evaluate(state)
+            evaluation_result = self.game_environment.evaluate()
             i += 1
-
-
-import argparse
-from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RPSFWStateDelta
-from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser as RSPFWParser
-from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser as VGCParser
-from metagame_balance.vgc_scratch import VGCEnvironment, VGCStateDelta
-from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
-
-def setup_argparser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--n_epochs', type=int, help='Number of updates to be done', default=1)
-    parser.add_argument('--n_game_epochs', type=int, default=1)
-    parser.add_argument('--roster_path', type=str, default='')
-    parser.add_argument('--domain', type=str, default='rpsfw')
-    parser.add_argument('--visualize', type=bool, default=False)
-    return parser
-
-if __name__ == "__main__":
-
-    domain_mapper = {'rpsfw': {'env':RPSFWEnvironment, 'state-delta':RPSFWStateDelta, 'parser': RSPFWParser},
-                'vgc': {'env':VGCEnvironment, 'state-delta':VGCStateDelta, 'parser': VGCParser}}
-    parser = setup_argparser()
-    domains = domain_mapper[parser.domain]
-    balancer = Balancer(CMAESBalancePolicyV2, domains['env'], domains['parser'])
-    balancer.run(parser.n_epochs)

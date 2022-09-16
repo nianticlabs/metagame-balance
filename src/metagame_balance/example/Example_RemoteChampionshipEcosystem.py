@@ -1,10 +1,10 @@
 from multiprocessing.connection import Client
 
-from vgc.balance.meta import StandardMetaData
-from src.metagame_balance.vgc.competition import CompetitorManager
-from src.metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
-from vgc.network.ProxyCompetitor import ProxyCompetitor
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.balance.meta import StandardMetaData
+from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
+from metagame_balance.vgc.network.ProxyCompetitor import ProxyCompetitor
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 N_PLAYERS = 4
 

@@ -1,10 +1,10 @@
 from typing import Tuple
 
-from vgc.balance import DeltaRoster
-from vgc.balance.meta import MetaData
-from vgc.balance.restriction import DesignConstraints
-from vgc.behaviour import BalancePolicy
-from vgc.datatypes.Objects import PkmRoster
+from metagame_balance.vgc.balance import DeltaRoster
+from metagame_balance.vgc.balance.meta import MetaData
+from metagame_balance.vgc.balance.restriction import DesignConstraints
+from metagame_balance.vgc.behaviour import BalancePolicy
+from metagame_balance.vgc.datatypes.Objects import PkmRoster
 
 
 class IdleBalancePolicy(BalancePolicy):

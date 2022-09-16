@@ -1,16 +1,12 @@
-import itertools
-from abc import ABC, abstractmethod
-from math import exp
-from typing import Dict, Tuple, List
 import copy
+from typing import Dict, List
+
 from scipy.stats import entropy
-from copy import deepcopy
-#from vgc.util.RosterParsers import MetaRosterStateParser
-from vgc.balance import DeltaRoster
-from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
-from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from vgc.balance.meta import MetaData, PkmId
-from vgc.util.RosterParsers import MetaRosterStateParser
+
+from metagame_balance.vgc.balance import DeltaRoster
+from metagame_balance.vgc.balance.meta import MetaData, PkmId
+from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
+from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
 
 
 class WinrateEntropyMetaData(MetaData):

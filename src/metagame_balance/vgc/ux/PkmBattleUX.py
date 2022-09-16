@@ -6,9 +6,9 @@ from typing import List, Tuple
 
 import arcade
 
-from vgc.datatypes.Types import PkmType, PkmStat
+from metagame_balance.vgc.datatypes.Types import PkmType, PkmStat
 # Set constants for the screen size
-from vgc.util.Networking import non_blocking_lock
+from metagame_balance.vgc.util.Networking import non_blocking_lock
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300

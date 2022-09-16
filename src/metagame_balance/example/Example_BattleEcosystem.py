@@ -1,9 +1,9 @@
-from src.metagame_balance.agent.Example_Competitor import ExampleCompetitor
-from vgc.balance.meta import StandardMetaData
-from src.metagame_balance.vgc.competition import CompetitorManager
-from vgc.ecosystem.BattleEcosystem import BattleEcosystem
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
+from metagame_balance.agent.Example_Competitor import ExampleCompetitor
+from metagame_balance.vgc.balance.meta import StandardMetaData
+from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.ecosystem.BattleEcosystem import BattleEcosystem
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
 N_PLAYERS = 16
 

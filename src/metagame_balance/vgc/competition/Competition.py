@@ -2,12 +2,13 @@ import random
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from vgc.balance.meta import MetaData
+from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.competition import CompetitorManager
-from metagame_balance.vgc.competition import BattleMatch, RandomTeamsBattleMatch
+from metagame_balance.vgc.competition import BattleMatch
 from metagame_balance.vgc.competition import Competitor
-from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
-from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
+from metagame_balance.vgc.competition.BattleMatch import RandomTeamsBattleMatch
+from metagame_balance.vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
+from metagame_balance.vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
 class Championship(ABC):

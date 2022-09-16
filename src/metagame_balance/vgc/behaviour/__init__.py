@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Set, Union, List, Tuple
 
-from vgc.balance import DeltaRoster
-from vgc.balance.meta import MetaData
-from vgc.balance.restriction import VGCDesignConstraints
-from vgc.datatypes.Objects import PkmTeamPrediction, PkmFullTeam, GameStateView, PkmFullTeamView, PkmRosterView, \
+from metagame_balance.vgc.balance import DeltaRoster
+from metagame_balance.vgc.balance.meta import MetaData
+from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
+from metagame_balance.vgc.datatypes.Objects import PkmTeamPrediction, PkmFullTeam, GameStateView, PkmFullTeamView, PkmRosterView, \
     PkmTemplate
 
 

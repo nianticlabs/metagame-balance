@@ -1,9 +1,9 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import math
-from collections import defaultdict
+
 
 class FCNN(nn.Module):
     def __init__(self, layers, use_batch_norm=True):

@@ -1,8 +1,8 @@
 from multiprocessing.connection import Client
 
-from vgc.behaviour.BattlePolicies import RandomBattlePolicy
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
-from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from metagame_balance.vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from metagame_balance.vgc.engine.PkmBattleEnv import PkmBattleEnv
+from metagame_balance.vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 address = ('localhost', 6000)
 gen = RandomTeamGenerator()

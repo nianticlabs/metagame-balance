@@ -4,8 +4,8 @@ from elo import INITIAL
 
 from metagame_balance.vgc.competition import Competitor
 from metagame_balance.vgc.datatypes.Constants import BASE_HIT_POINTS
-from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
-from vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
+from metagame_balance.vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
+from metagame_balance.vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
 
 
 STANDARD_TOTAL_POINTS = 11

@@ -8,7 +8,7 @@ from metagame_balance.vgc.datatypes.Constants import NUM_TYPES
 from metagame_balance.vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
 import numpy as np
 from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_2_PER_MOVE
-from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
+from metagame_balance.utility import UtilityFunctionManager
 
 """
 Replace type to List[] by importing from `typing' library

@@ -3,9 +3,9 @@ from typing import Set, Tuple
 
 import PySimpleGUI as sg
 
-from vgc.behaviour import TeamSelectionPolicy
+from metagame_balance.vgc.behaviour import TeamSelectionPolicy
 from metagame_balance.vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
-from vgc.datatypes.Objects import PkmFullTeamView
+from metagame_balance.vgc.datatypes.Objects import PkmFullTeamView
 
 
 class GUITeamSelectionPolicy(TeamSelectionPolicy):

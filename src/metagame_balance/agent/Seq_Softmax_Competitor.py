@@ -1,6 +1,6 @@
 from metagame_balance.vgc.behaviour import TeamBuildPolicy, BattlePolicy
 from metagame_balance.vgc.competition.Competitor import Competitor
-from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
+from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.policies.SeqSoftmaxSelectionPolicy import SeqSoftmaxSelectionPolicy
 from metagame_balance.vgc.behaviour.BattlePolicies import BetterRandomBattlePolicy
 

@@ -1,8 +1,8 @@
 from typing import Tuple
 
-from vgc.balance.meta import MetaData
-from vgc.behaviour import TeamPredictor
-from vgc.datatypes.Objects import PkmTeamPrediction, PkmTeamView
+from metagame_balance.vgc.balance.meta import MetaData
+from metagame_balance.vgc.behaviour import TeamPredictor
+from metagame_balance.vgc.datatypes.Objects import PkmTeamPrediction, PkmTeamView
 
 
 class NullTeamPredictor(TeamPredictor):

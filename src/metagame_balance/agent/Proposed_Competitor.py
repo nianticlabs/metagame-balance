@@ -1,5 +1,5 @@
-from vgc.behaviour import BattlePolicy
-from vgc.behaviour.BalancePolicies import BalancePolicy
+from metagame_balance.vgc.behaviour import BattlePolicy
+from metagame_balance.vgc.behaviour.BalancePolicies import BalancePolicy
 from metagame_balance.vgc.competition import Competitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicy
 

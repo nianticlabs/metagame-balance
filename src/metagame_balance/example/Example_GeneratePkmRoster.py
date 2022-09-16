@@ -1,7 +1,7 @@
-from vgc.balance.meta import StandardMetaData
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
-from vgc.datatypes.Objects import get_pkm_roster_view
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.balance.meta import StandardMetaData
+from metagame_balance.vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
+from metagame_balance.vgc.datatypes.Objects import get_pkm_roster_view
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main():

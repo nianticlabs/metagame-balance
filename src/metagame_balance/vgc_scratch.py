@@ -3,11 +3,11 @@ from typing import Optional
 
 import numpy as np
 
-from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
+from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.evaluate.approximate_entropy import ApproximatePolicyEntropyEvaluator, APEState, GamePolicy
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, \
-    EvaluationContext, G, Evaluator
+from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, StateDelta, \
+    G, Evaluator
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
@@ -24,6 +24,7 @@ BASE_ROSTER_SIZE = 30
 class VGCGameplayPolicy(GamePolicy["VGCEnvironment"]):
     def __init__(self, metadata: PolicyEntropyMetaData):
         self._metadata = metadata
+
     def optimal_pick(self) -> np.ndarray:
         # self._metadata.
         raise NotImplementedError
@@ -75,13 +76,6 @@ class VGCApproximatePolicyEntropyEvaluator(ApproximatePolicyEntropyEvaluator["VG
 
 
 class VGCEnvironment(GameEnvironment):
-    @property
-    def evaluator(self) -> Evaluator[G]:
-        return self._evaluator
-
-    def evaluate(self) -> EvaluationResult[G]:
-        pass
-
     def __init__(self, roster_path: Optional[str] = None, verbose: bool = True):
         self._evaluator = VGCApproximatePolicyEntropyEvaluator()
         # todo stupid config stuff
@@ -132,17 +126,11 @@ class VGCEnvironment(GameEnvironment):
         self.metadata.update_metadata(delta=state_delta.delta_roster)
         return self.get_state()
 
-    # def evaluate(self, state: VGCState) -> VGCEvaluationResult:
-    #     # train evaluator agents to convergence
-    #     self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
-    #     agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
-    #     self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
-    #     reward = self.metadata.evaluate()
-    #     self.rewards.append(reward)
-    #     return VGCEvaluationResult(reward)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    balancer = Balancer(CMAESBalancePolicyV2(), VGCEnvironment(), VGCStateDelta.decode)
-    balancer.run()
+    def evaluate(self) -> VGCEvaluationResult:
+        # train evaluator agents to convergence
+        self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
+        agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
+        self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
+        reward = self.metadata.evaluate()
+        self.rewards.append(reward)
+        return VGCEvaluationResult(reward)

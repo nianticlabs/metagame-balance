@@ -1,6 +1,6 @@
-from vgc.datatypes.Objects import GameStateView, PkmTeamView, PkmView, MoveView, PkmRosterView, PkmTemplateView, \
+from metagame_balance.vgc.datatypes.Objects import GameStateView, PkmTeamView, PkmView, MoveView, PkmRosterView, PkmTemplateView, \
     MoveRosterView, PkmFullTeamView
-from vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmStat, N_ENTRY_HAZARD, N_STATS, PkmStatus, \
+from metagame_balance.vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmStat, N_ENTRY_HAZARD, N_STATS, PkmStatus, \
     PkmType
 
 

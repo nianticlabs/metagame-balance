@@ -1,9 +1,10 @@
+import copy
 import itertools
 from abc import ABC, abstractmethod
-from math import exp
 from typing import Dict, Tuple, List
-import copy
-from scipy.stats import entropy
+
+from math import exp
+
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
 from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster

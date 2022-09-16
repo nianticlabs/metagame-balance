@@ -4,7 +4,7 @@ import os
 import pickle
 from typing import List, Tuple
 
-from vgc.datatypes.Objects import Pkm
+from metagame_balance.vgc.datatypes.Objects import Pkm
 
 Frame = Tuple[List, List, int, int, bool]
 Trajectory = List[Frame]

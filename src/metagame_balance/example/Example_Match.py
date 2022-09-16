@@ -1,8 +1,8 @@
-from src.metagame_balance.agent.Example_Competitor import ExampleCompetitor
-from src.metagame_balance.vgc.competition import CompetitorManager
-from src.metagame_balance.vgc.competition import BattleMatch
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
+from metagame_balance.agent.Example_Competitor import ExampleCompetitor
+from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.competition import BattleMatch
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
 
 def main():

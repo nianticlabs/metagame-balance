@@ -1,22 +1,22 @@
 import numpy as np
 from typing import Tuple
 import copy
-from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import MetaData
 from metagame_balance.rpsfw.Rosters import RPSFWDeltaRoster
+from metagame_balance.rpsfw.util import MetaData
+
 
 class MetaRosterStateParser:
-
     def __init__(self, num_items):
         """
         state vector [move_id_1_feat_1, move_id_1_feat_2, .. move_id_2_feat1, .... pkm_1_feat_1, pkm_1_feat_2, ..]
         """
         self.num_items = num_items
 
-    def length_state_vector(self):
+    def length_state_vector(self) -> int:
         """
-        Returns length of state vector
+        all the pairwise relationships between choices
         """
-        return ((self.num_items + 1) * self.num_items) / 2
+        return int(((self.num_items + 1) * self.num_items) / 2)
 
     def get_normalization_vector(self) -> np.ndarray:
         """

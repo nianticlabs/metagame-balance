@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class RPSFWItems(IntEnum):
     ROCK = 0
     PAPER = 1

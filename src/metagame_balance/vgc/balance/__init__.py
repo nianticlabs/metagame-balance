@@ -1,7 +1,7 @@
 from typing import Dict
 
-from vgc.datatypes.Objects import PkmRoster, PkmMove, PkmTemplate
-from vgc.datatypes.Types import PkmType
+from metagame_balance.vgc.datatypes.Objects import PkmRoster, PkmMove, PkmTemplate
+from metagame_balance.vgc.datatypes.Types import PkmType
 
 
 class DeltaPkm:

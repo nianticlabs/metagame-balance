@@ -4,7 +4,7 @@ from typing import Generic
 import numpy as np
 from scipy.stats import entropy
 
-from metagame_balance.framework import Evaluator, G, EvaluationContext, StateDelta, EvaluationResult, State
+from metagame_balance.framework import Evaluator, G, StateDelta, EvaluationResult, State
 
 
 class GamePolicy(Generic[G], metaclass=abc.ABCMeta):

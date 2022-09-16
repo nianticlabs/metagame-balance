@@ -1,5 +1,5 @@
-from vgc.behaviour.BattlePolicies import RandomBattlePolicy
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
+from metagame_balance.vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from metagame_balance.vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():

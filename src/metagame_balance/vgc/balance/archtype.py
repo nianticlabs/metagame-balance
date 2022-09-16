@@ -1,8 +1,8 @@
 from copy import copy
 
 from metagame_balance.vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP
-from vgc.datatypes.Objects import PkmMove, PkmTemplate, PkmFullTeam
-from vgc.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
+from metagame_balance.vgc.datatypes.Objects import PkmMove, PkmTemplate, PkmFullTeam
+from metagame_balance.vgc.datatypes.Types import WeatherCondition, PkmStatus, MAX_STAGE, PkmEntryHazard
 
 
 def _remove_effects(move: PkmMove) -> PkmMove:

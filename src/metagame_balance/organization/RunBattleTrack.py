@@ -2,10 +2,10 @@ import argparse
 from multiprocessing.connection import Client
 
 from metagame_balance.vgc.competition import CompetitorManager
-from metagame_balance.vgc.competition import TreeChampionship
-from vgc.network.ProxyCompetitor import ProxyCompetitor
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from metagame_balance.vgc.competition.Competition import TreeChampionship
+from metagame_balance.vgc.network.ProxyCompetitor import ProxyCompetitor
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 
 def main(args):

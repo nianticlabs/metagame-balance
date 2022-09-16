@@ -1,7 +1,7 @@
 import argparse
 
-from src.metagame_balance.agent.Example_Competitor import ExampleCompetitor
-from vgc.network.RemoteCompetitorManager import RemoteCompetitorManager
+from metagame_balance.agent.Example_Competitor import ExampleCompetitor
+from metagame_balance.vgc.network.RemoteCompetitorManager import RemoteCompetitorManager
 
 
 def main(args):

@@ -1,7 +1,7 @@
 import unittest
 
-from src.metagame_balance.vgc.competition import get_pkm_points, STANDARD_TOTAL_POINTS
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.competition import get_pkm_points, STANDARD_TOTAL_POINTS
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 class TestEncodingMethods(unittest.TestCase):

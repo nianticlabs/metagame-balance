@@ -2,14 +2,15 @@ from typing import Optional
 
 import numpy as np
 
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta
-from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
+from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, Evaluator, G
+from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
+
 
 class RPSFWState(State["RPSFWEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
@@ -41,12 +42,13 @@ class RPSFWEvaluationResult(EvaluationResult["RPSFWEnvironment"]):
 
 
 def _print_roster(roster: RPSFWRoster):
-    for p in roster.win_probs:
+    for p in roster.roster_win_probs:
         print(p)
 
-class RPSFWEnvironment(GameEnvironment):
-    def __init__(self, epochs: int, verbose: bool = True):
 
+class RPSFWEnvironment(GameEnvironment):
+
+    def __init__(self, epochs: int, verbose: bool = True):
         agent_names = ['agent', 'adversary']
         self.metadata = PolicyEntropyMetaData()
         self.utility_fn_manager = UtilityFunctionManager(delay_by=10)
@@ -79,7 +81,7 @@ class RPSFWEnvironment(GameEnvironment):
         self.metadata.update_metadata(delta=state_delta.delta_roster)
         return self.get_state()
 
-    def evaluate(self, state) -> RPSFWEvaluationResult:
+    def evaluate(self) -> RPSFWEvaluationResult:
         # train evaluator agents to convergence
         self.rpsfw.run(self.epochs) #### shouldn't it be a loop here?
         agent = next(filter(lambda a: a.competitor.name == "agent",

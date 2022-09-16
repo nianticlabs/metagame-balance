@@ -8,7 +8,7 @@ from vgc.balance.restriction import VGCDesignConstraints
 from src.metagame_balance.vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from metagame_balance.Utility_Fn_Manager import UtilityFunctionManager
+from metagame_balance.utility import UtilityFunctionManager
 NUM_PKM = 30
 
 

@@ -3,8 +3,8 @@ from copy import deepcopy
 from enum import Enum
 from typing import List, Dict
 
-from vgc.datatypes.Objects import PkmTemplate, PkmRoster, PkmMoveRoster
-from vgc.datatypes.Types import PkmType
+from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmRoster, PkmMoveRoster
+from metagame_balance.vgc.datatypes.Types import PkmType
 
 
 class RuleType(Enum):

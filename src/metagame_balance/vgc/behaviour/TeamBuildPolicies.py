@@ -1,10 +1,10 @@
 import random
 from typing import List, Tuple, Optional
 
-from vgc.balance.meta import MetaData
-from vgc.behaviour import TeamBuildPolicy
+from metagame_balance.vgc.balance.meta import MetaData
+from metagame_balance.vgc.behaviour import TeamBuildPolicy
 from metagame_balance.vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_TEAM_SIZE
-from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmRoster, PkmFullTeam, PkmTemplateView, PkmMove, MoveView, PkmRosterView
+from metagame_balance.vgc.datatypes.Objects import Pkm, PkmTemplate, PkmRoster, PkmFullTeam, PkmTemplateView, PkmMove, MoveView, PkmRosterView
 
 
 class RandomTeamBuildPolicy(TeamBuildPolicy):
