@@ -34,6 +34,9 @@ class MetaRosterStateParser:
         Takes meta data, uses _pkm and _moves to convert into a state vector
         """
         win_probs = meta_data.get_win_probs()
+        return self.win_probs_to_state(win_probs)
+
+    def win_probs_to_state(self, win_probs):
         state_vec = np.zeros(self.length_state_vector())
         ctr = 0
         for i in range(self.num_items):

@@ -56,7 +56,7 @@ def run():
         # if no subcommand was called
         parser.print_help()
         parser.exit()
-    balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['parser'])
+    balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['parser'].state_to_delta_roster)
     balancer.run(args.n_epochs)
 
 

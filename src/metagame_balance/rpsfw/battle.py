@@ -11,11 +11,13 @@ class RPSFWBattle():
 
     def battle(self, p1_choice: RPSFWItems, p2_choice: RPSFWItems):
 
+        if p1_choice == p2_choice:
+            return 0
         assert (self.win_probs_matrix[p1_choice][p2_choice] +
                 self.win_probs_matrix[p2_choice][p1_choice] == 1)
 
         r_sam = np.random.random()
         if r_sam > self.win_probs_matrix[p1_choice][p2_choice]:
-            return 0                    #P2 wins
+            return -1                    #P2 wins
 
         return 1                        #P1 wins

@@ -2,8 +2,6 @@ from collections import deque
 
 import numpy as np
 
-from metagame_balance.FCNN import FCNN
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 
 
 class UtilityFunctionManager:
@@ -15,25 +13,18 @@ class UtilityFunctionManager:
     3) Perhaps keep pointer to them
     """
 
-    def __init__(self, delay_by: int = 10):  # TODO: tune this delay_by
-        input_dim = STAGE_2_STATE_DIM
-        init_nn = FCNN([input_dim, 128, 64, 1])
-        init_nn.compile()  # consider using SGD over Adam
-        self.list_u_fn = deque([init_nn], delay_by)  # Neural network!!
+    def __init__(self, u, delay_by: int = 10):  # TODO: tune this delay_by
+        self.list_u_fn = deque([u], delay_by)  # Neural network!!
 
-    def add(self, u: FCNN):
+    def add(self, u):
         self.list_u_fn.append(u)
 
 
     def agent_U_function(self):
         return self.list_u_fn[-1]  # or a predict function
 
-
     def adversary_U_function(self):
         return self.list_u_fn[0]
-
-    def get_vals(self) -> np.ndarray:
-        raise NotImplementedError
 
     def __getitem__(self, item):
         raise NotImplementedError

@@ -23,9 +23,8 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         self.optimizer = None
         self.num_runs = 0
 
-    def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> StateDelta[G]:
-        evaluation_result = environment.evaluate(state)
+    def get_suggestion(self, environment: G, state: State[G]) -> np.ndarray:
+        evaluation_result = environment.evaluate()
 
         x = state.encode()
         y = evaluation_result.encode()
@@ -43,7 +42,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
             self.results = {'x': [], 'y': []}
         next_state = self.generation_samples.pop(0)
         self.num_runs += 1
-        return state_delta_constructor(next_state, state)
+        return next_state
 
     def converged(self, evaluation_result: EvaluationResult[G]) -> bool:
         # TODO don't hardcode this

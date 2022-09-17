@@ -2,6 +2,7 @@ import abc
 import logging
 from typing import TypeVar, Generic, Callable
 import numpy as np
+import datetime
 
 G = TypeVar("G", bound="GameEnvironment")
 
@@ -65,15 +66,18 @@ class GameEnvironment(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def apply(self, state_delta: "StateDelta") -> "State":
+    def apply(self, state: np.ndarray, state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> "State":
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __str__(self) -> str:
         raise NotImplementedError
 
 
 class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
     @abc.abstractmethod
-    def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> StateDelta[G]:
+    def get_suggestion(self, environment: G, state: State[G]) -> np.ndarray:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -92,19 +96,21 @@ class Balancer:
         self.balance_policy = balance_policy
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
+        now = datetime.date.today()  # or whatever hte method is
+        logfile = f"./logs/{game_environment}_{now.strftime('%Y%m%d_%h%m%s')}.log"
+        logging.basicConfig(filename=logfile, level=logging.DEBUG)
 
     def run(self, epochs):
         state = self.game_environment.reset()
         # where do I get the evaluation context from?
         evaluation_result = self.game_environment.evaluate()
         i = 0
-
         logging.info("Starting balancer")
         while i < epochs and not self.balance_policy.converged(evaluation_result):
             logging.info(f"Iteration {i}")
             # t + 1 step
-            suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
-            self.game_environment.apply(suggestion)
+            suggestion = self.balance_policy.get_suggestion(self.game_environment, state)
+            self.game_environment.apply(suggestion, self.state_delta_constructor)
             state = self.game_environment.get_state()
             evaluation_result = self.game_environment.evaluate()
             i += 1
