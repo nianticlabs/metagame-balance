@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 
 import numpy as np
 
@@ -10,6 +10,7 @@ from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMeta
 from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
+from metagame_balance.Tabular_Function import TabularFn
 
 
 class RPSFWState(State["RPSFWEnvironment"]):
@@ -21,13 +22,12 @@ class RPSFWState(State["RPSFWEnvironment"]):
 
 
 class RPSFWStateDelta(StateDelta["RSPFWEnvironment"]):
-
-    def __init__(self, roster: RPSFWRoster):
-        self.roster = roster
+    def __init__(self, delta_roster: RPSFWRoster):
+        self.delta_roster = delta_roster
 
     @classmethod
     def decode(cls, encoded: np.ndarray, state: RPSFWState) -> "RPSFWStateDelta":
-        delta_roster = state.policy_entropy_metadata.parser\
+        delta_roster = state.policy_entropy_metadata.parser \
             .state_to_delta_roster(encoded, state.policy_entropy_metadata)
         return cls(delta_roster)
 
@@ -51,8 +51,18 @@ class RPSFWEnvironment(GameEnvironment):
     def __init__(self, epochs: int, verbose: bool = True):
         agent_names = ['agent', 'adversary']
         self.metadata = PolicyEntropyMetaData()
-        self.utility_fn_manager = UtilityFunctionManager(delay_by=10)
-        surrogate = [SoftmaxCompetitor(a, self.utility_fn_manager) for a in agent_names]
+
+        fn_approx = TabularFn(5)  # rpsfw?
+        self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
+        surrogate = []
+        for a in agent_names:
+            if a == "agent":
+                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
+                                                   self.utility_manager.agent_U_function, True))
+
+            else:
+                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
+                                                   self.utility_manager.adversary_U_function, False))
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
@@ -78,16 +88,22 @@ class RPSFWEnvironment(GameEnvironment):
         return self.metadata.parser.get_state_bounds()
 
     def apply(self, state_delta: RPSFWStateDelta) -> RPSFWState:
+        # print(state.shape, self.metadata, state_delta_constructor)
+        # state_delta = state_delta_constructor(state, self.metadata)
+        # state_delta = state_delta_constructor(state, RPSFWState(self.metadata))
         self.metadata.update_metadata(delta=state_delta.delta_roster)
         return self.get_state()
 
     def evaluate(self) -> RPSFWEvaluationResult:
         # train evaluator agents to convergence
-        self.rpsfw.run(self.epochs) #### shouldn't it be a loop here?
-        agent = next(filter(lambda a: a.competitor.name == "agent",
-                        self.rpsfw.players))
-        self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
+        self.rpsfw.run(self.epochs)  #  shouldn't it be a loop here?
+        agent = next(filter(lambda a: a.name == "agent",
+                            self.rpsfw.players))
+        self.metadata.update_metadata(policy=agent)
         reward = self.metadata.evaluate()
         self.rewards.append(reward)
         return RPSFWEvaluationResult(reward)
 
+    def __str__(self) -> str:
+
+        return "RPSFW"

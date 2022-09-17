@@ -30,4 +30,11 @@ class RPSFWEcosystem:
         for _ in tqdm(range(epochs)):
             item1, item2 = self.players[0].get_action(self.roster), \
                            self.players[1].get_action(self.roster)
-            self.battle_env.battle(item1, item2)
+            items = [item1, item2]
+            reward = self.battle_env.battle(item1, item2)
+
+            for i, player in enumerate(self.players):
+                player.update(items[i], reward)
+
+    def test_agent(self):
+        pass #NotImplementedError

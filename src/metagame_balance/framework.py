@@ -3,6 +3,7 @@ import logging
 from typing import TypeVar, Generic, Callable
 import numpy as np
 from tqdm import tqdm
+import datetime
 
 G = TypeVar("G", bound="GameEnvironment")
 
@@ -66,7 +67,13 @@ class GameEnvironment(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def apply(self, state_delta: "StateDelta") -> "State":
+    def apply(self, state_delta: StateDelta[G]) -> \
+            "State[G]":
+        """Convert an encoded state into a stateDelta, and apply it to the current game."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __str__(self) -> str:
         raise NotImplementedError
 
 

@@ -12,7 +12,7 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 
 def init_rpsfw_domain(args: argparse.Namespace):
     return {
-        "env": RPSFWEnvironment(epochs=args.n_epochs),
+        "env": RPSFWEnvironment(epochs=args.selection_epochs),
         # "parser": RPSFWParser(num_items=args.game_size)
         "state_delta_constructor": RPSFWStateDelta.decode
             }
@@ -40,6 +40,7 @@ def setup_argparser():
         # TODO trickle config down
         rpsfw_parser.add_argument('--game_size', type=int, default=5)
         rpsfw_parser.add_argument("--n_epochs", type=int, default=10)
+        rpsfw_parser.add_argument("--selection_epochs", type=int, default=10)
         rpsfw_parser.set_defaults(func=init_rpsfw_domain)
 
         # vgc

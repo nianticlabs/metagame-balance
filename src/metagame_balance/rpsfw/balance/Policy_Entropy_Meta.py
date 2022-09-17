@@ -1,16 +1,18 @@
-import abc
-from abc import abstractmethod
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.special import softmax
 from scipy.stats import entropy
 
+
 from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
-from metagame_balance.vgc.balance import DeltaRoster
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 
+if TYPE_CHECKING:
+    from metagame_balance.rpsfw.Rosters import RPSFWDeltaRoster
 
 class PolicyEntropyMetaData(MetaData):
 
@@ -34,17 +36,25 @@ class PolicyEntropyMetaData(MetaData):
         """
         self.reg_weights = w
 
+    @staticmethod
+    def get_init_win_probs(): #assume same settings!
+        win_probs = np.zeros((len(RPSFWItems), len(RPSFWItems)))
+        win_probs[RPSFWItems.ROCK][RPSFWItems.SCISSOR] = 1
+        win_probs[RPSFWItems.ROCK][RPSFWItems.WATER] = 1
+        win_probs[RPSFWItems.PAPER][RPSFWItems.WATER] = 1
+        win_probs[RPSFWItems.SCISSOR][RPSFWItems.WATER] = 1
+        win_probs[RPSFWItems.PAPER][RPSFWItems.ROCK] = 1
+        win_probs[RPSFWItems.SCISSOR][RPSFWItems.PAPER] = 1
+        win_probs[RPSFWItems.FIRE][RPSFWItems.PAPER] = 1
+        win_probs[RPSFWItems.FIRE][RPSFWItems.ROCK] = 1
+        win_probs[RPSFWItems.FIRE][RPSFWItems.SCISSOR] = 1
+        win_probs[RPSFWItems.WATER][RPSFWItems.FIRE] = 1
+        return win_probs
+
     def clear_stats(self) -> None:
-        self.win_probs[RPSFWItems.ROCK][RPSFWItems.SCISSOR] = 1
-        self.win_probs[RPSFWItems.PAPER][RPSFWItems.ROCK] = 1
-        self.win_probs[RPSFWItems.SCISSOR][RPSFWItems.PAPER] = 1
-        self.win_probs[RPSFWItems.FIRE][RPSFWItems.PAPER] = 1
-        self.win_probs[RPSFWItems.FIRE][RPSFWItems.ROCK] = 1
-        self.win_probs[RPSFWItems.FIRE][RPSFWItems.SCISSOR] = 1
-        self.win_probs[RPSFWItems.WATER][RPSFWItems.FIRE] = 1
+        self.win_probs = PolicyEntropyMetaData.get_init_win_probs()
 
     def update_metadata(self, **kwargs):
-
         assert (sum([k not in self.update_params for k in kwargs.keys()]) == 0)
         if 'delta' in kwargs.keys():
             self.update_with_delta_roster(kwargs['delta'])
@@ -58,9 +68,8 @@ class PolicyEntropyMetaData(MetaData):
 
         self.current_policy = policy
 
-    def update_with_delta_roster(self, delta: DeltaRoster):
-
-        self.win_probs = delta.get_win_probs()
+    def update_with_delta_roster(self, delta: "RPSFWDeltaRoster"):
+        self.win_probs = delta.roster_win_probs
 
     def get_win_probs(self):
 
@@ -70,18 +79,17 @@ class PolicyEntropyMetaData(MetaData):
         """
         Returns L2 distance from inital meta scaled with reg weights
         """
-        state = self.parser.metadata_to_state(self)
 
-        return ((self.reg_weights * (state - self.init_state)) ** 2).mean(axis=0) / 100  ##something reasonable
+        init_win_probs = self.get_init_win_probs()
+        diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
+        #print(init_win_probs.shape, self.win_probs.shape, self.reg_weights.shape)
+        return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
     def evaluate(self) -> float:
         # TODO: write a function here, so that I don't have to create numpy arrays in object
-        A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
 
-        for i, pkm in enumerate(self._pkm):
-            self.current_policy._mark(A[i], [], pkm)
         u = self.current_policy.get_u_fn()
-        P_A = softmax(u.predict(A))
+        P_A = softmax(u.get_all_vals())
 
         print(P_A)
         entropy_loss = -entropy(P_A)

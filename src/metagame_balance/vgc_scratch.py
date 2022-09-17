@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Callable
 
 import numpy as np
 
@@ -7,7 +7,7 @@ from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.evaluate.approximate_entropy import ApproximatePolicyEntropyEvaluator, APEState, GamePolicy
 from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, StateDelta, \
-    G, Evaluator
+    G, Evaluator, State
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
@@ -17,6 +17,8 @@ from metagame_balance.vgc.datatypes.Objects import PkmRoster
 from metagame_balance.vgc.ecosystem.BattleEcosystem import Strategy
 from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.FCNN import FCNN
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 
 BASE_ROSTER_SIZE = 30
 
@@ -91,7 +93,12 @@ class VGCEnvironment(GameEnvironment):
 
         agent_names = ['agent', 'adversary']
         self.metadata = PolicyEntropyMetaData()
-        self.utility_fn_manager = UtilityFunctionManager(delay_by=10)
+
+        input_dim = STAGE_2_STATE_DIM
+        init_nn = FCNN([input_dim, 128, 64, 1])
+        init_nn.compile()  # consider using SGD over Adam
+
+        self.utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
         surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager)) for a in agent_names]
 
         if not roster_path:
@@ -101,7 +108,6 @@ class VGCEnvironment(GameEnvironment):
             with open(roster_path, 'rb') as infile:
                 base_roster = pickle.load(infile)
 
-        constraints = VGCDesignConstraints(base_roster)
         if verbose:
             _print_roster(base_roster)
         self.metadata.set_moves_and_pkm(base_roster)
@@ -126,7 +132,8 @@ class VGCEnvironment(GameEnvironment):
     def get_state_bounds(self):
         return self.metadata.parser.get_state_bounds()
 
-    def apply(self, state_delta: VGCStateDelta) -> VGCState:
+    def apply(self, state_delta: VGCStateDelta) -> \
+            VGCState:
         self.metadata.update_metadata(delta=state_delta.delta_roster)
         return self.get_state()
 
@@ -138,3 +145,6 @@ class VGCEnvironment(GameEnvironment):
         reward = self.metadata.evaluate()
         self.rewards.append(reward)
         return VGCEvaluationResult(reward)
+
+    def __str__(self) -> str:
+        return "VGC"

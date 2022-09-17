@@ -17,8 +17,8 @@ class RPSFWRoster(Sized):
 
 
 class RPSFWDeltaRoster:
-    def __init__(self, metadata: MetaData):
-        self.roster_win_probs = metadata.get_win_probs()
+    def __init__(self, win_probs):
+        self.roster_win_probs = win_probs
 
     def apply(self, roster: RPSFWRoster):
         roster.update_win_probs(self.roster_win_probs)

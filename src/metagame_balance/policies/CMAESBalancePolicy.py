@@ -24,7 +24,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         self.num_runs = 0
 
     def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> StateDelta[G]:
+                       state_delta_constructor: Callable[[np.ndarray, State[G]], StateDelta[G]]) -> StateDelta[G]:
         evaluation_result = environment.evaluate()
 
         x = state.encode()
