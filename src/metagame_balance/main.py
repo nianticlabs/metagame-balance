@@ -1,4 +1,6 @@
 import argparse
+import datetime
+import logging
 
 from metagame_balance.framework import Balancer
 from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RPSFWStateDelta
@@ -23,7 +25,7 @@ def init_vgc_domain(args: argparse.Namespace):
                               n_battles_per_league=args.n_battles_per_league
                               ),
         "parser": VGCParser(num_pkm=args.num_pkm or None,
-                            consider_hp=args.consider_hp),
+                            consider_hp=not args.ignore_hp),
         "state_delta_constructor": VGCStateDelta.decode
     }
 
@@ -42,17 +44,22 @@ def setup_argparser():
 
         # vgc
         vgc_parser = subparsers.add_parser("vgc")
-        vgc_parser.add_argument('--n_league_epochs', type=int, default=10)
+        vgc_parser.add_argument('--n_league_epochs', type=int, default=1)
         vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
         vgc_parser.add_argument('--roster_path', type=str)
-        vgc_parser.add_argument('--num_pkm', type=int)
-        vgc_parser.add_argument('--consider_hp', action='store_true')
+        vgc_parser.add_argument('--num_pkm', type=int, default=30)
+        vgc_parser.add_argument('--ignore_hp', action='store_false')
         vgc_parser.set_defaults(func=init_vgc_domain)
 
         return parser
 
 
 def run():
+    now = datetime.datetime.now()
+    filename = f'./logs/vgc_{now.strftime("%Y%m%d__%H_%M_%S")}.log'
+
+    logging.basicConfig(filename=filename, level=logging.INFO)
+
     parser = setup_argparser()
     args = parser.parse_args()
 
@@ -64,6 +71,8 @@ def run():
         # if no subcommand was called
         parser.print_help()
         parser.exit()
+
+    logging.info(f"Called with: {str(args)}")
     balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'])
     balancer.run(args.n_epochs)
 
