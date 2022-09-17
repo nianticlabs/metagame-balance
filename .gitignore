@@ -1,8 +1,10 @@
 *.pyc
 *.o
 .*.swp
+.*.swo
 __pycache__
 tags
 .idea
 venv/
+*.log
 
