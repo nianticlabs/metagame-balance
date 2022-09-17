@@ -90,7 +90,7 @@ class RPSFWEnvironment(GameEnvironment):
     def apply(self, state: np.ndarray, state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> RPSFWState:
         print(state.shape, self.metadata, state_delta_constructor)
         state_delta = state_delta_constructor(state, self.metadata)
-        self.metadata.update_metadata(delta=state_delta.delta_roster)
+        self.metadata.update_metadata(delta=state_delta.decode())
         return self.get_state()
 
     def evaluate(self) -> RPSFWEvaluationResult:

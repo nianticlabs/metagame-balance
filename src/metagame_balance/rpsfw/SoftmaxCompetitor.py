@@ -48,5 +48,5 @@ class SoftmaxCompetitor:
     def update(self, selection: RPSFWItems, reward: float):
         if self._updatable is False:
             return
-        self.utility_fn[selection] = (1 - self.lr) * self.utility_fn[selection] \
-                                     + self.lr * reward
+        u = self.get_u_fn()
+        u[selection] = (1 - self.lr) * u[selection] + self.lr * reward

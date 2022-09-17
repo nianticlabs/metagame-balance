@@ -102,8 +102,8 @@ class Balancer:
 
     def run(self, epochs):
         state = self.game_environment.reset()
-        # where do I get the evaluation context from?
         evaluation_result = self.game_environment.evaluate()
+        # where do I get the evaluation context from?
         i = 0
         logging.info("Starting balancer")
         while i < epochs and not self.balance_policy.converged(evaluation_result):
