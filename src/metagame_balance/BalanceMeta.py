@@ -5,7 +5,7 @@ from metagame_balance.agent.Proposed_Competitor import ProposedCompetitor
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from vgc.balance.restriction import VGCDesignConstraints
-from src.metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.competition import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from metagame_balance.utility import UtilityFunctionManager
