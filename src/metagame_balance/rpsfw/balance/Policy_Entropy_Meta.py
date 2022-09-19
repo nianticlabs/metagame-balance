@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -81,7 +82,6 @@ class PolicyEntropyMetaData(MetaData):
 
         init_win_probs = self.get_init_win_probs()
         diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
-        #print(init_win_probs.shape, self.win_probs.shape, self.reg_weights.shape)
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
     def evaluate(self) -> float:
@@ -90,6 +90,6 @@ class PolicyEntropyMetaData(MetaData):
         u = self.current_policy.get_u_fn()
         P_A = softmax(u.get_all_vals())
 
-        print(P_A)
+        logging.info("P_A\n%s", str(P_A))
         entropy_loss = -entropy(P_A)
         return entropy_loss + self.distance_from_init_meta()

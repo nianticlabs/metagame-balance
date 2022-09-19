@@ -14,7 +14,8 @@ def init_rpsfw_domain(args: argparse.Namespace):
     return {
         "env": RPSFWEnvironment(epochs=args.selection_epochs),
         # "parser": RPSFWParser(num_items=args.game_size)
-        "state_delta_constructor": RPSFWStateDelta.decode
+        "state_delta_constructor": RPSFWStateDelta.decode,
+        "name": "rpsfw"
             }
 
 
@@ -26,7 +27,8 @@ def init_vgc_domain(args: argparse.Namespace):
                               ),
         "parser": VGCParser(num_pkm=args.num_pkm or None,
                             consider_hp=not args.ignore_hp),
-        "state_delta_constructor": VGCStateDelta.decode
+        "state_delta_constructor": VGCStateDelta.decode,
+        "name": "vgc"
     }
 
 
@@ -56,11 +58,6 @@ def setup_argparser():
 
 
 def run():
-    now = datetime.datetime.now()
-    filename = f'./logs/vgc_{now.strftime("%Y%m%d__%H_%M_%S")}.log'
-
-    logging.basicConfig(filename=filename, level=logging.INFO)
-
     parser = setup_argparser()
     args = parser.parse_args()
 
@@ -72,6 +69,10 @@ def run():
         # if no subcommand was called
         parser.print_help()
         parser.exit()
+
+    now = datetime.datetime.now()
+    filename = f'./logs/{domain["name"]}_{now.strftime("%Y%m%d__%H_%M_%S")}.log'
+    logging.basicConfig(filename=filename, level=logging.DEBUG, force=True)
 
     logging.info(f"Called with: {str(args)}")
     balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'])

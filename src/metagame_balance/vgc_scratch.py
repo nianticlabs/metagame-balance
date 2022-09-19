@@ -65,9 +65,9 @@ class VGCEvaluationResult(EvaluationResult["VGCEnvironment"]):
 
 def _print_roster(roster: PkmRoster):
     for p in roster:
-        print(p, p.pkm_id)
+        logging.info(p, p.pkm_id)
         for move in p.move_roster:
-            print(move.name, move.power, move.acc, move.max_pp)
+            logging.info(move.name, move.power, move.acc, move.max_pp)
 
 
 class VGCApproximatePolicyEntropyEvaluator(ApproximatePolicyEntropyEvaluator["VGCEnvironment"]):
