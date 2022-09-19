@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -11,8 +9,7 @@ from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
 
-if TYPE_CHECKING:
-    from metagame_balance.rpsfw.Rosters import RPSFWDeltaRoster
+
 
 class PolicyEntropyMetaData(MetaData):
 
@@ -68,7 +65,9 @@ class PolicyEntropyMetaData(MetaData):
 
         self.current_policy = policy
 
-    def update_with_delta_roster(self, delta: "RPSFWDeltaRoster"):
+    # py3.6 doesn't support the typechecking flag from future, so we will strip this annotation
+    # RPSFWDeltaRoster
+    def update_with_delta_roster(self, delta):
         self.win_probs = delta.roster_win_probs
 
     def get_win_probs(self):
