@@ -1,7 +1,6 @@
 import random
 from typing import Set, Tuple
 
-import PySimpleGUI as sg
 
 from metagame_balance.vgc.behaviour import TeamSelectionPolicy
 from metagame_balance.vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
@@ -9,8 +8,8 @@ from metagame_balance.vgc.datatypes.Objects import PkmFullTeamView
 
 
 class GUITeamSelectionPolicy(TeamSelectionPolicy):
-
     def __init__(self, selected_team_size: int = DEFAULT_TEAM_SIZE, full_team_size: int = MAX_TEAM_SIZE):
+        import PySimpleGUI as sg
         self.selected_team_size = selected_team_size
         self.opp_title = sg.Text('Opponent Team:')
         self.opp = [[sg.Text('                                      ')] for _ in range(full_team_size)]

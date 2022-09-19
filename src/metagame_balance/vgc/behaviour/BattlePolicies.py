@@ -1,6 +1,5 @@
 from typing import List
 
-import PySimpleGUI as sg
 import numpy as np
 
 from metagame_balance.vgc.behaviour import BattlePolicy
@@ -83,6 +82,7 @@ class SimpleBattlePolicy(BattlePolicy):
 class GUIBattlePolicy(BattlePolicy):
 
     def __init__(self, n_party: int = DEFAULT_PARTY_SIZE, n_moves: int = DEFAULT_PKM_N_MOVES):
+        import PySimpleGUI as sg
         print(n_party)
         self.weather = sg.Text('                                                        ')
         self.opponent = sg.Text('                                                         ')
