@@ -35,7 +35,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
 
         if len(self.generation_samples) == 0:
             if self.optimizer is not None:
-                self.optimizer = self.optimizer.tell(self.results['x'], self.results['y'])
+                self.optimizer.tell(self.results['x'], self.results['y'])
             else:
                 bounds = environment.get_state_bounds()
                 self.optimizer = cma.CMAEvolutionStrategy(x, 0.05, {'bounds': bounds})
