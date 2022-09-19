@@ -46,8 +46,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         return state_delta_constructor(next_state, state)
 
     def converged(self, evaluation_result: EvaluationResult[G]) -> bool:
-        # TODO don't hardcode this
-        return self.num_runs >= 10
+        return False
 
 
 class CMAESBalancePolicy(BalancePolicy):
