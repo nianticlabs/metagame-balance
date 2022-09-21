@@ -45,7 +45,7 @@ class ChampionshipEcosystem:
         """
         For every epoch in n_epochs, simulate the whole league for n_league_epochs.
         """
-        for epoch in tqdm(range(n_epochs), desc="evaluation outer", position=0, leave=True):
+        for epoch in range(n_epochs):
             self.simulate_league(n_league_epochs)
 
             for cm in self.league.competitors:

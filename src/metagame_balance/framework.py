@@ -1,5 +1,6 @@
 import abc
 import logging
+import time
 from typing import TypeVar, Generic, Callable
 import numpy as np
 from tqdm import tqdm
@@ -96,7 +97,8 @@ class Balancer:
     def __init__(self,
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
-                 state_delta_constructor: Callable[[np.array], StateDelta[G]]):
+                 state_delta_constructor: Callable[[np.array], StateDelta[G]],
+                 gameplay):
         self.balance_policy = balance_policy
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
@@ -116,8 +118,17 @@ class Balancer:
 
         for i in tqdm(epoch_counter(), desc="balancer"):
             logging.info(f"Iteration {i}")
+            tick = time.perf_counter()
             # t + 1 step
+            tick_bal = time.perf_counter()
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
             self.game_environment.apply(suggestion)
+            tock_bal = time.perf_counter()
+            logging.info(f"iter {i} get opt: {tock_bal - tick_bal:0.2f}s")
             state = self.game_environment.get_state()
+            tick_eval = time.perf_counter()
             evaluation_result = self.game_environment.evaluate()
+            tock_eval = time.perf_counter()
+            logging.info(f"iter {i} eval: {tock_eval - tick_eval:0.2f}s")
+            tock = time.perf_counter()
+            logging.info(f"iter {i} balance (total): {tock - tick:0.2f}s")

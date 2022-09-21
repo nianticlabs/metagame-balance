@@ -23,7 +23,7 @@ def init_vgc_domain(args: argparse.Namespace):
     return {
         "env": VGCEnvironment(roster_path=args.roster_path or None,
                               n_league_epochs=args.n_league_epochs,
-                              n_battles_per_league=args.n_battles_per_league
+                              n_battles_per_league=args.n_battles_per_league,
                               ),
         "parser": VGCParser(num_pkm=args.num_pkm or None,
                             consider_hp=not args.ignore_hp),

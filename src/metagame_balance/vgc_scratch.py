@@ -88,7 +88,6 @@ class VGCEnvironment(GameEnvironment):
 
         # number of battles in a championship
 
-        #
         self.n_league_epochs = n_league_epochs
 
         agent_names = ['agent', 'adversary']
