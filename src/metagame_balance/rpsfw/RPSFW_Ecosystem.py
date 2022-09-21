@@ -32,7 +32,6 @@ class RPSFWEcosystem:
                            self.players[1].get_action(self.roster)
             items = [item1, item2]
             reward = self.battle_env.battle(item1, item2)
-
             for i, player in enumerate(self.players):
                 player.update(items[i], reward)
 

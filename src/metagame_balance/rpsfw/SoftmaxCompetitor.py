@@ -32,6 +32,10 @@ class SoftmaxCompetitor:
 
     def update(self, selection: RPSFWItems, reward: float):
         if self._updatable is False:
-            return
+            reward = -reward
+            #let this mean advs
+            #return
         u = self.get_u_fn()
+        #from scipy.special import softmax
+        #print(self.name, reward, selection, list(softmax(u.get_all_vals())))
         u[selection] = (1 - self.lr) * u[selection] + self.lr * reward

@@ -1,6 +1,8 @@
 from collections import deque
-
 from torch import nn
+from copy import deepcopy
+import numpy as np
+
 
 
 class UtilityFunctionManager:
@@ -14,11 +16,13 @@ class UtilityFunctionManager:
 
     def __init__(self, u, delay_by: int = 10):  # TODO: tune this delay_by
         self.list_u_fn = deque([u], delay_by)  # Neural network!!
+        self.list_u_fn.append(deepcopy(u))
 
     def add(self, u):
+        raise Exception("shouldn't add")
         self.list_u_fn.append(u)
 
-    def agent_U_function(self) -> nn.Module:
+    def agent_U_function(self):
         return self.list_u_fn[-1]  # or a predict function
 
     def adversary_U_function(self) -> nn.Module:
