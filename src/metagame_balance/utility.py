@@ -1,7 +1,6 @@
 from collections import deque
 
-import numpy as np
-
+from torch import nn
 
 
 class UtilityFunctionManager:
@@ -19,11 +18,10 @@ class UtilityFunctionManager:
     def add(self, u):
         self.list_u_fn.append(u)
 
-
-    def agent_U_function(self):
+    def agent_U_function(self) -> nn.Module:
         return self.list_u_fn[-1]  # or a predict function
 
-    def adversary_U_function(self):
+    def adversary_U_function(self) -> nn.Module:
         return self.list_u_fn[0]
 
     def __getitem__(self, item):

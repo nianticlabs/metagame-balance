@@ -18,6 +18,8 @@ class PolicyEntropyMetaData(MetaData):
 
     def __init__(self):
         # listings - moves, pkm, teams
+        self.init_state = None
+        self.parser = None
         self._moves: List[PkmMove] = []
         self._pkm: List[PkmTemplate] = []
 
@@ -47,7 +49,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def init_reg_weights(self, size):
 
-        self.set_mask_weights(np.zeros((size)))
+        self.set_mask_weights(np.zeros(size))
 
     def clear_stats(self) -> None:
         for pkm in self._pkm:
@@ -57,7 +59,6 @@ class PolicyEntropyMetaData(MetaData):
         return
 
     def update_metadata(self, **kwargs):
-
         assert(sum([k not in self.update_params for k in kwargs.keys()]) == 0)
         if 'delta' in kwargs.keys():
             self.update_with_delta_roster(kwargs['delta'])
@@ -88,6 +89,10 @@ class PolicyEntropyMetaData(MetaData):
 
         return ((self.reg_weights * (state - self.init_state)) ** 2).mean(axis=0) / 100 ##something reasonable
 
+    def to_dict(self) -> dict:
+        return {
+            "pokemon": [p.to_dict() for p in self._pkm]
+        }
 
     def evaluate(self) -> float:
         # A: set of all pokemon statistics

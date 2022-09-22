@@ -1,5 +1,6 @@
 import abc
 import logging
+import os
 import time
 from typing import TypeVar, Generic, Callable
 import numpy as np
@@ -77,6 +78,14 @@ class GameEnvironment(abc.ABC):
     def __str__(self) -> str:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def snapshot_gameplay_policies(self, path: str):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def snapshot_game_state(self, path: str):
+        raise NotImplementedError
+
 
 class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
@@ -98,10 +107,16 @@ class Balancer:
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
                  state_delta_constructor: Callable[[np.array], StateDelta[G]],
-                 gameplay):
+                 snapshot_gameplay_policy_epochs: int,
+                 snapshot_game_state_epochs: int,
+                 snapshot_dir: str
+                 ):
         self.balance_policy = balance_policy
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
+        self.snapshot_gameplay_policy_epochs = snapshot_gameplay_policy_epochs
+        self.snapshot_game_state_epochs = snapshot_game_state_epochs
+        self.snapshot_dir = snapshot_dir
 
     def run(self, epochs: int):
         state = self.game_environment.reset()
@@ -132,3 +147,13 @@ class Balancer:
             logging.info(f"iter {i} eval: {tock_eval - tick_eval:0.2f}s")
             tock = time.perf_counter()
             logging.info(f"iter {i} balance (total): {tock - tick:0.2f}s")
+
+            iter_dir = os.path.join(self.snapshot_dir, f'iter_{i}')
+
+            if i % self.snapshot_gameplay_policy_epochs == 0:
+                logging.info(f"Saving gameplay policies to {iter_dir}")
+                self.game_environment.snapshot_gameplay_policies(iter_dir)
+
+            if i % self.snapshot_game_state_epochs == 0:
+                logging.info(f"Saving game state to {iter_dir}")
+                self.game_environment.snapshot_game_state(iter_dir)

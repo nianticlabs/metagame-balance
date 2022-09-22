@@ -2,7 +2,7 @@ import random
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from math import isclose
-from typing import List, Tuple, Set, Union
+from typing import List, Tuple, Set, Union, Mapping, Text, Dict, Any, Type
 
 import numpy as np
 
@@ -10,6 +10,8 @@ from metagame_balance.vgc.datatypes.Constants import MOVE_MED_PP, MAX_HIT_POINTS
 from metagame_balance.vgc.datatypes.Types import PkmType, PkmStatus, N_STATS, N_ENTRY_HAZARD, PkmStat, WeatherCondition, \
     PkmEntryHazard
 
+
+JSON = Union[Dict[str, Any], List[Any], int, str, float, bool, Type[None]]
 
 class PkmMove:
 
@@ -54,6 +56,24 @@ class PkmMove:
         self.hazard = hazard
         self.public = False
         self.owner = None
+
+    def to_dict(self) -> Mapping[Text, JSON]:
+        return {
+            "power": self.power,
+            "acc": self.acc,
+            "max_pp": self.max_pp,
+            "type": self.type.name,
+            "name": self.name,
+            "priority": self.priority,
+            "prob": self.prob,
+            "target": self.target,
+            "recover": self.recover,
+            "status": self.status.name,
+            "stage": self.stage,
+            "fixed_damage": self.fixed_damage,
+            "weather": self.weather.name,
+            "hazard": self.hazard.name
+        }
 
     def __eq__(self, other):
         """
@@ -576,14 +596,12 @@ class PkmTemplate:
                        move3=move_list[3],
                        pkm_id=self.pkm_id)
 
-
         return Pkm(p_type=self.type, max_hp=self.max_hp,
                    move0=move_list[moves[0]],
                    move1=move_list[moves[1]],
                    move2=move_list[moves[2]],
                    move3=move_list[moves[3]],
                    pkm_id=self.pkm_id)
-
 
     def is_speciman(self, pkm: Pkm) -> bool:
         """
@@ -593,6 +611,14 @@ class PkmTemplate:
         :return: if pokemon is speciman of this template
         """
         return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
+
+    def to_dict(self) -> Mapping[Text, JSON]:
+        return {
+            "type": self.type.name,
+            "max_hp": self.max_hp,
+            "moves": [m.to_dict() for m in self.move_roster],
+            "pkm_id": self.pkm_id
+        }
 
 
 class PkmTemplateView(ABC):

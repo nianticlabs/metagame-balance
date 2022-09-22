@@ -94,12 +94,12 @@ class ChampionshipEcosystem:
         self.league.unregister(adversary_cm)
         self.register(random_agent)
         rewards = 0
-        learnt_cm.competitor.team_build_policy.set_greedy(greedy = True)
+        learnt_cm.competitor.team_build_policy.set_greedy(greedy=True)
         for i in range(100):
             self.simulate_league(n_league_epochs)
-            #print(self.get_reward(learnt_cm), self.get_reward(random_agent))
+            # print(self.get_reward(learnt_cm), self.get_reward(random_agent))
         self.test_rewards.append(self.get_reward(learnt_cm))
-        self.league.clear_wins() # do we really need this?
+        self.league.clear_wins()  # do we really need this?
         self.register(adversary_cm)
         self.league.unregister(random_agent)
-        learnt_cm.competitor.team_build_policy.set_greedy(greedy = False)
+        learnt_cm.competitor.team_build_policy.set_greedy(greedy=False)

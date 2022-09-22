@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import logging
+import os
 
 from metagame_balance.framework import Balancer
 from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RPSFWStateDelta
@@ -35,6 +36,8 @@ def init_vgc_domain(args: argparse.Namespace):
 def setup_argparser():
         parser = argparse.ArgumentParser()
         parser.add_argument('--n_epochs', type=int, default=1)
+        parser.add_argument("--snapshot_gameplay_policy_epochs", type=int, default=100)
+        parser.add_argument("--snapshot_game_state_epochs", type=int, default=100)
         subparsers = parser.add_subparsers(help="domain")
 
         # rpsfw
@@ -71,11 +74,19 @@ def run():
         parser.exit()
 
     now = datetime.datetime.now()
-    filename = f'./logs/{domain["name"]}_{now.strftime("%Y%m%d__%H_%M_%S")}.log'
-    logging.basicConfig(filename=filename, level=logging.DEBUG, force=True)
+
+    slug = f'{domain["name"]}_{now.strftime("%Y%m%d__%H_%M_%S")}'
+    # TODO don't hardcode prefix
+    prefix = f'./experiments/{slug}'
+
+    logfile = os.path.join(prefix, "log.log")
+    os.makedirs(prefix, exist_ok=True)
+    logging.basicConfig(filename=logfile, level=logging.DEBUG, force=True)
 
     logging.info(f"Called with: {str(args)}")
-    balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'])
+    balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'],
+                        args.snapshot_game_state_epochs,
+                        args.snapshot_gameplay_policy_epochs, prefix)
     balancer.run(args.n_epochs)
 
 

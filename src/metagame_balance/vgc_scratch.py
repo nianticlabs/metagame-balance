@@ -1,7 +1,10 @@
+import json
 import logging
+import os.path
 from typing import Optional, Callable
 
 import numpy as np
+import torch
 
 from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
@@ -70,16 +73,23 @@ def _print_roster(roster: PkmRoster):
             logging.info(move.name, move.power, move.acc, move.max_pp)
 
 
-class VGCApproximatePolicyEntropyEvaluator(ApproximatePolicyEntropyEvaluator["VGCEnvironment"]):
-
-    def update(self, state_delta: "StateDelta[VGCEnvironment]"):
-        raise NotImplementedError
-
-
 class VGCEnvironment(GameEnvironment):
+    def snapshot_game_state(self, path: str):
+        state_dict = self.metadata.to_dict()
+        os.makedirs(path, exist_ok=True)
+        with open(os.path.join(path, "game_state.json"), "w") as outfile:
+            json.dump(state_dict, outfile)
+
+    def snapshot_gameplay_policies(self, path: str):
+        """Snapshot the teampickers - agent and adversary"""
+        os.makedirs(path, exist_ok=True)
+        torch.save(self.utility_fn_manager.agent_U_function().state_dict(),
+                   os.path.join(path, "agent.pt"))
+        torch.save(self.utility_fn_manager.adversary_U_function().state_dict(),
+                   os.path.join(path, "adversary.pt"))
+
     def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
                  n_league_epochs: int = 10, n_battles_per_league: int = 10):
-        self._evaluator = VGCApproximatePolicyEntropyEvaluator()
         # todo stupid config stuff
         n_vgc_epochs = 1
 
