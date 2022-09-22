@@ -81,7 +81,7 @@ def run():
 
     logfile = os.path.join(prefix, "log.log")
     os.makedirs(prefix, exist_ok=True)
-    logging.basicConfig(filename=logfile, level=logging.DEBUG, force=True)
+    logging.basicConfig(filename=logfile, level=logging.INFO, force=True)
 
     logging.info(f"Called with: {str(args)}")
     balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'],

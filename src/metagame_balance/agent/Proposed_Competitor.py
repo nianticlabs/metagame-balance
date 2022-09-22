@@ -1,10 +1,10 @@
 from metagame_balance.vgc.behaviour import BattlePolicy
 from metagame_balance.vgc.behaviour.BalancePolicies import BalancePolicy
-from metagame_balance.vgc.competition import Competitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicy
+from metagame_balance.vgc.competition.Competitor import Competitor
+
 
 class ProposedCompetitor(Competitor):
-
     def __init__(self, num_pkm, name: str = "Niantic Policy"):
         self._name = name
         self.num_pkm = num_pkm

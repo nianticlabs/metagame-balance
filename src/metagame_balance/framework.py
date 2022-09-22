@@ -1,8 +1,11 @@
 import abc
+import atexit
 import logging
 import os
 import time
 from typing import TypeVar, Generic, Callable
+
+import matplotlib
 import numpy as np
 from tqdm import tqdm
 import datetime
@@ -86,6 +89,12 @@ class GameEnvironment(abc.ABC):
     def snapshot_game_state(self, path: str):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def plot_rewards(self, path: str):
+        """Plot the environment's reward history to a file at the given prefix. This will be called atexit by
+        the balancer."""
+        raise NotImplementedError
+
 
 class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
@@ -109,14 +118,17 @@ class Balancer:
                  state_delta_constructor: Callable[[np.array], StateDelta[G]],
                  snapshot_gameplay_policy_epochs: int,
                  snapshot_game_state_epochs: int,
-                 snapshot_dir: str
+                 experiment_dir: str
                  ):
         self.balance_policy = balance_policy
         self.game_environment = game_environment
         self.state_delta_constructor = state_delta_constructor
         self.snapshot_gameplay_policy_epochs = snapshot_gameplay_policy_epochs
         self.snapshot_game_state_epochs = snapshot_game_state_epochs
-        self.snapshot_dir = snapshot_dir
+        self.experiment_dir = experiment_dir
+        os.makedirs(experiment_dir, exist_ok=True)
+        matplotlib.use("Agg")  # do not create a plot window when trying to exit
+        atexit.register(self.game_environment.plot_rewards, os.path.join(self.experiment_dir, "rewards.png"))
 
     def run(self, epochs: int):
         state = self.game_environment.reset()
@@ -148,7 +160,7 @@ class Balancer:
             tock = time.perf_counter()
             logging.info(f"iter {i} balance (total): {tock - tick:0.2f}s")
 
-            iter_dir = os.path.join(self.snapshot_dir, f'iter_{i}')
+            iter_dir = os.path.join(self.experiment_dir, f'iter_{i}')
 
             if i % self.snapshot_gameplay_policy_epochs == 0:
                 logging.info(f"Saving gameplay policies to {iter_dir}")

@@ -1,11 +1,13 @@
 import json
 import logging
 import os.path
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.evaluate.approximate_entropy import ApproximatePolicyEntropyEvaluator, APEState, GamePolicy
@@ -74,6 +76,11 @@ def _print_roster(roster: PkmRoster):
 
 
 class VGCEnvironment(GameEnvironment):
+    def plot_rewards(self, path: str):
+        logging.info(f"Saving rewards plot to {path}")
+        plot_rewards(self.rewards)
+        plt.savefig(path)
+
     def snapshot_game_state(self, path: str):
         state_dict = self.metadata.to_dict()
         os.makedirs(path, exist_ok=True)
@@ -124,7 +131,7 @@ class VGCEnvironment(GameEnvironment):
         self.metadata.set_mask_weights(reg_weights)
 
         # this partially reimplements GameBalanceEcosystem
-        self.rewards = []
+        self.rewards: List[float] = []
         self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, n_battles_per_league,
                                          strategy=Strategy.RANDOM_PAIRING)
 
@@ -152,6 +159,7 @@ class VGCEnvironment(GameEnvironment):
         agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
         self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
         reward = self.metadata.evaluate()
+        logging.info(f"metadata reward: {reward}")
         self.rewards.append(reward)
         return VGCEvaluationResult(reward)
 

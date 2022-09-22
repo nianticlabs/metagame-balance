@@ -3,20 +3,20 @@ import numpy as np
 
 from metagame_balance.agent.Proposed_Competitor import ProposedCompetitor
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
-from vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
-from vgc.balance.restriction import VGCDesignConstraints
+from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
 from metagame_balance.vgc.competition import CompetitorManager
-from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from metagame_balance.vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
+from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from metagame_balance.utility import UtilityFunctionManager
+import matplotlib.pyplot as plt
 NUM_PKM = 30
 
 
-def plot_rewards(loss: list, smoothing_over = 10) -> None:
-    import matplotlib.pyplot as plt
-
+def plot_rewards(loss: list, smoothing_steps: int = 10) -> None:
     rewards = [-r for r in loss]
-    conv_filter = np.ones((smoothing_over)) / smoothing_over
+    # n-step moving average
+    conv_filter = np.ones(smoothing_steps) / smoothing_steps
     smooth_rewards = np.convolve(conv_filter, rewards, 'valid')
 
     plt.plot(range(len(smooth_rewards)), smooth_rewards)
