@@ -54,7 +54,7 @@ def setup_argparser():
         vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
         vgc_parser.add_argument('--roster_path', type=str)
         vgc_parser.add_argument('--num_pkm', type=int, default=30)
-        vgc_parser.add_argument('--ignore_hp', action='store_false')
+        vgc_parser.add_argument('--ignore_hp', action='store_true')
         vgc_parser.set_defaults(func=init_vgc_domain)
 
         return parser
