@@ -13,6 +13,7 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 
 def init_rpsfw_domain(args: argparse.Namespace):
     return {
+        "balancer": CMAESBalancePolicyV2(init_var=0.33),
         "env": RPSFWEnvironment(epochs=args.selection_epochs),
         # "parser": RPSFWParser(num_items=args.game_size)
         "state_delta_constructor": RPSFWStateDelta.decode,
@@ -22,6 +23,7 @@ def init_rpsfw_domain(args: argparse.Namespace):
 
 def init_vgc_domain(args: argparse.Namespace):
     return {
+        "balancer": CMAESBalancePolicyV2(init_var=0.05),
         "env": VGCEnvironment(roster_path=args.roster_path or None,
                               n_league_epochs=args.n_league_epochs,
                               n_battles_per_league=args.n_battles_per_league,
@@ -84,7 +86,7 @@ def main():
     logging.basicConfig(filename=logfile, level=logging.INFO, force=True)
 
     logging.info(f"Called with: {str(args)}")
-    balancer = Balancer(CMAESBalancePolicyV2(), domain['env'], domain['state_delta_constructor'],
+    balancer = Balancer(domain['balancer'], domain['env'], domain['state_delta_constructor'],
                         args.snapshot_game_state_epochs,
                         args.snapshot_gameplay_policy_epochs, prefix)
     balancer.run(args.n_epochs)
