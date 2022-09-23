@@ -7,7 +7,7 @@ from copy import deepcopy
 def true_entropy(team_generator, num_items:int, num_selections:int):
 
     P_A = np.zeros((num_items))
-    past_probs = np.ones((num_items))
+    past_probs = []
 
     for i in range(num_selections):
         sets = permutations(range(num_items), i+1)
@@ -17,10 +17,20 @@ def true_entropy(team_generator, num_items:int, num_selections:int):
                 teams[j].mark(item)
         vals = batch_predict(teams)
 
+        P = np.zeros(tuple([num_items for x in range(i)]))
+
         for j, team in enumerate(teams):
-            P_A[teams[-1]] += vals[team[-1]]
-        #do some caluclations to add to P_A
-    print(all_sets)
+            prefix_p = 1
+            p_curse = P
+            for k, t in enumerate(team):
+                prefix_p *= past_probs[k][t]
+                p_curse = P[k]
+            p_curse += vals[j]
+            P_A[teams[-1]] += prefix_p * vals[j]
+
+        past_probs.append(P) #somevariant of vals so that its easily indexible)
+    entropy_loss = -entropy(P_A)
+    return entropy_loss
 
 def sample_based_entropy(team_generator, num_items:int, num_selections:int, num_samples:int):
     counts = np.zeros((num_items))
