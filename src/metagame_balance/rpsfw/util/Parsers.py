@@ -18,12 +18,14 @@ class MetaRosterStateParser:
         """
         return int(((self.num_items + 1) * self.num_items) / 2)
 
-    def get_normalization_vector(self) -> np.ndarray:
+    def normalize_state_vector(self, state_vec:np.ndarray) -> np.ndarray:
         """
         Get max of each position for normalization
         """
-        max_vec = np.ones((self.length_state_vector()))
-        return max_vec
+        return (state_vec + 1) / 2
+
+    def unnormalize_state_vector(self, normed_state_vec:np.ndarray) -> np.ndarray:
+        return normed_state_vec * 2 - 1
 
     def get_state_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         return np.zeros((self.length_state_vector())), \
@@ -43,18 +45,22 @@ class MetaRosterStateParser:
             for j in range(i + 1, self.num_items):
                 state_vec[ctr] = win_probs[i][j]
                 ctr += 1
-        return state_vec
+        return self.normalize_state_vector(state_vec)
 
     def state_to_delta_roster(self, state_vec: np.ndarray,
                               meta_data: MetaData) -> RPSFWDeltaRoster:
         """
         Takes state vector and creates delta roster accordingly
         """
+        state_vec = self.unnormalize_state_vector(state_vec)
         win_probs = copy.deepcopy(meta_data.get_win_probs())
         ctr = 0
         for i in range(self.num_items):
             for j in range(i + 1, self.num_items):
                 win_probs[i][j] = state_vec[ctr]
                 ctr += 1
+        for i in range(self.num_items):
+            for j in range(0, i):
+                win_probs[i][j] = - win_probs[j][i]
 
         return RPSFWDeltaRoster(win_probs)
