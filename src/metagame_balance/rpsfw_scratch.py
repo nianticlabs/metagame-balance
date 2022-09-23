@@ -64,7 +64,7 @@ class RPSFWEnvironment(GameEnvironment):
 
             else:
                 surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.adversary_U_function, False))
+                                                   self.utility_manager.adversary_U_function, True))
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
