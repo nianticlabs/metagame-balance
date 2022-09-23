@@ -13,7 +13,7 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 
 def init_rpsfw_domain(args: argparse.Namespace):
     return {
-        "balancer": CMAESBalancePolicyV2(init_var=0.33),
+        "balancer": CMAESBalancePolicyV2(init_var=0.7),
         "env": RPSFWEnvironment(epochs=args.selection_epochs),
         # "parser": RPSFWParser(num_items=args.game_size)
         "state_delta_constructor": RPSFWStateDelta.decode,

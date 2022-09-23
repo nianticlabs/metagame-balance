@@ -1,12 +1,11 @@
 from typing import List, Tuple, Optional
 from scipy.special import softmax
-from copy import deepcopy
+import numpy as np
 
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.behaviour import TeamBuildPolicy
 from metagame_balance.vgc.datatypes.Constants import NUM_TYPES
 from metagame_balance.vgc.datatypes.Objects import PkmFullTeam, PkmRoster, Pkm, PkmTemplate
-import numpy as np
 from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE, STATS_OPT_2_PER_MOVE
 from metagame_balance.utility import UtilityFunctionManager
 
@@ -123,9 +122,8 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self.buffer['x'] += states
         self.buffer['y'] += targets
         if len(self.buffer['x']) > self.update_after:
-            u = deepcopy(self.get_u_fn())
+            u = self.get_u_fn()
             u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
-            self.utility_manager.add(u)
             self.buffer = {'x':[], 'y':[]}
         return
 
