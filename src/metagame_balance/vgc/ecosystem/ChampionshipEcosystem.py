@@ -63,7 +63,12 @@ class ChampionshipEcosystem:
         self.test_rewards = []
 
     def get_reward(self, cm: CompetitorManager):
-        return self.league.get_team_wins(cm)
+        if cm.competitor.name == "adversary":
+            return -self.league.get_team_wins(cm)
+        elif cm.competitor.name == "agent":
+            return self.league.get_team_wins(cm)
+        else:
+            raise Exception("Unkown Player Name")
 
     def __set_new_team(self, cm: CompetitorManager):
 
