@@ -46,7 +46,6 @@ def setup_argparser():
         rpsfw_parser = subparsers.add_parser('rpsfw')
         # TODO trickle config down
         rpsfw_parser.add_argument('--game_size', type=int, default=5)
-        rpsfw_parser.add_argument("--n_epochs", type=int, default=10)
         rpsfw_parser.add_argument("--selection_epochs", type=int, default=10)
         rpsfw_parser.set_defaults(func=init_rpsfw_domain)
 
