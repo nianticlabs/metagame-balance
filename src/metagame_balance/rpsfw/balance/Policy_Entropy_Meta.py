@@ -94,7 +94,7 @@ class PolicyEntropyMetaData(MetaData):
         u = self.current_policy.get_u_fn()
         P_A = softmax(u.get_all_vals())
 
-        logging.info("\nP_A=%s\tEntropy=%s\n", str(list(P_A)), str(entropy))
-        logging.info("%s", str(self.win_probs))
         entropy_loss = -entropy(P_A)
+        logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
+        logging.info("\n%s", str(self.win_probs))
         return entropy_loss + self.distance_from_init_meta()

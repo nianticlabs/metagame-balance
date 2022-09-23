@@ -29,13 +29,17 @@ class SoftmaxCompetitor:
             selection_idx = np.random.choice(range(len(roster)), p=softmax(values))
 
         return selection_idx
+    def _get_agent_reward(self, raw_reward:float) -> float:
+        if self.name == "agent":
+            return raw_reward
+        elif self.name == "adversary":
+            return -raw_reward
+        else:
+            raise Exception("Unkown Player Name")
 
-    def update(self, selection: RPSFWItems, reward: float):
-        if self._updatable is False:
-            reward = -reward
-            #let this mean advs
-            #return
+    def update(self, selection: RPSFWItems, raw_reward: float):
         u = self.get_u_fn()
+        reward = self._get_agent_reward(raw_reward)
         #from scipy.special import softmax
         #print(self.name, reward, selection, list(softmax(u.get_all_vals())))
         u[selection] = (1 - self.lr) * u[selection] + self.lr * reward
