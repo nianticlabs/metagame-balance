@@ -135,6 +135,7 @@ class Balancer:
         state = self.game_environment.reset()
         logging.info("Baseline evaluation")
 
+        evaluation_result = None
         logging.info("Starting balancer")
 
         evaluation_result = None
@@ -162,7 +163,11 @@ class Balancer:
             self.game_environment.apply(suggestion)
             tock_bal = time.perf_counter()
             logging.info(f"iter {i} get opt: {tock_bal - tick_bal:0.2f}s")
-
+            state = self.game_environment.get_state()
+            tick_eval = time.perf_counter()
+            tock_eval = time.perf_counter()
+            logging.info(f"iter {i} eval: {tock_eval - tick_eval:0.2f}s")
+            tock = time.perf_counter()
             logging.info(f"iter {i} balance (total): {tock - tick:0.2f}s")
 
             iter_dir = os.path.join(self.experiment_dir, f'iter_{i}')
