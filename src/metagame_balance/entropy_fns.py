@@ -17,17 +17,20 @@ def true_entropy(team_generator, num_items:int, num_selections:int):
                 teams[j].mark(item)
         vals = batch_predict(teams)
 
-        P = np.zeros(tuple([num_items for x in range(i)]))
+        P = np.zeros(tuple([num_items for x in range(i + 1)]))
 
         for j, team in enumerate(teams):
+            p_curse = P ##to iterate in P so that we can correctly update it!
             prefix_p = 1
-            p_curse = P
             for k, t in enumerate(team):
-                prefix_p *= past_probs[k][t]
-                p_curse = P[k]
+                pp = past_probs[k - 1] if k > 0 else None # to help find the prefix
+                for z in range(k):
+                    pp = pp[team[z]]
+                prefix_p *= pp
+                p_curse = P[t]
             p_curse += vals[j]
             P_A[teams[-1]] += prefix_p * vals[j]
-
+        softmax(P, axis = 1) #make sure this is correct
         past_probs.append(P) #somevariant of vals so that its easily indexible)
     entropy_loss = -entropy(P_A)
     return entropy_loss
