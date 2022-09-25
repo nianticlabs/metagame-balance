@@ -9,8 +9,8 @@ from scipy.stats import entropy
 from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
-
-
+from metagame_balance.rpsfw.team import RPSFWTeam, predict
+from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
 
 class PolicyEntropyMetaData(MetaData):
 
@@ -103,4 +103,7 @@ class PolicyEntropyMetaData(MetaData):
         P_A, entropy_loss = self.entropy(True)
         logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
         logging.info("\n%s", str(self.win_probs))
+        print(entropy_loss, lower_bound_entropy(RPSFWTeam, predict(u), 5, 1))
+        print(entropy_loss, sample_based_entropy(RPSFWTeam, predict(u), 5, 1, 10000))
+        print(entropy_loss, true_entropy(RPSFWTeam, predict(u), 5, 1))
         return entropy_loss + self.distance_from_init_meta()
