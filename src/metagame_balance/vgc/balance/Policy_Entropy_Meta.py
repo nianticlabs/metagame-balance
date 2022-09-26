@@ -8,9 +8,11 @@ from copy import deepcopy
 #from vgc.util.RosterParsers import MetaRosterStateParser
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE
 from metagame_balance.vgc.balance.meta import MetaData, PkmId
 from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
+from metagame_balance.vgc.team import VGCTeam, predict
+from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
 import numpy as np
 
 
@@ -115,5 +117,10 @@ class PolicyEntropyMetaData(MetaData):
 
         #TODO: write a function here, so that I don't have to create numpy arrays in object
         P_A, entropy_loss = self.entropy(True)
+        u = self.current_policy.get_u_fn()
+
         logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
+        print(entropy_loss, lower_bound_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE))
+        print(entropy_loss, sample_based_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE, 10))
+        print(entropy_loss, true_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE))
         return entropy_loss + self.distance_from_init_meta()

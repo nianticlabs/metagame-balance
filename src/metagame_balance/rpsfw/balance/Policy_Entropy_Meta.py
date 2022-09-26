@@ -100,6 +100,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def evaluate(self) -> float:
         # TODO: write a function here, so that I don't have to create numpy arrays in object
+        u = self.current_policy.get_u_fn()
         P_A, entropy_loss = self.entropy(True)
         logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
         logging.info("\n%s", str(self.win_probs))
