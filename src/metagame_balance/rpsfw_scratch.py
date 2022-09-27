@@ -1,7 +1,8 @@
 from typing import Optional, Callable
 
 import numpy as np
-
+import logging
+import matplotlib.pyplot as plt
 from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, Evaluator, G
 from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
@@ -11,6 +12,7 @@ from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 from metagame_balance.Tabular_Function import TabularFn
+from metagame_balance.BalanceMeta import plot_rewards
 
 
 class RPSFWState(State["RPSFWEnvironment"]):
@@ -103,6 +105,19 @@ class RPSFWEnvironment(GameEnvironment):
         reward = self.metadata.evaluate()
         self.rewards.append(reward)
         return RPSFWEvaluationResult(reward)
+
+    def snapshot_game_state(self, path: str):
+        "Don't have to do anything because this should be quick enough"
+
+    def snapshot_gameplay_policies(self, path:str):
+        "Don't have to do anything because this should be quick enough"
+        pass
+
+    def plot_rewards(self, path: str):
+        logging.info(f"Saving rewards plot to {path}")
+        plot_rewards(self.rewards)
+        plt.savefig(path)
+
 
     def __str__(self) -> str:
 
