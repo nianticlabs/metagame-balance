@@ -29,3 +29,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 main = "metagame_balance.main:run"
+BalanceMeta = "metagame_balance.BalanceMeta:main"

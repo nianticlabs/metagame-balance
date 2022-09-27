@@ -60,7 +60,7 @@ def setup_argparser():
         return parser
 
 
-def run():
+def main():
     parser = setup_argparser()
     args = parser.parse_args()
 
@@ -91,4 +91,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    main()

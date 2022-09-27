@@ -1,15 +1,18 @@
 import argparse
 import numpy as np
 
+from metagame_balance.FCNN import FCNN
 from metagame_balance.agent.Proposed_Competitor import ProposedCompetitor
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
 from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
 from metagame_balance.vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from metagame_balance.utility import UtilityFunctionManager
 import matplotlib.pyplot as plt
+
 NUM_PKM = 30
 
 
@@ -26,7 +29,7 @@ def plot_rewards(loss: list, smoothing_steps: int = 10) -> None:
     plt.show()
 
 
-def main(args):
+def run(args):
     """
     Main function: used to balance meta as well as learn the policy (TBI)
     This runs for `n_epochs' stage 1 optimization epochs 'n_vgc_epochs' stage 2 optimization epochs
@@ -35,7 +38,7 @@ def main(args):
     TODO Handle the noise in stage 1 plots (by smoonthing and plotting varience)
     """
 
-    assert(args.population_size == 2) # Limit scope to two agents
+    assert (args.population_size == 2)  # Limit scope to two agents
     agent_names = ['agent', 'adversary']
     n_epochs = args.n_epochs
     n_vgc_epochs = args.n_vgc_epochs
@@ -92,9 +95,13 @@ def main(args):
         base_roster[i].max_hp = random.randint(100, 300)
 
     """
+    input_dim = STAGE_2_STATE_DIM
+    init_nn = FCNN([input_dim, 128, 64, 1])
+    init_nn.compile()  # consider using SGD over Adam
 
-    utility_fn_manager = UtilityFunctionManager(delay_by = 10)
-    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in agent_names]
+    utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
+    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in
+                       agent_names]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
         print(i, i.pkm_id)
@@ -117,7 +124,7 @@ def main(args):
         plot_rewards(gbe.rewards)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_epochs', type=int, help='Number of updates to be done', default=1)
     parser.add_argument('--n_vgc_epochs', type=int, default=1)
@@ -126,4 +133,8 @@ if __name__ == '__main__':
     parser.add_argument('--roster_path', type=str, default='')
     parser.add_argument('--visualize', type=bool, default=False)
     args = parser.parse_args()
-    main(args)
+    run(args)
+
+
+if __name__ == '__main__':
+    main()
