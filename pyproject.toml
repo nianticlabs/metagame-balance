@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "pokemon-vgc-engine"
+name = "metagame_balance"
 version = "0.1.0"
 description = "Fork of the pokemon vgc engine for a niantic-internal research project."
 authors = []
 license = "All rights reserved"
 
 [tool.poetry.dependencies]
-python = "~3.6.15"
+python = ">=3.6.8"
 numpy = ">=0.15.4"
 gym = ">=0.10.9"
 PySimpleGUI = ">=4.20.0"
@@ -18,9 +18,15 @@ matplotlib = "^3.3.3"
 simple-plugin-loader = "^2.0"
 torch = "1.10.2"
 setuptools = "58"
+tqdm = "^4.64.1"
 
-[tool.poetry.dev-dependencies]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+
+[tool.poetry.scripts]
+main = "metagame_balance.main:run"
+BalanceMeta = "metagame_balance.BalanceMeta:main"
