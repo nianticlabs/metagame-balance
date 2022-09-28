@@ -1,4 +1,4 @@
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Optional
 
 import cma
 import numpy as np
@@ -24,9 +24,8 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         self.num_runs = 0
 
     def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.ndarray, State[G]], StateDelta[G]]) -> StateDelta[G]:
-        evaluation_result = environment.evaluate()
-
+                       state_delta_constructor: Callable[[np.ndarray, State[G]], StateDelta[G]],
+                       evaluation_result: EvaluationResult[G]) -> StateDelta[G]:
         x = state.encode()
         y = evaluation_result.encode()
 
@@ -45,7 +44,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         self.num_runs += 1
         return state_delta_constructor(next_state, state)
 
-    def converged(self, evaluation_result: EvaluationResult[G]) -> bool:
+    def converged(self, evaluation_result: Optional[EvaluationResult[G]]) -> bool:
         return False
 
 
