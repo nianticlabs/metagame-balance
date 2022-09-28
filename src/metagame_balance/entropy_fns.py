@@ -39,8 +39,18 @@ def true_entropy(team_generator, batch_predict, num_items:int, num_selections:in
         past_probs.append(P) #somevariant of vals so that its easily indexible)
     #print(P_A, np.sum(P_A, axis=1))
     #print((np.sum(P_A, axis=0)))
-    P_A  = np.sum(P_A, axis = 0)
-    entropy_loss = -entropy(P_A)
+    #P_A  = np.sum(P_A, axis = 0)
+    P_X = np.zeros((num_items))
+
+    for i in range(num_selections):
+        accumulated_P = np.ones((num_items))
+        for j in range(num_selections):
+            if i != j:
+                accumulated_P *= (np.ones((num_items)) - P_A[j])
+        P_X += P_A[i] * accumulated_P
+    print(P_A)
+    print(P_X, np.sum(P_X))
+    entropy_loss = -entropy(P_X)
     return entropy_loss
 
 def sample_based_entropy(team_generator, batch_predict, num_items:int, num_selections:int, num_samples:int):
