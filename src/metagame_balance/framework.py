@@ -3,7 +3,7 @@ import atexit
 import logging
 import os
 import time
-from typing import TypeVar, Generic, Callable
+from typing import TypeVar, Generic, Callable, Optional
 
 import matplotlib
 import numpy as np
@@ -100,11 +100,12 @@ class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
     @abc.abstractmethod
     def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]]) -> StateDelta[G]:
+                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]],
+                       evaluation_result: EvaluationResult[G]) -> StateDelta[G]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def converged(self, evaluation_result: EvaluationResult[G]) -> bool:
+    def converged(self, evaluation_result: Optional[EvaluationResult[G]]) -> bool:
         # determines convergence criteria
         # - result smoothness?
         # - fixed number of steps?
@@ -133,9 +134,10 @@ class Balancer:
     def run(self, epochs: int):
         state = self.game_environment.reset()
         logging.info("Baseline evaluation")
-        evaluation_result = self.game_environment.evaluate()
 
         logging.info("Starting balancer")
+
+        evaluation_result = None
         
         def epoch_counter():
             _i = 0
@@ -146,18 +148,22 @@ class Balancer:
         for i in tqdm(epoch_counter(), desc="balancer"):
             logging.info(f"Iteration {i}")
             tick = time.perf_counter()
-            # t + 1 step
-            tick_bal = time.perf_counter()
-            suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor)
-            self.game_environment.apply(suggestion)
-            tock_bal = time.perf_counter()
-            logging.info(f"iter {i} get opt: {tock_bal - tick_bal:0.2f}s")
-            state = self.game_environment.get_state()
+
             tick_eval = time.perf_counter()
-            evaluation_result = self.game_environment.evaluate()
+            evaluation_result = self.game_environment.evaluate()  # expensive
             tock_eval = time.perf_counter()
             logging.info(f"iter {i} eval: {tock_eval - tick_eval:0.2f}s")
             tock = time.perf_counter()
+
+            # t + 1 step
+            tick_bal = time.perf_counter()
+            state = self.game_environment.get_state()
+            suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor,
+                                                            evaluation_result)
+            self.game_environment.apply(suggestion)
+            tock_bal = time.perf_counter()
+            logging.info(f"iter {i} get opt: {tock_bal - tick_bal:0.2f}s")
+
             logging.info(f"iter {i} balance (total): {tock - tick:0.2f}s")
 
             iter_dir = os.path.join(self.experiment_dir, f'iter_{i}')
