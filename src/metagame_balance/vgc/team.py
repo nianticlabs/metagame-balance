@@ -60,6 +60,7 @@ def predict(u, pkm_list):
         for i, team in enumerate(teams):
             for j in range(len(team)):
                 mark_with_pokemon(x[i], pkm_list[team[j]], j)
+
         return u.predict(x)
     return batch_predictor
 
