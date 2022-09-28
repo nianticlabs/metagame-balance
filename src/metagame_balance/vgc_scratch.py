@@ -10,9 +10,8 @@ import torch
 from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
-from metagame_balance.evaluate.approximate_entropy import ApproximatePolicyEntropyEvaluator, APEState, GamePolicy
 from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, StateDelta, \
-    G, Evaluator, State
+    G, State
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
@@ -29,19 +28,19 @@ from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, DEFAULT_
 BASE_ROSTER_SIZE = 30
 
 
-class VGCGameplayPolicy(GamePolicy["VGCEnvironment"]):
-    def __init__(self, metadata: PolicyEntropyMetaData):
-        self._metadata = metadata
+# class VGCGameplayPolicy(GamePolicy["VGCEnvironment"]):
+#     def __init__(self, metadata: PolicyEntropyMetaData):
+#         self._metadata = metadata
+#
+#     def optimal_pick(self) -> np.ndarray:
+#         # self._metadata.
+#         raise NotImplementedError
 
-    def optimal_pick(self) -> np.ndarray:
-        # self._metadata.
-        raise NotImplementedError
 
-
-class VGCState(APEState["VGCEnvironment"]):
-    @property
-    def policy(self) -> GamePolicy[G]:
-        self.policy_entropy_metadata.current_policy
+class VGCState(State["VGCEnvironment"]):
+    # @property
+    # def policy(self) -> GamePolicy[G]:
+    #     self.policy_entropy_metadata.current_policy
 
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
         self.policy_entropy_metadata = policy_entropy_metadata
@@ -55,9 +54,9 @@ class VGCStateDelta(StateDelta["VGCEnvironment"]):
         self.delta_roster = delta_roster
 
     @classmethod
-    def decode(cls, encoded: np.ndarray, state: VGCState) -> "VGCStateDelta":
-        delta_roster = state.policy_entropy_metadata.parser \
-            .state_to_delta_roster(encoded, state.policy_entropy_metadata)
+    def decode(cls, encoded_next_state: np.ndarray, current_state: VGCState) -> "VGCStateDelta":
+        delta_roster = current_state.policy_entropy_metadata.parser \
+            .state_to_delta_roster(encoded_next_state, current_state.policy_entropy_metadata)
         return cls(delta_roster)
 
 

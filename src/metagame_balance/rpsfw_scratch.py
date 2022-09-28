@@ -3,7 +3,7 @@ from typing import Optional, Callable
 import numpy as np
 import logging
 import matplotlib.pyplot as plt
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, Evaluator, G
+from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, G
 from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
@@ -28,9 +28,9 @@ class RPSFWStateDelta(StateDelta["RSPFWEnvironment"]):
         self.delta_roster = delta_roster
 
     @classmethod
-    def decode(cls, encoded: np.ndarray, state: RPSFWState) -> "RPSFWStateDelta":
-        delta_roster = state.policy_entropy_metadata.parser \
-            .state_to_delta_roster(encoded, state.policy_entropy_metadata)
+    def decode(cls, encoded_next_state: np.ndarray, current_state: RPSFWState) -> "RPSFWStateDelta":
+        delta_roster = current_state.policy_entropy_metadata.parser \
+            .state_to_delta_roster(encoded_next_state, current_state.policy_entropy_metadata)
         return cls(delta_roster)
 
 

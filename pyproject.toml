@@ -6,19 +6,20 @@ authors = []
 license = "All rights reserved"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-numpy = ">=0.15.4"
+python = ">=3.8,<3.12"
+numpy = "^1.23.3"
 gym = ">=0.10.9"
 PySimpleGUI = ">=4.20.0"
 elo = "~=0.1.1"
 arcade = "~=2.6.7"
 cma = "~=3.2.2"
-scipy = "^1.5"
-matplotlib = "^3.3.3"
+scipy = "^1.9.1"
+matplotlib = "^3.6.0"
 simple-plugin-loader = "^2.0"
 torch = "1.10.2"
 setuptools = "58"
 tqdm = "^4.64.1"
+gym-cool-game = {git = "git@github.com:Danielhp95/GGJ-2020-cool-game.git"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -32,7 +33,13 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 
-
 [tool.poetry.scripts]
 main = "metagame_balance.main:main"
 BalanceMeta = "metagame_balance.BalanceMeta:main"
+
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib",
+    "tqdm"
+]
+ignore_missing_imports = true

@@ -7,6 +7,7 @@ from typing import TypeVar, Generic, Callable, Optional
 
 import matplotlib
 import numpy as np
+import numpy.typing as npt
 from tqdm import tqdm
 import datetime
 
@@ -22,24 +23,9 @@ class EvaluationResult(Generic[G], metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class EvaluationContext(Generic[G], metaclass=abc.ABCMeta):
-    pass
-
-
-class Evaluator(Generic[G], metaclass=abc.ABCMeta):
-    """Evaluates a gameplay policy on its environment. This will probably need a reference to the gameplay policy,
-    and receives updates on the historical performance"""
-    @abc.abstractmethod
-    def update(self, state_delta: "StateDelta[G]"):
-        raise NotImplementedError
-
-    def evaluate(self, state: "State[G]") -> EvaluationResult[G]:
-        raise NotImplementedError
-
-
 class State(Generic[G], metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def encode(self) -> np.array:
+    def encode(self) -> npt.NDArray:
         raise NotImplementedError
 
 
@@ -47,7 +33,11 @@ class StateDelta(Generic[G], metaclass=abc.ABCMeta):
     # the type bound is to encourage it to be compatible with state
     @classmethod
     @abc.abstractmethod
-    def decode(cls, encoded: np.ndarray, state: State[G]) -> "StateDelta[G]":
+    def decode(cls, encoded_next_state: npt.NDArray, current_state: State[G]) -> "StateDelta[G]":
+        """
+        Given an encoded state, create a statedelta. In a lot of cases, you can just wrap the new state in this class
+        and unwrap / apply it in downstream steps.
+        """
         raise NotImplementedError
 
 
@@ -116,7 +106,7 @@ class Balancer:
     def __init__(self,
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
-                 state_delta_constructor: Callable[[np.array], StateDelta[G]],
+                 state_delta_constructor: Callable[[npt.NDArray], StateDelta[G]],
                  snapshot_gameplay_policy_epochs: int,
                  snapshot_game_state_epochs: int,
                  experiment_dir: str
