@@ -47,6 +47,10 @@ class PolicyEntropyMetaData(MetaData):
         win_probs[RPSFWItems.FIRE][RPSFWItems.ROCK] = 1
         win_probs[RPSFWItems.FIRE][RPSFWItems.SCISSOR] = 1
         win_probs[RPSFWItems.WATER][RPSFWItems.FIRE] = 1
+        for i in range(len(win_probs)):
+            for j in range(len(win_probs)):
+                if i != j and win_probs[i][j] == 0:
+                    win_probs[i][j] = -1
         return win_probs
 
     def clear_stats(self) -> None:
@@ -90,6 +94,7 @@ class PolicyEntropyMetaData(MetaData):
         u = self.current_policy.get_u_fn()
         P_A = softmax(u.get_all_vals())
 
-        logging.info("P_A\n%s", str(P_A))
         entropy_loss = -entropy(P_A)
+        logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
+        logging.info("\n%s", str(self.win_probs))
         return entropy_loss + self.distance_from_init_meta()

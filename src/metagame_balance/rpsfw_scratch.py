@@ -64,7 +64,7 @@ class RPSFWEnvironment(GameEnvironment):
 
             else:
                 surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.adversary_U_function, False))
+                                                   self.utility_manager.adversary_U_function, True))
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
@@ -115,6 +115,7 @@ class RPSFWEnvironment(GameEnvironment):
 
     def plot_rewards(self, path: str):
         logging.info(f"Saving rewards plot to {path}")
+        logging.info(str(self.rewards))
         plot_rewards(self.rewards)
         plt.savefig(path)
 

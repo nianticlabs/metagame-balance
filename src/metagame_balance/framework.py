@@ -138,7 +138,7 @@ class Balancer:
         logging.info("Starting balancer")
 
         evaluation_result = None
-        
+
         def epoch_counter():
             _i = 0
             while _i < epochs and not self.balance_policy.converged(evaluation_result):

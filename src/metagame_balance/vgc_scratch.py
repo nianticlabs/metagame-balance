@@ -78,6 +78,7 @@ def _print_roster(roster: PkmRoster):
 class VGCEnvironment(GameEnvironment):
     def plot_rewards(self, path: str):
         logging.info(f"Saving rewards plot to {path}")
+        logging.info(str(self.rewards))
         plot_rewards(self.rewards)
         plt.savefig(path)
 

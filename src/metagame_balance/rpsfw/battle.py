@@ -7,17 +7,9 @@ class RPSFWBattle():
 
     def __init__(self, metadata: PolicyEntropyMetaData):
 
-        self.win_probs_matrix = metadata.get_win_probs()
+        self.metadata = metadata
 
     def battle(self, p1_choice: RPSFWItems, p2_choice: RPSFWItems):
 
-        if p1_choice == p2_choice:
-            return 0
-        assert (self.win_probs_matrix[p1_choice][p2_choice] +
-                self.win_probs_matrix[p2_choice][p1_choice] == 1)
-
-        r_sam = np.random.random()
-        if r_sam > self.win_probs_matrix[p1_choice][p2_choice]:
-            return -1                    #P2 wins
-
-        return 1                        #P1 wins
+        payoff_matrix = self.metadata.get_win_probs() #no longer a win rate matrix
+        return payoff_matrix[p1_choice][p2_choice]
