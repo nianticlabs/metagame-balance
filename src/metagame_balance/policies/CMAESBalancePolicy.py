@@ -38,7 +38,8 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
                 self.optimizer.tell(self.results['x'], self.results['y'])
             else:
                 bounds = environment.get_state_bounds()
-                self.optimizer = cma.CMAEvolutionStrategy(x, self.init_var, {'bounds': bounds})
+                self.optimizer = cma.CMAEvolutionStrategy(x, self.init_var,
+                        {'bounds': bounds}) #'popsize':30})
             self.generation_samples = self.optimizer.ask()
             self.results = {'x': [], 'y': []}
         next_state = self.generation_samples.pop(0)
