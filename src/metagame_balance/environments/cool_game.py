@@ -1,7 +1,11 @@
 import dataclasses
+import logging
+import time
 
 import numpy as np
 import numpy.typing as npt
+from regym.evaluation import benchmark_agents_on_tasks
+from regym.rl_algorithms import build_MCTS_Agent
 
 from metagame_balance.framework import GameEnvironment, StateDelta, G, EvaluationResult, State
 from regym.environments import generate_task, EnvType
@@ -94,17 +98,67 @@ class CoolGameEvaluationResult(EvaluationResult["CoolGameEnvironment"]):
         return self.entropy
 
 
+def compute_matchup_winrates(agent, task, matchup: str,
+                             benchmarking_episodes: int, mcts_budget: int) -> float:
+
+    logging.info(f'START: {matchup} for {benchmarking_episodes} episodes. Budget: {mcts_budget}')
+    winrates = []
+    for i in range(benchmarking_episodes):
+        logging.info(f'Budget: {mcts_budget}. {matchup} episode: {i + 1}/{benchmarking_episodes}')
+        start = time.perf_counter()
+        winrates += benchmark_agents_on_tasks(tasks=[task],
+                                              agents=[agent],
+                                              populate_all_agents=True,
+                                              num_episodes=1)
+        total = time.perf_counter() - start
+        logging.info(f'{matchup} with Budget: {mcts_budget} took {total:.1f}s. Winner: {winrates[-1]}')
+    winrate = sum(winrates) / len(winrates)
+    logging.info(f'END: {matchup} for {benchmarking_episodes} episodes. winrate: {winrate}')
+
+    return winrate
+
 
 class CoolGameEnvironment(GameEnvironment):
     def __init__(self):
-        self.current_state = CoolGameState()
+        self.current_state: CoolGameState = CoolGameState()
 
-
-    def evaluate(self) -> EvaluationResult["CoolGameEnvironment"]:
-        # express tasks
+    def evaluate(self) -> CoolGameEvaluationResult:
+        # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
         # 0 - sawbot, 1 - torchbot, 2 - nailbot
         saw_vs_torch_task = generate_task('CoolGame-v0', EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                          botA_type=0, botB_type=1, **)
+                                          botA_type=0, botB_type=1, **self.current_state.to_dict())
+        saw_vs_nail_task = generate_task("CoolGame-v0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
+                                         botaA_type=0, botB_type=2, **self.current_state.to_dict())
+        torch_vs_nail_task = generate_task("CoolGame-V0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
+                                           botA_type=1, botB_type=2, **self.current_state.to_dict())
+        # TODO not fixed
+        mcts_budget = 5
+        benchmarking_episodes = 10
+        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10}
+        # agent is shared since it doesn't learn
+        mcts_agent = build_MCTS_Agent(saw_vs_torch_task, mcts_config, "mcts agent")
+        saw_vs_torch = compute_matchup_winrates(mcts_agent, saw_vs_torch_task,
+                                                'Saw vs Torch', benchmarking_episodes,
+                                                mcts_budget)
+
+        saw_vs_nail = compute_matchup_winrates(mcts_agent, saw_vs_nail_task,
+                                               'Saw vs Nail', benchmarking_episodes,
+                                               mcts_budget)
+
+        torch_vs_nail = compute_matchup_winrates(mcts_agent, torch_vs_nail_task,
+                                                 'Torch vs Nail', benchmarking_episodes,
+                                                 mcts_budget)
+        logging.info(f"episodes={benchmarking_episodes} mcts_budget={mcts_budget}")
+        logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
+        logging.info(f'params={self.current_state}')
+
+        return CoolGameEvaluationResult(self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail]))
+
+    def entropy_from_winrates(self, winrates) -> float:
+        """compute pick entropy from winrates"""
+        # we have 3 types of robot, we assume the 
+
+        raise NotImplementedError
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
