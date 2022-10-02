@@ -8,6 +8,7 @@ from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.rpsfw.balance.ERG_Meta import ERGMetaData
 from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
@@ -52,7 +53,7 @@ class RPSFWEnvironment(GameEnvironment):
 
     def __init__(self, epochs: int, verbose: bool = True):
         agent_names = ['agent', 'adversary']
-        self.metadata = PolicyEntropyMetaData()
+        self.metadata = ERGMetaData()
 
         fn_approx = TabularFn(5)  # rpsfw?
         self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)

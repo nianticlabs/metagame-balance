@@ -10,7 +10,7 @@ from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
 
-class PolicyEntropyMetaData(MetaData):
+class ERGMetaData(MetaData):
 
     def __init__(self):
         # listings - moves, pkm, teams
@@ -66,10 +66,10 @@ class PolicyEntropyMetaData(MetaData):
 
     @staticmethod
     def get_ERG(payoff:np.ndarray):
-        return np.max(0, payoff)
+        return np.maximum(0, payoff)
 
     def clear_stats(self) -> None:
-        self.win_probs = PolicyEntropyMetaData.get_init_win_probs()
+        self.win_probs = self.get_init_win_probs()
 
     def update_metadata(self, **kwargs):
         assert (sum([k not in self.update_params for k in kwargs.keys()]) == 0)
@@ -103,7 +103,7 @@ class PolicyEntropyMetaData(MetaData):
         diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
-    def evaluate(self, win_rates) -> float:
+    def evaluate(self) -> float:
 
         u = self.current_policy.get_u_fn()
         P_A = softmax(u.get_all_vals())
