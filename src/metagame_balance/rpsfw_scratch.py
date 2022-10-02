@@ -15,7 +15,6 @@ from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 from metagame_balance.Tabular_Function import TabularFn
 from metagame_balance.BalanceMeta import plot_rewards
 
-
 class RPSFWState(State["RPSFWEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
         self.policy_entropy_metadata = policy_entropy_metadata
@@ -73,8 +72,8 @@ class RPSFWEnvironment(GameEnvironment):
         reg_weights = np.ones(self.metadata.parser.length_state_vector()) / 7
         self.metadata.set_mask_weights(reg_weights)
 
-        # this partially reimplements GameBalanceEcosystem
         self.rewards = []
+        self.entropy_vals = []
         self.rpsfw = RPSFWEcosystem(self.metadata)
         self.epochs = epochs
         for a in surrogate:
@@ -104,11 +103,14 @@ class RPSFWEnvironment(GameEnvironment):
                             self.rpsfw.players))
         self.metadata.update_metadata(policy=agent)
         reward = self.metadata.evaluate()
+        entropy = self.metadata.entropy()
+        self.entropy_vals.append(entropy)
         self.rewards.append(reward)
         return RPSFWEvaluationResult(reward)
 
     def snapshot_game_state(self, path: str):
         "Don't have to do anything because this should be quick enough"
+        np.save(path, np.array(self.entropy_vals))
 
     def snapshot_gameplay_policies(self, path:str):
         "Don't have to do anything because this should be quick enough"

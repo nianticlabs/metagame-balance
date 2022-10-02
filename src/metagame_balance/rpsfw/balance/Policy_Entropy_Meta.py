@@ -79,6 +79,16 @@ class PolicyEntropyMetaData(MetaData):
 
         return self.win_probs
 
+    def entropy(self, return_P:bool = False):
+        u = self.current_policy.get_u_fn()
+        P_A = softmax(u.get_all_vals())
+
+        entropy_loss = -entropy(P_A)
+        if return_P:
+            return P_A, entropy_loss
+        return entropy_loss
+
+
     def distance_from_init_meta(self):
         """
         Returns L2 distance from inital meta scaled with reg weights
@@ -90,11 +100,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def evaluate(self) -> float:
         # TODO: write a function here, so that I don't have to create numpy arrays in object
-
-        u = self.current_policy.get_u_fn()
-        P_A = softmax(u.get_all_vals())
-
-        entropy_loss = -entropy(P_A)
+        P_A, entropy_loss = self.entropy(True)
         logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
         logging.info("\n%s", str(self.win_probs))
         return entropy_loss + self.distance_from_init_meta()
