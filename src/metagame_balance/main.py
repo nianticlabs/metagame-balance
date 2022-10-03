@@ -27,6 +27,7 @@ def init_vgc_domain(args: argparse.Namespace):
         "env": VGCEnvironment(roster_path=args.roster_path or None,
                               n_league_epochs=args.n_league_epochs,
                               n_battles_per_league=args.n_battles_per_league,
+                              reg_param  = args.reg
                               ),
         "parser": VGCParser(num_pkm=args.num_pkm or None,
                             consider_hp=not args.ignore_hp),
@@ -55,6 +56,7 @@ def setup_argparser():
         vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
         vgc_parser.add_argument('--roster_path', type=str)
         vgc_parser.add_argument('--num_pkm', type=int, default=30)
+        vgc_parser.add_argument('--reg', type=float, default=0)
         vgc_parser.add_argument('--ignore_hp', action='store_true')
         vgc_parser.set_defaults(func=init_vgc_domain)
 
