@@ -97,7 +97,7 @@ class VGCEnvironment(GameEnvironment):
                    os.path.join(path, "adversary.pt"))
 
     def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
-                 n_league_epochs: int = 10, n_battles_per_league: int = 10):
+            n_league_epochs: int = 10, n_battles_per_league: int = 10, reg_param: float = 0):
         # todo stupid config stuff
         n_vgc_epochs = 1
 
@@ -110,7 +110,6 @@ class VGCEnvironment(GameEnvironment):
 
         agent_names = ['agent', 'adversary']
         self.metadata = PolicyEntropyMetaData()
-
         input_dim = STAGE_2_STATE_DIM
         init_nn = FCNN([input_dim, 128, 64, 1])
         init_nn.compile()  # consider using SGD over Adam
@@ -128,7 +127,7 @@ class VGCEnvironment(GameEnvironment):
         if verbose:
             _print_roster(base_roster)
         self.metadata.set_moves_and_pkm(base_roster)
-        reg_weights = np.ones(self.metadata.parser.length_state_vector()) / 7
+        reg_weights = np.ones(self.metadata.parser.length_state_vector()) * reg_param
         self.metadata.set_mask_weights(reg_weights)
 
         # this partially reimplements GameBalanceEcosystem
