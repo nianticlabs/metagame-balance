@@ -164,7 +164,9 @@ class VGCEnvironment(GameEnvironment):
 
     def evaluate(self) -> VGCEvaluationResult:
         # train evaluator agents to convergence
-        self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
+
+        if not self.alg_baseline:
+            self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
         agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
         self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
 
