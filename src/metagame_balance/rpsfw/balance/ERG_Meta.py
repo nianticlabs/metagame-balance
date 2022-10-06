@@ -112,7 +112,6 @@ class ERGMetaData(MetaData):
             return P_A, entropy_loss
         return entropy_loss
 
-
     def evaluate(self) -> float:
 
         payoff = self.get_win_probs()

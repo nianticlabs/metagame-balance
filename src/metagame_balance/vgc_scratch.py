@@ -16,6 +16,7 @@ from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResu
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.vgc.balance.ERG_Meta import ERGMetaData
 from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
 from metagame_balance.vgc.competition import CompetitorManager
 from metagame_balance.vgc.datatypes.Objects import PkmRoster
@@ -23,7 +24,7 @@ from metagame_balance.vgc.ecosystem.BattleEcosystem import Strategy
 from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from metagame_balance.FCNN import FCNN
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, DEFAULT_TEAM_SIZE
 
 BASE_ROSTER_SIZE = 30
 
@@ -87,6 +88,7 @@ class VGCEnvironment(GameEnvironment):
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, "game_state.json"), "w") as outfile:
             json.dump(state_dict, outfile)
+        np.save(path, np.array(self.entropy_vals))
 
     def snapshot_gameplay_policies(self, path: str):
         """Snapshot the teampickers - agent and adversary"""
@@ -97,7 +99,8 @@ class VGCEnvironment(GameEnvironment):
                    os.path.join(path, "adversary.pt"))
 
     def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
-            n_league_epochs: int = 10, n_battles_per_league: int = 10, reg_param: float = 0):
+            n_league_epochs: int = 10, n_battles_per_league: int = 10,
+            reg_param: float = 0, alg_baseline = False):
         # todo stupid config stuff
         n_vgc_epochs = 1
 
@@ -109,7 +112,12 @@ class VGCEnvironment(GameEnvironment):
         self.n_league_epochs = n_league_epochs
 
         agent_names = ['agent', 'adversary']
-        self.metadata = PolicyEntropyMetaData()
+
+        self.alg_baseline = alg_baseline
+        if alg_baseline:
+            self.metadata = ERGMetaData()
+        else:
+            self.metadata = PolicyEntropyMetaData()
         input_dim = STAGE_2_STATE_DIM
         init_nn = FCNN([input_dim, 128, 64, 1])
         init_nn.compile()  # consider using SGD over Adam
@@ -132,6 +140,7 @@ class VGCEnvironment(GameEnvironment):
 
         # this partially reimplements GameBalanceEcosystem
         self.rewards: List[float] = []
+        self.entropy_vals: List[float] = []
         self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, n_battles_per_league,
                                          strategy=Strategy.RANDOM_PAIRING)
 
@@ -158,10 +167,38 @@ class VGCEnvironment(GameEnvironment):
         self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
         agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
         self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
-        reward = self.metadata.evaluate()
+
+        if self.alg_baseline:
+            win_rates = self.sample_payoff()
+            reward = self.metadata.evaluate(win_rates)
+            entropy = self.metadata.entropy(False)
+        else:
+            reward = self.metadata.evaluate()
+            entropy = reward
+        self.entropy_vals.append(entropy)
         logging.info(f"metadata reward: {reward}")
         self.rewards.append(reward)
         return VGCEvaluationResult(reward)
+
+    def sample_payoff(self):
+
+        assert(DEFAULT_TEAM_SIZE == 2) #add more support later on
+        num_pkm = len(self.metadata._pkm)
+        payoff = np.zeros(tuple([num_pkm] * 4))
+        t1 = []
+        t2 = []
+        for t1p1 in range(num_pkm):
+            for t1p2 in range(num_pkm):
+                for t2p1 in range(num_pkm):
+                    for t2p2 in range(num_pkm):
+                        if t1p1 == t1p2 or t2p2 == t2p1 or payoff[t1p1][t1p2][t2p1][t2p2] != 0:
+                            continue
+                        t1 = [t1p1, t1p2]
+                        t2 = [t2p1, t2p2]
+                        win_prob = self.vgc.simulate_n_battles(1, t1, t2)
+                        payoff[t1p1][t1p2][t2p1][t2p2] = win_prob
+                        payoff[t2p1][t2p2][t1p1][t1p2] = 1 - win_prob
+        return payoff
 
     def __str__(self) -> str:
         return "VGC"

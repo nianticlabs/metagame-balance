@@ -94,6 +94,18 @@ class PolicyEntropyMetaData(MetaData):
             "pokemon": [p.to_dict() for p in self._pkm]
         }
 
+    def entropy(self, return_P) -> float:
+        A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
+
+        for i, pkm in enumerate(self._pkm):
+            self.current_policy._mark(A[i], [], pkm)
+        u = self.current_policy.get_u_fn()
+        P_A = softmax(u.predict(A))
+        entropy_loss = -entropy(P_A)
+        if return_P:
+            return P_A, entropy_loss
+        return entropy_loss
+
     def evaluate(self) -> float:
         # A: set of all pokemon statistics
         # does this actually need the whole policy
@@ -102,13 +114,6 @@ class PolicyEntropyMetaData(MetaData):
         # we would have to do importance sampling over the historical trajectories
 
         #TODO: write a function here, so that I don't have to create numpy arrays in object
-        A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
-
-        for i, pkm in enumerate(self._pkm):
-            self.current_policy._mark(A[i], [], pkm)
-        u = self.current_policy.get_u_fn()
-        P_A = softmax(u.predict(A))
-
-        entropy_loss = -entropy(P_A)
+        P_A, entropy_loss = self.entropy(True)
         logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
         return entropy_loss + self.distance_from_init_meta()
