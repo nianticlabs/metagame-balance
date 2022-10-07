@@ -63,7 +63,7 @@ class PkmMove:
             "acc": self.acc,
             "max_pp": self.max_pp,
             "type": self.type.name,
-            "name": self.name,
+            "name": self.name or "unknown_move",
             "priority": self.priority,
             "prob": self.prob,
             "target": self.target,
@@ -758,8 +758,8 @@ class PkmTeam:
         """
         if pkms is None:
             pkms = [Pkm()]
-        self.active: Pkm = pkms.pop(0)
-        self.party: List[Pkm] = pkms
+        self.active = pkms.pop(0)
+        self.party = pkms
         self.reset()
 
     def size(self) -> int:

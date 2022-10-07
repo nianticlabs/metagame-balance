@@ -20,6 +20,7 @@ torch = "1.10.2"
 setuptools = "58"
 tqdm = "^4.64.1"
 gym-cool-game = {git = "git@github.com:Danielhp95/GGJ-2020-cool-game.git"}
+regym = {git = "https://github.com/Danielhp95/Regym.git"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -40,6 +41,7 @@ BalanceMeta = "metagame_balance.BalanceMeta:main"
 [[tool.mypy.overrides]]
 module = [
     "matplotlib",
-    "tqdm"
+    "tqdm",
+    "scipy.*"
 ]
 ignore_missing_imports = true

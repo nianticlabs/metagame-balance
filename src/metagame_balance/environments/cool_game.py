@@ -1,8 +1,10 @@
 import dataclasses
 
 import numpy as np
+import numpy.typing as npt
 
 from metagame_balance.framework import GameEnvironment, StateDelta, G, EvaluationResult, State
+from regym.environments import generate_task, EnvType
 
 
 @dataclasses.dataclass
@@ -26,7 +28,11 @@ class CoolGameState(State["CoolGameEnvironment"]):
     nail_cooldown: int = 1
     nail_ticks_between_moves: int = 1
 
-    def encode(self) -> np.array:
+    def to_dict(self):
+        """Convert to format compatible with evaluator"""
+        raise NotImplementedError
+
+    def encode(self) -> npt.NDArray:
         return np.array([
             self.torch_health,  # index 0
             self.torch_dmg,
@@ -49,7 +55,7 @@ class CoolGameState(State["CoolGameEnvironment"]):
         ])
 
     @classmethod
-    def decode(cls, encoded: np.array) -> "CoolGameState":
+    def decode(cls, encoded: npt.NDArray) -> State["CoolGameEnvironment"]:
         return cls(
             encoded[0],
             encoded[1],
@@ -72,10 +78,11 @@ class CoolGameState(State["CoolGameEnvironment"]):
 
 @dataclasses.dataclass
 class CoolGameStateDelta(StateDelta["CoolGameEnvironment"]):
-    next_state: CoolGameState
+    next_state: State["CoolGameEnvironment"]
 
     @classmethod
-    def decode(cls, encoded_next_state: np.ndarray, current_state: CoolGameState) -> "CoolGameStateDelta":
+    def decode(cls, encoded_next_state: npt.NDArray, current_state: State["CoolGameEnvironment"]) \
+            -> "CoolGameStateDelta":
         return cls(CoolGameState.decode(encoded_next_state))
 
 
@@ -87,14 +94,19 @@ class CoolGameEvaluationResult(EvaluationResult["CoolGameEnvironment"]):
         return self.entropy
 
 
+
 class CoolGameEnvironment(GameEnvironment):
     def __init__(self):
         self.current_state = CoolGameState()
 
-    def evaluate(self) -> EvaluationResult[G]:
-        pass
 
-    def get_state(self) -> CoolGameState:
+    def evaluate(self) -> EvaluationResult["CoolGameEnvironment"]:
+        # express tasks
+        # 0 - sawbot, 1 - torchbot, 2 - nailbot
+        saw_vs_torch_task = generate_task('CoolGame-v0', EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
+                                          botA_type=0, botB_type=1, **)
+
+    def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
 
     def reset(self) -> CoolGameState:
@@ -103,8 +115,8 @@ class CoolGameEnvironment(GameEnvironment):
     def get_state_bounds(self):
         pass
 
-    def apply(self, state_delta: StateDelta[G]) -> \
-            "State[G]":
+    def apply(self, state_delta: StateDelta["CoolGameEnvironment"]) -> \
+            "State[CoolGameEnvironment]":
         pass
 
     def __str__(self) -> str:

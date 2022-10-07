@@ -90,7 +90,7 @@ class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
     @abc.abstractmethod
     def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]],
+                       state_delta_constructor: Callable[[npt.NDArray, State[G]], StateDelta[G]],
                        evaluation_result: EvaluationResult[G]) -> StateDelta[G]:
         raise NotImplementedError
 
@@ -102,11 +102,11 @@ class MetagameBalancePolicy(abc.ABC):
         raise NotImplementedError
 
 
-class Balancer:
+class Balancer(Generic[G]):
     def __init__(self,
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
-                 state_delta_constructor: Callable[[npt.NDArray], StateDelta[G]],
+                 state_delta_constructor: Callable[[npt.NDArray, State[G]], StateDelta[G]],
                  snapshot_gameplay_policy_epochs: int,
                  snapshot_game_state_epochs: int,
                  experiment_dir: str
@@ -122,13 +122,11 @@ class Balancer:
         atexit.register(self.game_environment.plot_rewards, os.path.join(self.experiment_dir, "rewards.png"))
 
     def run(self, epochs: int):
-        state = self.game_environment.reset()
-        logging.info("Baseline evaluation")
-
+        self.game_environment.reset()
         logging.info("Starting balancer")
 
-        evaluation_result = None
-
+        evaluation_result: Optional[EvaluationResult[G]] = None
+        
         def epoch_counter():
             _i = 0
             while _i < epochs and not self.balance_policy.converged(evaluation_result):
@@ -147,7 +145,7 @@ class Balancer:
 
             # t + 1 step
             tick_bal = time.perf_counter()
-            state = self.game_environment.get_state()
+            state: State[G] = self.game_environment.get_state()
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor,
                                                             evaluation_result)
             self.game_environment.apply(suggestion)
