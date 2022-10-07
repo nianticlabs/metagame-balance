@@ -50,10 +50,14 @@ def _print_roster(roster: RPSFWRoster):
 
 class RPSFWEnvironment(GameEnvironment):
 
-    def __init__(self, epochs: int, verbose: bool = True):
+    def __init__(self, epochs: int, alg_baseline:bool = False,
+            reg_param:int = 0,verbose: bool = True):
         agent_names = ['agent', 'adversary']
-        self.metadata = ERGMetaData()
 
+        if alg_baseline:
+            self.metadata = ERGMetaData()
+        else:
+            self.metadata = PolicyEntropyMetaData()
         fn_approx = TabularFn(5)  # rpsfw?
         self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
         surrogate = []
@@ -69,7 +73,7 @@ class RPSFWEnvironment(GameEnvironment):
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
             _print_roster(base_roster)
-        reg_weights = np.ones(self.metadata.parser.length_state_vector()) / 7
+        reg_weights = np.ones(self.metadata.parser.length_state_vector()) * reg_param
         self.metadata.set_mask_weights(reg_weights)
 
         self.rewards = []
