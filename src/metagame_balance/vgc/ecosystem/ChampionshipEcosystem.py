@@ -3,6 +3,7 @@ import operator
 
 from tqdm import tqdm
 from metagame_balance.agent.Example_Competitor import ExampleCompetitor
+from metagame_balance.agent.Fixed_Team_Competitor import FixedTeamCompetitor
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.competition import CompetitorManager, legal_team
 from metagame_balance.vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
@@ -108,3 +109,31 @@ class ChampionshipEcosystem:
         self.register(adversary_cm)
         self.league.unregister(random_agent)
         learnt_cm.competitor.team_build_policy.set_greedy(greedy=False)
+
+    def simulate_n_battles(self, n_league_epochs: int, t1, t2):
+        """
+        TODO: Check for instabilities introduced by this!
+        """
+        NUM_SIM = 100
+        t1_agent = CompetitorManager(FixedTeamCompetitor("t1", t1))
+        t2_agent = CompetitorManager(FixedTeamCompetitor("t2", t2))
+
+        old_agents = []
+
+        num_competitors = len(self.league.competitors)
+        for cm in range(num_competitors):
+            cm = self.league.competitors[0]
+            old_agents.append(cm)
+            self.league.unregister(cm)
+        self.register(t1_agent)
+        self.register(t2_agent)
+        win_probs = 0
+        for i in range(NUM_SIM):
+            self.simulate_league(n_league_epochs)
+        win_probs = self.league.get_team_wins(t1_agent)
+        self.league.clear_wins()  # do we really need this?
+        self.league.unregister(t1_agent)
+        self.league.unregister(t2_agent)
+        for cm in old_agents:
+            self.league.register(cm)
+        return win_probs  / NUM_SIM

@@ -10,9 +10,7 @@ from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
 
-
-
-class PolicyEntropyMetaData(MetaData):
+class ERGMetaData(MetaData):
 
     def __init__(self):
         # listings - moves, pkm, teams
@@ -53,8 +51,25 @@ class PolicyEntropyMetaData(MetaData):
                     win_probs[i][j] = -1
         return win_probs
 
+    @staticmethod
+    def get_balanced_payoff():
+        win_probs = np.zeros((len(RPSFWItems), len(RPSFWItems)))
+        win_probs[RPSFWItems.ROCK][RPSFWItems.SCISSOR] = 1
+        win_probs[RPSFWItems.SCISSOR][RPSFWItems.WATER] = 1
+        win_probs[RPSFWItems.WATER][RPSFWItems.FIRE] = 1
+        win_probs[RPSFWItems.FIRE][RPSFWItems.ROCK] = 1
+        for i in range(len(win_probs)):
+            for j in range(len(win_probs)):
+                if i != j and win_probs[i][j] == 0:
+                    win_probs[i][j] = -1
+        return win_probs
+
+    @staticmethod
+    def get_ERG(payoff:np.ndarray):
+        return np.maximum(0, payoff)
+
     def clear_stats(self) -> None:
-        self.win_probs = PolicyEntropyMetaData.get_init_win_probs()
+        self.win_probs = self.get_init_win_probs()
 
     def update_metadata(self, **kwargs):
         assert (sum([k not in self.update_params for k in kwargs.keys()]) == 0)
@@ -79,16 +94,6 @@ class PolicyEntropyMetaData(MetaData):
 
         return self.win_probs
 
-    def entropy(self, return_P:bool = False):
-        u = self.current_policy.get_u_fn()
-        P_A = softmax(u.get_all_vals())
-
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
-        return entropy_loss
-
-
     def distance_from_init_meta(self):
         """
         Returns L2 distance from inital meta scaled with reg weights
@@ -98,9 +103,22 @@ class PolicyEntropyMetaData(MetaData):
         diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
+    def entropy(self, return_P:bool = False):
+        u = self.current_policy.get_u_fn()
+        P_A = softmax(u.get_all_vals())
+
+        entropy_loss = -entropy(P_A)
+        if return_P:
+            return P_A, entropy_loss
+        return entropy_loss
+
     def evaluate(self) -> float:
-        # TODO: write a function here, so that I don't have to create numpy arrays in object
+
+        payoff = self.get_win_probs()
+        expected_payoff = self.get_balanced_payoff()
+        reward = np.sum((self.get_ERG(payoff) - self.get_ERG(expected_payoff)) ** 2)
+
         P_A, entropy_loss = self.entropy(True)
-        logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
+        logging.info("\nP_A=%s\tERG=%s\tEntropy=%s", str(list(P_A)), str(reward), str(entropy_loss))
         logging.info("\n%s", str(self.win_probs))
-        return entropy_loss + self.distance_from_init_meta()
+        return reward

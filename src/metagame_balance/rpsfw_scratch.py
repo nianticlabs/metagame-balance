@@ -8,12 +8,12 @@ from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.rpsfw.balance.ERG_Meta import ERGMetaData
 from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
 from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 from metagame_balance.Tabular_Function import TabularFn
 from metagame_balance.BalanceMeta import plot_rewards
-
 
 class RPSFWState(State["RPSFWEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
@@ -52,7 +52,7 @@ class RPSFWEnvironment(GameEnvironment):
 
     def __init__(self, epochs: int, verbose: bool = True):
         agent_names = ['agent', 'adversary']
-        self.metadata = PolicyEntropyMetaData()
+        self.metadata = ERGMetaData()
 
         fn_approx = TabularFn(5)  # rpsfw?
         self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
@@ -72,8 +72,8 @@ class RPSFWEnvironment(GameEnvironment):
         reg_weights = np.ones(self.metadata.parser.length_state_vector()) / 7
         self.metadata.set_mask_weights(reg_weights)
 
-        # this partially reimplements GameBalanceEcosystem
         self.rewards = []
+        self.entropy_vals = []
         self.rpsfw = RPSFWEcosystem(self.metadata)
         self.epochs = epochs
         for a in surrogate:
@@ -103,11 +103,14 @@ class RPSFWEnvironment(GameEnvironment):
                             self.rpsfw.players))
         self.metadata.update_metadata(policy=agent)
         reward = self.metadata.evaluate()
+        entropy = self.metadata.entropy()
+        self.entropy_vals.append(entropy)
         self.rewards.append(reward)
         return RPSFWEvaluationResult(reward)
 
     def snapshot_game_state(self, path: str):
         "Don't have to do anything because this should be quick enough"
+        np.save(path, np.array(self.entropy_vals))
 
     def snapshot_gameplay_policies(self, path:str):
         "Don't have to do anything because this should be quick enough"
