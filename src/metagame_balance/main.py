@@ -14,7 +14,9 @@ from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 def init_rpsfw_domain(args: argparse.Namespace):
     return {
         "balancer": CMAESBalancePolicyV2(init_var=0.7),
-        "env": RPSFWEnvironment(epochs=args.selection_epochs),
+        "env": RPSFWEnvironment(epochs=args.selection_epochs,
+                              reg_param  = args.reg,
+                              alg_baseline = args.baseline),
         # "parser": RPSFWParser(num_items=args.game_size)
         "state_delta_constructor": RPSFWStateDelta.decode,
         "name": "rpsfw"
@@ -42,6 +44,8 @@ def setup_argparser():
         parser.add_argument('--n_epochs', type=int, default=1)
         parser.add_argument("--snapshot_gameplay_policy_epochs", type=int, default=100)
         parser.add_argument("--snapshot_game_state_epochs", type=int, default=100)
+        parser.add_argument('--baseline', action='store_true')
+        parser.add_argument('--reg', type=float, default=0)
         subparsers = parser.add_subparsers(help="domain")
 
         # rpsfw
@@ -57,9 +61,7 @@ def setup_argparser():
         vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
         vgc_parser.add_argument('--roster_path', type=str)
         vgc_parser.add_argument('--num_pkm', type=int, default=30)
-        vgc_parser.add_argument('--reg', type=float, default=0)
         vgc_parser.add_argument('--ignore_hp', action='store_true')
-        vgc_parser.add_argument('--baseline', action='store_true')
         vgc_parser.set_defaults(func=init_vgc_domain)
 
         return parser
