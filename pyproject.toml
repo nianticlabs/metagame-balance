@@ -20,7 +20,7 @@ torch = "1.10.2"
 setuptools = "58"
 tqdm = "^4.64.1"
 gym-cool-game = {git = "git@github.com:Danielhp95/GGJ-2020-cool-game.git"}
-regym = {git = "https://github.com/Danielhp95/Regym.git"}
+regym = {git = "https://github.com/Danielhp95/Regym.git", branch="develop-improving-play-match-utils"}
 
 
 [tool.poetry.group.dev.dependencies]
