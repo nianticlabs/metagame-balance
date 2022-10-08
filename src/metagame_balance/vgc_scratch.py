@@ -173,7 +173,7 @@ class VGCEnvironment(GameEnvironment):
         if self.alg_baseline:
             win_rates = self.sample_payoff()
             reward = self.metadata.evaluate(win_rates)
-            entropy = self.metadata.entropy(False)
+            entropy = self.metadata.entropy()
         else:
             reward = self.metadata.evaluate()
             entropy = reward

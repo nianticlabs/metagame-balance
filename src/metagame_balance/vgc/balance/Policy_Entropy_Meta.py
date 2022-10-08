@@ -96,17 +96,9 @@ class PolicyEntropyMetaData(MetaData):
             "pokemon": [p.to_dict() for p in self._pkm]
         }
 
-    def entropy(self, return_P) -> float:
-        A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
-
-        for i, pkm in enumerate(self._pkm):
-            self.current_policy._mark(A[i], [], pkm)
+    def entropy(self) -> float:
         u = self.current_policy.get_u_fn()
-        P_A = softmax(u.predict(A))
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
-        return entropy_loss
+        return true_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE)
 
     def evaluate(self) -> float:
         # A: set of all pokemon statistics
@@ -116,11 +108,6 @@ class PolicyEntropyMetaData(MetaData):
         # we would have to do importance sampling over the historical trajectories
 
         #TODO: write a function here, so that I don't have to create numpy arrays in object
-        P_A, entropy_loss = self.entropy(True)
-        u = self.current_policy.get_u_fn()
+        entropy_loss = self.entropy()
 
-        logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
-        print(entropy_loss, lower_bound_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE))
-        print(entropy_loss, sample_based_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE, 10))
-        print(entropy_loss, true_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE))
         return entropy_loss + self.distance_from_init_meta()

@@ -3,6 +3,7 @@ from itertools import combinations, permutations
 from scipy.special import softmax
 from scipy.stats import entropy
 from copy import deepcopy
+import logging
 
 def true_entropy(team_generator, batch_predict, num_items:int, num_selections:int):
 
@@ -35,11 +36,12 @@ def true_entropy(team_generator, batch_predict, num_items:int, num_selections:in
                 prefix_p *= pp
             P[tuple(team[z] for z in range(len(team)))] += vals[j]
             P_A[i, team[-1]] += prefix_p * vals[j]
-            print(team.pkms,  P_A[i, team[-1]], prefix_p, vals[j])
+            #print(team.pkms,  P_A[i, team[-1]], prefix_p, vals[j])
         past_probs.append(P) #somevariant of vals so that its easily indexible)
     #print(P_A, np.sum(P_A, axis=1))
     #print((np.sum(P_A, axis=0)))
     #P_A  = np.sum(P_A, axis = 0)
+    """
     P_X = np.zeros((num_items))
 
     for i in range(num_selections):
@@ -48,9 +50,10 @@ def true_entropy(team_generator, batch_predict, num_items:int, num_selections:in
             if i != j:
                 accumulated_P *= (np.ones((num_items)) - P_A[j])
         P_X += P_A[i] * accumulated_P
-    print(P_A)
-    print(P_X, np.sum(P_X))
+    """
+    P_X = np.sum(P_A, axis=0) / num_selections
     entropy_loss = -entropy(P_X)
+    logging.info("P_A=%s\tEntropy=%s\t", str(list(P_X)), str(entropy_loss))
     return entropy_loss
 
 def sample_based_entropy(team_generator, batch_predict, num_items:int, num_selections:int, num_samples:int):
@@ -71,8 +74,8 @@ def sample_based_entropy(team_generator, batch_predict, num_items:int, num_selec
             counts[selection] += 1
 
     P_A = counts / sum(counts)
-    #print(P_A)
     entropy_loss = -entropy(P_A)
+    logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
     return entropy_loss
 
 def lower_bound_entropy(team_generator, batch_predict, num_items:int, num_selections:int):
@@ -81,5 +84,5 @@ def lower_bound_entropy(team_generator, batch_predict, num_items:int, num_select
         all_teams[i].mark(i) # just mark one element
     P_A = softmax(batch_predict(all_teams))
     entropy_loss = -entropy(P_A)
-    #print(P_A)
+    logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
     return entropy_loss

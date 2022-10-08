@@ -79,13 +79,11 @@ class PolicyEntropyMetaData(MetaData):
 
         return self.win_probs
 
-    def entropy(self, return_P:bool = False):
+    def entropy(self):
         u = self.current_policy.get_u_fn()
-        P_A = softmax(u.get_all_vals())
 
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
+        entropy_loss = true_entropy(RPSFWTeam, predict(u), 5, 1)
+        #logging.info("\n\tEntropy=%s", str(entropy_loss))
         return entropy_loss
 
 
@@ -101,10 +99,6 @@ class PolicyEntropyMetaData(MetaData):
     def evaluate(self) -> float:
         # TODO: write a function here, so that I don't have to create numpy arrays in object
         u = self.current_policy.get_u_fn()
-        P_A, entropy_loss = self.entropy(True)
-        logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
+        entropy_loss = self.entropy()
         logging.info("\n%s", str(self.win_probs))
-        print(entropy_loss, lower_bound_entropy(RPSFWTeam, predict(u), 5, 1))
-        print(entropy_loss, sample_based_entropy(RPSFWTeam, predict(u), 5, 1, 10000))
-        print(entropy_loss, true_entropy(RPSFWTeam, predict(u), 5, 1))
         return entropy_loss + self.distance_from_init_meta()
