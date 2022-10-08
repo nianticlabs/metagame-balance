@@ -1,9 +1,10 @@
 import numpy as np
 
-class TabularFn():
 
-    def __init__(self, size:int):
-        self.V = np.zeros((size))
+class TabularFn:
+    """"""
+    def __init__(self, size: int):
+        self.V = np.zeros(size)
 
     def get_all_vals(self):
         return self.V

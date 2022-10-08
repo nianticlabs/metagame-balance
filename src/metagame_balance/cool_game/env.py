@@ -1,13 +1,16 @@
 import dataclasses
 import logging
 import time
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
 from regym.evaluation import benchmark_agents_on_tasks
 from regym.rl_algorithms import build_MCTS_Agent
+from regym.rl_algorithms.agents import MCTSAgent
 
-from metagame_balance.framework import GameEnvironment, StateDelta, G, EvaluationResult, State
+from metagame_balance.cool_game import BotType
+from metagame_balance.framework import GameEnvironment, StateDelta, EvaluationResult, State
 from regym.environments import generate_task, EnvType
 
 
@@ -119,23 +122,30 @@ def compute_matchup_winrates(agent, task, matchup: str,
 
 
 class CoolGameEnvironment(GameEnvironment):
-    def __init__(self):
+    def __init__(self, relearn_agents: bool = False):
+        """
+
+        Parameters
+        ----------
+        relearn_agents: relearn the agents on every evaluation call or not.
+        """
         self.current_state: CoolGameState = CoolGameState()
+        self.agent: Optional[MCTSAgent] = None
 
     def evaluate(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
         # 0 - sawbot, 1 - torchbot, 2 - nailbot
         saw_vs_torch_task = generate_task('CoolGame-v0', EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                          botA_type=0, botB_type=1, **self.current_state.to_dict())
+                                          botA_type=BotType.SAW, botB_type=BotType.TORCH, **self.current_state.to_dict())
         saw_vs_nail_task = generate_task("CoolGame-v0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                         botaA_type=0, botB_type=2, **self.current_state.to_dict())
+                                         botaA_type=BotType.SAW, botB_type=BotType.NAIL, **self.current_state.to_dict())
         torch_vs_nail_task = generate_task("CoolGame-V0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                           botA_type=1, botB_type=2, **self.current_state.to_dict())
+                                           botA_type=BotType.TORCH, botB_type=BotType.NAIL, **self.current_state.to_dict())
         # TODO not fixed
         mcts_budget = 5
         benchmarking_episodes = 10
         mcts_config = {"budget": mcts_budget, 'rollout_budget': 10}
-        # agent is shared since it doesn't learn
+        # we will learn the agent once and never update it, kinda like how the other environments work
         mcts_agent = build_MCTS_Agent(saw_vs_torch_task, mcts_config, "mcts agent")
         saw_vs_torch = compute_matchup_winrates(mcts_agent, saw_vs_torch_task,
                                                 'Saw vs Torch', benchmarking_episodes,
@@ -156,7 +166,7 @@ class CoolGameEnvironment(GameEnvironment):
 
     def entropy_from_winrates(self, winrates) -> float:
         """compute pick entropy from winrates"""
-        # we have 3 types of robot, we assume the 
+        # we have 3 types of robot, we assume the... something.
 
         raise NotImplementedError
 
