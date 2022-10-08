@@ -13,7 +13,7 @@ def true_entropy(team_generator, batch_predict, num_items:int, num_selections:in
     for i in range(num_selections):
         #separately calculate P(A^i_j)
 
-        #all possible subets with team size upto i
+        #all possible permutations with team size upto i
         sets = list(permutations(range(num_items), i+1))
         teams = [team_generator() for x in range(len(sets))]
         for j, s in enumerate(sets):
@@ -27,7 +27,7 @@ def true_entropy(team_generator, batch_predict, num_items:int, num_selections:in
         vals = struct_vals.reshape(-1)
 
         #to add to past probabilities coz P(A^j| prod of A's < j)
-        P = np.zeros(tuple([num_items for x in range(i + 1)]))
+        P = np.zeros((num_items,) * (i + 1))
 
         for j, team in enumerate(teams):
             prefix_p = 1
