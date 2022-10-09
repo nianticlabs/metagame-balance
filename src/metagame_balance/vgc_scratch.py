@@ -102,7 +102,7 @@ class VGCEnvironment(GameEnvironment):
             n_league_epochs: int = 10, n_battles_per_league: int = 10,
             reg_param: float = 0, alg_baseline = False):
         # todo stupid config stuff
-        n_vgc_epochs = 1
+        n_vgc_epochs = n_battles_per_league
 
         # number of championships to run
         self.n_vgc_epochs = n_vgc_epochs
@@ -141,8 +141,7 @@ class VGCEnvironment(GameEnvironment):
         # this partially reimplements GameBalanceEcosystem
         self.rewards: List[float] = []
         self.entropy_vals: List[float] = []
-        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, n_battles_per_league,
-                                         strategy=Strategy.RANDOM_PAIRING)
+        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False,                                          strategy=Strategy.RANDOM_PAIRING)
 
         for a in surrogate:
             self.vgc.register(a)
@@ -164,7 +163,6 @@ class VGCEnvironment(GameEnvironment):
 
     def evaluate(self) -> VGCEvaluationResult:
         # train evaluator agents to convergence
-
         if not self.alg_baseline:
             self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
         agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
