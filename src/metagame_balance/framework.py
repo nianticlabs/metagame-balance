@@ -20,6 +20,11 @@ class EvaluationResult(Generic[G], metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def encode(self) -> float:
+        """
+        convert the internal representation of this game's evaluation result into a scalar.
+
+        This will be maximized by the balancer.
+        """
         raise NotImplementedError
 
 
@@ -64,7 +69,7 @@ class GameEnvironment(abc.ABC):
     @abc.abstractmethod
     def apply(self, state_delta: StateDelta[G]) -> \
             "State[G]":
-        """Convert an encoded state into a stateDelta, and apply it to the current game."""
+        """Convert an encoded state into a stateDelta, and apply it to the current game. Return the new state."""
         raise NotImplementedError
 
     @abc.abstractmethod

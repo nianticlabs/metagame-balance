@@ -126,5 +126,4 @@ class RPSFWEnvironment(GameEnvironment):
 
 
     def __str__(self) -> str:
-
         return "RPSFW"

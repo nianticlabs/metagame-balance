@@ -34,7 +34,7 @@ class SoftmaxCompetitor:
         elif self.name == "adversary":
             return -raw_reward
         else:
-            raise Exception("Unkown Player Name")
+            raise Exception("Unknown Player Name")
 
     def update(self, selection: RPSFWItems, raw_reward: float):
         u = self.utility_fn

@@ -1,17 +1,23 @@
 import dataclasses
 import logging
 import time
-from typing import Optional
+import typing
 
+import gym
+# this registers the gym on import, don't delete
+import gym_cool_game  # noqa
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
+from regym.environments import EnvType
+from regym.environments.gym_parser import parse_gym_environment
 from regym.evaluation import benchmark_agents_on_tasks
 from regym.rl_algorithms import build_MCTS_Agent
-from regym.rl_algorithms.agents import MCTSAgent
+from scipy.stats import entropy
 
+from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.cool_game import BotType
 from metagame_balance.framework import GameEnvironment, StateDelta, EvaluationResult, State
-from regym.environments import generate_task, EnvType
 
 
 @dataclasses.dataclass
@@ -34,10 +40,6 @@ class CoolGameState(State["CoolGameEnvironment"]):
     nail_dmg: int = 1
     nail_cooldown: int = 1
     nail_ticks_between_moves: int = 1
-
-    def to_dict(self):
-        """Convert to format compatible with evaluator"""
-        raise NotImplementedError
 
     def encode(self) -> npt.NDArray:
         return np.array([
@@ -63,6 +65,7 @@ class CoolGameState(State["CoolGameEnvironment"]):
 
     @classmethod
     def decode(cls, encoded: npt.NDArray) -> State["CoolGameEnvironment"]:
+        encoded = np.round(encoded).astype(int)
         return cls(
             encoded[0],
             encoded[1],
@@ -85,7 +88,7 @@ class CoolGameState(State["CoolGameEnvironment"]):
 
 @dataclasses.dataclass
 class CoolGameStateDelta(StateDelta["CoolGameEnvironment"]):
-    next_state: State["CoolGameEnvironment"]
+    next_state: CoolGameState
 
     @classmethod
     def decode(cls, encoded_next_state: npt.NDArray, current_state: State["CoolGameEnvironment"]) \
@@ -103,7 +106,6 @@ class CoolGameEvaluationResult(EvaluationResult["CoolGameEnvironment"]):
 
 def compute_matchup_winrates(agent, task, matchup: str,
                              benchmarking_episodes: int, mcts_budget: int) -> float:
-
     logging.info(f'START: {matchup} for {benchmarking_episodes} episodes. Budget: {mcts_budget}')
     winrates = []
     for i in range(benchmarking_episodes):
@@ -114,11 +116,17 @@ def compute_matchup_winrates(agent, task, matchup: str,
                                               populate_all_agents=True,
                                               num_episodes=1)
         total = time.perf_counter() - start
-        logging.info(f'{matchup} with Budget: {mcts_budget} took {total:.1f}s. Winner: {winrates[-1]}')
+        # logging.info(f'{matchup} with Budget: {mcts_budget} took {total:.1f}s. Winner: {winrates[-1]}')
     winrate = sum(winrates) / len(winrates)
-    logging.info(f'END: {matchup} for {benchmarking_episodes} episodes. winrate: {winrate}')
+    # logging.info(f'END: {matchup} for {benchmarking_episodes} episodes. winrate: {winrate}')
 
     return winrate
+
+
+def _make_gym(botA_type, botB_type, **kwargs):
+    initial_env = gym.make("CoolGame-v0", botA_type=botA_type, botB_type=botB_type, **kwargs)
+    # no wrappers
+    return parse_gym_environment(initial_env, EnvType.MULTIAGENT_SIMULTANEOUS_ACTION)
 
 
 class CoolGameEnvironment(GameEnvironment):
@@ -130,22 +138,25 @@ class CoolGameEnvironment(GameEnvironment):
         relearn_agents: relearn the agents on every evaluation call or not.
         """
         self.current_state: CoolGameState = CoolGameState()
-        self.agent: Optional[MCTSAgent] = None
+        self.rewards: typing.List[float] = []
 
     def evaluate(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
         # 0 - sawbot, 1 - torchbot, 2 - nailbot
-        saw_vs_torch_task = generate_task('CoolGame-v0', EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                          botA_type=BotType.SAW, botB_type=BotType.TORCH, **self.current_state.to_dict())
-        saw_vs_nail_task = generate_task("CoolGame-v0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                         botaA_type=BotType.SAW, botB_type=BotType.NAIL, **self.current_state.to_dict())
-        torch_vs_nail_task = generate_task("CoolGame-V0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
-                                           botA_type=BotType.TORCH, botB_type=BotType.NAIL, **self.current_state.to_dict())
-        # TODO not fixed
+        # regym framework got mildly broken, so use my weird version
+        saw_vs_torch_task = _make_gym(botA_type=BotType.SAW, botB_type=BotType.TORCH,
+                                      **dataclasses.asdict(self.current_state))
+        # saw_vs_nail_task = generate_task("CoolGame-v0", EnvType.MULTIAGENT_SIMULTANEOUS_ACTION,
+        saw_vs_nail_task = _make_gym(botA_type=BotType.SAW, botB_type=BotType.NAIL,
+                                     **dataclasses.asdict(self.current_state))
+        torch_vs_nail_task = _make_gym(botA_type=BotType.TORCH, botB_type=BotType.NAIL,
+                                       **dataclasses.asdict(self.current_state))
+        # TODO don't hardcode
         mcts_budget = 5
         benchmarking_episodes = 10
-        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10}
-        # we will learn the agent once and never update it, kinda like how the other environments work
+        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
+                       "selection_phase": "ucb1", "exploration_factor_ucb1": 4}
+        # we will learn the agent once and never update it, like how the other environments work
         mcts_agent = build_MCTS_Agent(saw_vs_torch_task, mcts_config, "mcts agent")
         saw_vs_torch = compute_matchup_winrates(mcts_agent, saw_vs_torch_task,
                                                 'Saw vs Torch', benchmarking_episodes,
@@ -162,26 +173,31 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
         logging.info(f'params={self.current_state}')
 
-        return CoolGameEvaluationResult(self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail]))
+        reward = self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail])
+        self.rewards.append(reward)
+        return CoolGameEvaluationResult(reward)
 
-    def entropy_from_winrates(self, winrates) -> float:
+    def entropy_from_winrates(self, winrates: typing.List[float]) -> float:
         """compute pick entropy from winrates"""
-        # we have 3 types of robot, we assume the... something.
-
-        raise NotImplementedError
+        # in rpsfw, we have to train two opposing softmax competitors to equilibrium to get the payoffs
+        # here, we will assume that the evaluator has gotten a really good sense of the payoff via
+        # the winrate benchmark
+        # then just directly take the entropy of the winrates
+        return entropy(winrates)
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
 
     def reset(self) -> CoolGameState:
+        # evaluation is a pure function, no mutable state in this object to reset
         pass
 
     def get_state_bounds(self):
-        pass
+        return [1, np.inf]
 
-    def apply(self, state_delta: StateDelta["CoolGameEnvironment"]) -> \
-            "State[CoolGameEnvironment]":
-        pass
+    def apply(self, state_delta: CoolGameStateDelta) -> CoolGameState:
+        self.current_state = state_delta.next_state
+        return state_delta.next_state
 
     def __str__(self) -> str:
         return "CoolGameEnvironment"
@@ -193,4 +209,5 @@ class CoolGameEnvironment(GameEnvironment):
         pass
 
     def plot_rewards(self, path: str):
-        pass
+        plot_rewards(self.rewards)
+        plt.savefig(path)
