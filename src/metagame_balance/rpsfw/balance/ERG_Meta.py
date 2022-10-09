@@ -105,7 +105,7 @@ class ERGMetaData(MetaData):
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
     def entropy(self, return_P: bool = False):
-        u = self.current_policy.get_u_fn()
+        u = self.current_policy.utility_fn
         P_A = softmax(u.get_all_vals())
 
         entropy_loss = -entropy(P_A)

@@ -64,12 +64,9 @@ class RPSFWEnvironment(GameEnvironment):
         surrogate = []
         for a in agent_names:
             if a == "agent":
-                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.agent_U_function, True))
-
+                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
             else:
-                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.adversary_U_function, True))
+                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
