@@ -60,15 +60,15 @@ def setup_argparser():
     parser.add_argument('--n_epochs', type=int, default=1)
     parser.add_argument("--snapshot_gameplay_policy_epochs", type=int, default=100)
     parser.add_argument("--snapshot_game_state_epochs", type=int, default=100)
-	subparsers = parser.add_subparsers(help="domain")
+    subparsers = parser.add_subparsers(help="domain")
 
     # rpsfw
     rpsfw_parser = subparsers.add_parser('rpsfw')
     # TODO trickle config down
     rpsfw_parser.add_argument('--game_size', type=int, default=5)
     rpsfw_parser.add_argument("--selection_epochs", type=int, default=10)
-	rpsfw_parser.add_argument('--baseline', action='store_true')
-	rpsfw_parser.add_argument('--reg', type=float, default=0)
+    rpsfw_parser.add_argument('--baseline', action='store_true')
+    rpsfw_parser.add_argument('--reg', type=float, default=0)
     rpsfw_parser.set_defaults(func=init_rpsfw_domain)
 
     # vgc
