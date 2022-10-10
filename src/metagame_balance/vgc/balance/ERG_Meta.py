@@ -30,7 +30,7 @@ class ERGMetaData(PolicyEntropyMetaData):
         payoff = winrates
         expected_payoff = self.get_balanced_payoff()
         reward = np.sum((self.get_ERG(payoff) - self.get_ERG(expected_payoff)) ** 2)
-        P_A, entropy_loss = self.entropy(True)
-        logging.info("\nP_A=%s\tERG=%s\tEntropy=%s", str(list(P_A)), str(reward), str(entropy_loss))
+        logging.info("\nERG=%s", str(reward))
+        self.entropy()
         #logging.info("\n%s", str(self.win_probs))
         return reward

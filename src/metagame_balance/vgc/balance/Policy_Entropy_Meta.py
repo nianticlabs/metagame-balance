@@ -8,9 +8,11 @@ from copy import deepcopy
 #from vgc.util.RosterParsers import MetaRosterStateParser
 from metagame_balance.vgc.balance import DeltaRoster
 from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
+from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE
 from metagame_balance.vgc.balance.meta import MetaData, PkmId
 from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
+from metagame_balance.vgc.team import VGCTeam, predict
+from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
 import numpy as np
 
 
@@ -94,17 +96,9 @@ class PolicyEntropyMetaData(MetaData):
             "pokemon": [p.to_dict() for p in self._pkm]
         }
 
-    def entropy(self, return_P) -> float:
-        A = np.zeros((len(self._pkm), STAGE_2_STATE_DIM))
-
-        for i, pkm in enumerate(self._pkm):
-            self.current_policy._mark(A[i], [], pkm)
+    def entropy(self) -> float:
         u = self.current_policy.get_u_fn()
-        P_A = softmax(u.predict(A))
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
-        return entropy_loss
+        return true_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE)
 
     def evaluate(self) -> float:
         # A: set of all pokemon statistics
@@ -114,6 +108,6 @@ class PolicyEntropyMetaData(MetaData):
         # we would have to do importance sampling over the historical trajectories
 
         #TODO: write a function here, so that I don't have to create numpy arrays in object
-        P_A, entropy_loss = self.entropy(True)
-        logging.info("P_A=%s\tEntropy=%s\t", str(list(P_A)), str(entropy_loss))
+        entropy_loss = self.entropy()
+
         return entropy_loss + self.distance_from_init_meta()
