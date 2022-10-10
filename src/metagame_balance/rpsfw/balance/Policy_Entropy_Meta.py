@@ -9,8 +9,8 @@ from scipy.stats import entropy
 from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
-
-
+from metagame_balance.rpsfw.team import RPSFWTeam, predict
+from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
 
 class PolicyEntropyMetaData(MetaData):
 
@@ -79,13 +79,11 @@ class PolicyEntropyMetaData(MetaData):
 
         return self.win_probs
 
-    def entropy(self, return_P:bool = False):
+    def entropy(self):
         u = self.current_policy.get_u_fn()
-        P_A = softmax(u.get_all_vals())
 
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
+        entropy_loss = true_entropy(RPSFWTeam, predict(u), 5, 1)
+        #logging.info("\n\tEntropy=%s", str(entropy_loss))
         return entropy_loss
 
 
@@ -100,7 +98,7 @@ class PolicyEntropyMetaData(MetaData):
 
     def evaluate(self) -> float:
         # TODO: write a function here, so that I don't have to create numpy arrays in object
-        P_A, entropy_loss = self.entropy(True)
-        logging.info("\nP_A=%s\tEntropy=%s", str(list(P_A)), str(entropy_loss))
+        u = self.current_policy.get_u_fn()
+        entropy_loss = self.entropy()
         logging.info("\n%s", str(self.win_probs))
         return entropy_loss + self.distance_from_init_meta()

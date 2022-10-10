@@ -9,6 +9,8 @@ from scipy.stats import entropy
 from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
+from metagame_balance.rpsfw.team import RPSFWTeam, predict
+from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
 
 
 class ERGMetaData(MetaData):
@@ -104,21 +106,21 @@ class ERGMetaData(MetaData):
         diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
-    def entropy(self, return_P: bool = False):
-        u = self.current_policy.utility_fn
-        P_A = softmax(u.get_all_vals())
 
-        entropy_loss = -entropy(P_A)
-        if return_P:
-            return P_A, entropy_loss
+    def entropy(self, return_P:bool = False):
+        u = self.current_policy.get_u_fn()
+
+        entropy_loss = true_entropy(RPSFWTeam, predict(u), 5, 1)
+        logging.info("\n\tEntropy=%s", str(entropy_loss))
         return entropy_loss
+
 
     def evaluate(self) -> float:
         payoff = self.get_win_probs()
         expected_payoff = self.get_balanced_payoff()
         reward = np.sum((self.get_ERG(payoff) - self.get_ERG(expected_payoff)) ** 2)
 
-        P_A, entropy_loss = self.entropy(True)
-        logging.info("\nP_A=%s\tERG=%s\tEntropy=%s", str(list(P_A)), str(reward), str(entropy_loss))
+        entropy_loss = self.entropy()
+        logging.info("\nERG=%s", str(reward))
         logging.info("\n%s", str(self.win_probs))
         return reward
