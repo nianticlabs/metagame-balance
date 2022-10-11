@@ -44,10 +44,7 @@ def init_vgc_domain(args: argparse.Namespace):
 def init_coolgame_domain(args: argparse.Namespace):
     return {
         "balancer": CMAESBalancePolicyV2(
-            init_var=args.cmaes_init_var,
-            integer_variables=np.arange(
-                0, len(CoolGameState.__dict__)
-            )
+            init_var=args.cmaes_init_var
         ),
         "env": CoolGameEnvironment(),
         "state_delta_constructor": CoolGameStateDelta.decode,
@@ -83,7 +80,7 @@ def setup_argparser():
     vgc_parser.set_defaults(func=init_vgc_domain)
 
     coolgame_parser = subparsers.add_parser("coolgame")
-    coolgame_parser.add_argument("--cmaes_init_var", type=float, default=15.)
+    coolgame_parser.add_argument("--cmaes_init_var", type=float, default=0.05)
     coolgame_parser.set_defaults(func=init_coolgame_domain)
 
     return parser

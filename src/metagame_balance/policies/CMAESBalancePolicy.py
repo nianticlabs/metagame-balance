@@ -13,7 +13,7 @@ from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
 
 
 class CMAESBalancePolicyV2(MetagameBalancePolicy):
-    def __init__(self, init_var = 0.05, integer_variables=None): #low var for faster convergence near the initial solution
+    def __init__(self, init_var = 0.05): #low var for faster convergence near the initial solution
         super().__init__()
         self.results = {
             'x': [],
@@ -23,7 +23,6 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
         self.optimizer = None
         self.num_runs = 0
         self.init_var = init_var
-        self.integer_variables = integer_variables
 
     def get_suggestion(self, environment: G, state: State[G],
                        state_delta_constructor: Callable[[np.ndarray, State[G]], StateDelta[G]],
@@ -40,8 +39,7 @@ class CMAESBalancePolicyV2(MetagameBalancePolicy):
             else:
                 bounds = environment.get_state_bounds()
                 self.optimizer = cma.CMAEvolutionStrategy(x, self.init_var,
-                        {'bounds': bounds,
-                         'integer_variables': self.integer_variables}) #'popsize':30})
+                        {'bounds': bounds}) #'popsize':30})
             self.generation_samples = self.optimizer.ask()
             self.results = {'x': [], 'y': []}
         next_state = self.generation_samples.pop(0)

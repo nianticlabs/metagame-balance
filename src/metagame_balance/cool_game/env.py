@@ -19,6 +19,9 @@ from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.cool_game import BotType
 from metagame_balance.framework import GameEnvironment, StateDelta, EvaluationResult, State
 
+# these aren't technically bounded in any way, but we'll practically bound them like this
+STATE_BOUNDS = [1, 1000]
+
 
 @dataclasses.dataclass
 class CoolGameState(State["CoolGameEnvironment"]):
@@ -42,7 +45,8 @@ class CoolGameState(State["CoolGameEnvironment"]):
     nail_ticks_between_moves: int = 1
 
     def encode(self) -> npt.NDArray:
-        return np.array([
+        # the optimizer wants all of these in [0, 1]
+        return ((np.array([
             self.torch_health,  # index 0
             self.torch_dmg,
             self.torch_torch_range,
@@ -61,11 +65,11 @@ class CoolGameState(State["CoolGameEnvironment"]):
             self.nail_dmg,
             self.nail_cooldown,
             self.nail_ticks_between_moves  # index 15
-        ])
+        ]) - STATE_BOUNDS[0]) / (STATE_BOUNDS[1] - STATE_BOUNDS[0]))
 
     @classmethod
     def decode(cls, encoded: npt.NDArray) -> State["CoolGameEnvironment"]:
-        encoded = np.round(encoded).astype(int)
+        encoded = (encoded * (STATE_BOUNDS[1] - STATE_BOUNDS[0]) + STATE_BOUNDS[0]).round().astype(int)
         return cls(
             encoded[0],
             encoded[1],
@@ -193,7 +197,7 @@ class CoolGameEnvironment(GameEnvironment):
         pass
 
     def get_state_bounds(self):
-        return [1, np.inf]
+        return [0, 1]
 
     def apply(self, state_delta: CoolGameStateDelta) -> CoolGameState:
         self.current_state = state_delta.next_state
