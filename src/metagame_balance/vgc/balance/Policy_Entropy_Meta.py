@@ -1,24 +1,20 @@
-import logging
-from abc import ABC, abstractmethod
-from math import exp
-from typing import Dict, List
-from scipy.stats import entropy
-from scipy.special import softmax
 from copy import deepcopy
-#from vgc.util.RosterParsers import MetaRosterStateParser
-from metagame_balance.vgc.balance import DeltaRoster
-from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, TEAM_SIZE
-from metagame_balance.vgc.balance.meta import MetaData, PkmId
-from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
-from metagame_balance.vgc.team import VGCTeam, predict
-from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
+from typing import Dict, List
+
 import numpy as np
+
+from metagame_balance.entropy_fns import true_entropy
+from metagame_balance.vgc.balance import DeltaRoster
+from metagame_balance.vgc.balance.meta import MetaData, PkmId
+from metagame_balance.vgc.datatypes.Constants import get_state_size
+from metagame_balance.vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
+from metagame_balance.vgc.team import VGCTeam, predict
+from metagame_balance.vgc.util.RosterParsers import MetaRosterStateParser
 
 
 class PolicyEntropyMetaData(MetaData):
 
-    def __init__(self):
+    def __init__(self, team_size: int):
         # listings - moves, pkm, teams
         self.init_state = None
         self.parser = None
@@ -30,6 +26,8 @@ class PolicyEntropyMetaData(MetaData):
 
         self.reg_weights = np.zeros(())
         self.update_params = ['policy', 'delta']
+        self.team_size = team_size
+        self.state_dim = get_state_size(team_size)
 
     def set_mask_weights(self, w):
         """
@@ -98,7 +96,8 @@ class PolicyEntropyMetaData(MetaData):
 
     def entropy(self) -> float:
         u = self.current_policy.get_u_fn()
-        return true_entropy(VGCTeam, predict(u, self._pkm), len(self._pkm), TEAM_SIZE)
+        return true_entropy(VGCTeam, predict(u, self._pkm, self.state_dim, self.team_size),
+                            len(self._pkm), self.team_size)
 
     def evaluate(self) -> float:
         # A: set of all pokemon statistics

@@ -1,30 +1,28 @@
 import json
 import logging
 import os.path
-from typing import Optional, Callable, List
+from typing import Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
 from metagame_balance.BalanceMeta import plot_rewards
-from metagame_balance.utility import UtilityFunctionManager
+from metagame_balance.FCNN import FCNN
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
-from metagame_balance.evaluate.approximate_entropy import ApproximatePolicyEntropyEvaluator, APEState, GamePolicy
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, StateDelta, \
-    G, Evaluator, State
-from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
+from metagame_balance.evaluate.approximate_entropy import APEState, GamePolicy
+from metagame_balance.framework import GameEnvironment, EvaluationResult, StateDelta, \
+    G
+from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.vgc.balance import DeltaRoster
-from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.balance.ERG_Meta import ERGMetaData
-from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
+from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, get_state_size
 from metagame_balance.vgc.datatypes.Objects import PkmRoster
 from metagame_balance.vgc.ecosystem.BattleEcosystem import Strategy
 from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from metagame_balance.FCNN import FCNN
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, DEFAULT_TEAM_SIZE
 
 BASE_ROSTER_SIZE = 30
 
@@ -98,10 +96,11 @@ class VGCEnvironment(GameEnvironment):
         torch.save(self.utility_fn_manager.adversary_U_function().state_dict(),
                    os.path.join(path, "adversary.pt"))
 
-    def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
-            n_league_epochs: int = 10, n_battles_per_league: int = 10,
-            reg_param: float = 0, alg_baseline = False):
-        # todo stupid config stuff
+    def __init__(self,
+                 roster_path: Optional[str] = None, verbose: bool = True,
+                 n_league_epochs: int = 10, n_battles_per_league: int = 10,
+                 reg_param: float = 0, alg_baseline: bool = False,
+                 team_size: int = DEFAULT_TEAM_SIZE):
         n_vgc_epochs = n_battles_per_league
 
         # number of championships to run
@@ -115,15 +114,16 @@ class VGCEnvironment(GameEnvironment):
 
         self.alg_baseline = alg_baseline
         if alg_baseline:
-            self.metadata = ERGMetaData()
+            self.metadata = ERGMetaData(team_size)
         else:
-            self.metadata = PolicyEntropyMetaData()
-        input_dim = STAGE_2_STATE_DIM
-        init_nn = FCNN([input_dim, 128, 64, 1])
+            self.metadata = PolicyEntropyMetaData(team_size)
+        self.team_size = team_size
+        init_nn = FCNN([get_state_size(team_size), 128, 64, 1])
         init_nn.compile()  # consider using SGD over Adam
 
         self.utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
-        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager)) for a in agent_names]
+        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager, team_size))
+                     for a in agent_names]
 
         if not roster_path:
             base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=BASE_ROSTER_SIZE).gen_roster()
@@ -141,7 +141,7 @@ class VGCEnvironment(GameEnvironment):
         # this partially reimplements GameBalanceEcosystem
         self.rewards: List[float] = []
         self.entropy_vals: List[float] = []
-        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False,                                          strategy=Strategy.RANDOM_PAIRING)
+        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, strategy=Strategy.RANDOM_PAIRING)
 
         for a in surrogate:
             self.vgc.register(a)
@@ -181,8 +181,7 @@ class VGCEnvironment(GameEnvironment):
         return VGCEvaluationResult(reward)
 
     def sample_payoff(self):
-
-        assert(DEFAULT_TEAM_SIZE == 2) #add more support later on
+        assert (DEFAULT_TEAM_SIZE == 2)  # add more support later on
         num_pkm = len(self.metadata._pkm)
         payoff = np.zeros(tuple([num_pkm] * 4))
         t1 = []

@@ -7,7 +7,7 @@ from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
 from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
 from metagame_balance.vgc.competition import CompetitorManager
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM
+from metagame_balance.vgc.datatypes.Constants import DEFAULT_TEAM_SIZE
 from metagame_balance.vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from metagame_balance.utility import UtilityFunctionManager
@@ -95,12 +95,12 @@ def run(args):
         base_roster[i].max_hp = random.randint(100, 300)
 
     """
-    input_dim = STAGE_2_STATE_DIM
+    input_dim = None
     init_nn = FCNN([input_dim, 128, 64, 1])
     init_nn.compile()  # consider using SGD over Adam
 
     utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
-    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager)) for agent_name in
+    surrogate_agent = [CompetitorManager(SeqSoftmaxCompetitor(agent_name, utility_fn_manager, None)) for agent_name in
                        agent_names]
     constraints = VGCDesignConstraints(base_roster)
     for i in base_roster:
@@ -109,7 +109,7 @@ def run(args):
             print(move.name, move.power, move.acc, move.max_pp)
     results = []
     competitor = ProposedCompetitor(NUM_PKM)
-    meta_data = PolicyEntropyMetaData()
+    meta_data = PolicyEntropyMetaData(DEFAULT_TEAM_SIZE)
     meta_data.set_moves_and_pkm(base_roster)
     reg_weights = np.ones((meta_data.parser.length_state_vector())) / 7
     meta_data.set_mask_weights(reg_weights)
