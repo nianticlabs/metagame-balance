@@ -8,7 +8,6 @@ from typing import TypeVar, Generic, Callable, Optional
 import matplotlib
 import numpy as np
 from tqdm import tqdm
-import datetime
 
 G = TypeVar("G", bound="GameEnvironment")
 

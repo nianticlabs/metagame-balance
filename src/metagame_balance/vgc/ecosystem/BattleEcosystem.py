@@ -4,8 +4,6 @@ from typing import List, Tuple
 
 from elo import rate_1vs1
 
-from tqdm import tqdm
-
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.competition import CompetitorManager
 from metagame_balance.vgc.competition.BattleMatch import BattleMatch

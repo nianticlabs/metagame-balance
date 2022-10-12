@@ -1,7 +1,6 @@
 import logging
 import operator
 
-from tqdm import tqdm
 from metagame_balance.agent.Example_Competitor import ExampleCompetitor
 from metagame_balance.agent.Fixed_Team_Competitor import FixedTeamCompetitor
 from metagame_balance.vgc.balance.meta import MetaData

@@ -43,6 +43,8 @@ In this section we present a set of introductory tutorials.
 Set Pokémon  battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
 by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 
+
+
 ```python
 team0, team1 = PkmTeam(), PkmTeam()
 agent0, agent1 = RandomBattlePolicy(), RandomBattlePolicy()

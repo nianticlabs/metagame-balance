@@ -1,16 +1,13 @@
 import logging
-from typing import TYPE_CHECKING
 
 import numpy as np
-from scipy.special import softmax
-from scipy.stats import entropy
 
-
+from metagame_balance.entropy_fns import true_entropy
+from metagame_balance.rpsfw.team import RPSFWTeam, predict
 from metagame_balance.rpsfw.util import MetaData
 from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
-from metagame_balance.rpsfw.team import RPSFWTeam, predict
-from metagame_balance.entropy_fns import true_entropy, sample_based_entropy, lower_bound_entropy
+
 
 class ERGMetaData(MetaData):
 

@@ -1,19 +1,18 @@
-from typing import Optional, Callable
-
-import numpy as np
 import logging
+
 import matplotlib.pyplot as plt
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, State, StateDelta, Evaluator, G
-from metagame_balance.utility import UtilityFunctionManager
-from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
-from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
-from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
-from metagame_balance.rpsfw.balance.ERG_Meta import ERGMetaData
-from metagame_balance.rpsfw.Rosters import RPSFWRoster, RPSFWDeltaRoster
-from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
-from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
-from metagame_balance.Tabular_Function import TabularFn
+import numpy as np
+
 from metagame_balance.BalanceMeta import plot_rewards
+from metagame_balance.Tabular_Function import TabularFn
+from metagame_balance.framework import GameEnvironment, EvaluationResult, State, StateDelta
+from metagame_balance.rpsfw.RPSFW_Ecosystem import RPSFWEcosystem
+from metagame_balance.rpsfw.Rosters import RPSFWRoster
+from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
+from metagame_balance.rpsfw.balance.ERG_Meta import ERGMetaData
+from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.utility import UtilityFunctionManager
+
 
 class RPSFWState(State["RPSFWEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
