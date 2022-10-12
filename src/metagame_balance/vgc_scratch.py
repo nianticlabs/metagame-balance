@@ -82,11 +82,12 @@ class VGCEnvironment(GameEnvironment):
         plt.savefig(path)
 
     def snapshot_game_state(self, path: str):
+        """Save the game state into """
         state_dict = self.metadata.to_dict()
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, "game_state.json"), "w") as outfile:
             json.dump(state_dict, outfile)
-        np.save(path, np.array(self.entropy_vals))
+        np.save(os.path.join(path, "entropies.npy"), np.array(self.entropy_vals))
 
     def snapshot_gameplay_policies(self, path: str):
         """Snapshot the teampickers - agent and adversary"""

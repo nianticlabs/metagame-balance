@@ -2,6 +2,9 @@ import argparse
 import datetime
 import logging
 import os
+from collections import namedtuple
+from pathlib import Path
+from typing import NamedTuple
 
 from metagame_balance.framework import Balancer
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
@@ -98,6 +101,28 @@ def main(args=None):
                         args.snapshot_game_state_epochs,
                         args.snapshot_gameplay_policy_epochs, prefix)
     balancer.run(args.n_epochs)
+
+    prefix = Path(prefix)
+    last_gamestate_iter = args.n_epochs // args.snapshot_game_state_epochs
+    last_policy_iter = args.n_epochs // args.snapshot_gameplay_policy_epochs
+    return Output(
+        log=(prefix / "log.log"),
+        last_game_state=(prefix / last_gamestate_iter / "game_state.json"),
+        entropy_values=(prefix / last_gamestate_iter / "entropies.npy"),
+        last_policy_adversary=(prefix / last_policy_iter / "adversary.pt"),
+        last_policy_agent=(prefix / last_policy_iter / "agent.pt"),
+        reward_plot=(prefix / "rewards.png")
+    )
+
+
+class Output(NamedTuple):
+    """Paths to various output files."""
+    log: Path
+    last_game_state: Path
+    entropy_values: Path
+    last_policy_adversary: Path
+    last_policy_agent: Path
+    reward_plot: Path
 
 
 if __name__ == "__main__":
