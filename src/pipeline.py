@@ -22,6 +22,7 @@ def _run_vgc(
         reward_plot: comp.OutputBinaryFile(str)
 ):
     from metagame_balance.main import main
+    from kfp import components as comp
 
     # these need to be in the right order
     args = [
@@ -43,8 +44,9 @@ def _run_vgc(
              (o.last_policy_adversary, last_policy_adversary), (o.reward_plot, reward_plot)]
 
     for vgc_output, pipeline_output in pairs:
-        with vgc_output.open("r") as infile, open(pipeline_output, "w") as outfile:
-            outfile.write(infile.read())
+        with vgc_output.open("r") as infile:
+            # outputs are textIOWrappers or ByteIOWrappers
+            pipeline_output.write(infile.read())
 
 
 run_vgc = create_component_from_func(
@@ -103,8 +105,8 @@ def pipeline(
 if __name__ == "__main__":
     from kfp import compiler, dsl
 
-    # cmplr = compiler.Compiler(mode=kfp.dsl.PipelineExecutionMode.V1_LEGACY)
-    # cmplr.compile(pipeline, "test.yaml")
-
-    kfp.run_pipeline_func_locally(pipeline, arguments={},
-                                  execution_mode=LocalClient.ExecutionMode('docker'))
+    cmplr = compiler.Compiler(mode=kfp.dsl.PipelineExecutionMode.V1_LEGACY)
+    cmplr.compile(pipeline, "test.yaml")
+    #
+    # kfp.run_pipeline_func_locally(pipeline, arguments={},
+    #                               execution_mode=LocalClient.ExecutionMode('docker'))
