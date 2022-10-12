@@ -6,7 +6,7 @@ authors = []
 license = "All rights reserved"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8,<4.0"
 numpy = "^1.23.3"
 gym = ">=0.10.9"
 PySimpleGUI = ">=4.20.0"
