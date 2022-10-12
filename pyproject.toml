@@ -7,7 +7,7 @@ license = "All rights reserved"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-numpy = ">=0.15.4"
+numpy = "^1.23.3"
 gym = ">=0.10.9"
 PySimpleGUI = ">=4.20.0"
 elo = "~=0.1.1"
@@ -19,6 +19,7 @@ simple-plugin-loader = "^2.0"
 torch = "1.10.2"
 setuptools = "58"
 tqdm = "^4.64.1"
+kfp = "^1.8.14"
 
 
 [tool.poetry.group.dev.dependencies]
