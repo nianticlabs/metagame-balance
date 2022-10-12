@@ -140,7 +140,7 @@ class Balancer:
 
         def epoch_counter():
             _i = 0
-            while _i < epochs and not self.balance_policy.converged(evaluation_result):
+            while _i <= epochs and not self.balance_policy.converged(evaluation_result):
                 yield _i
                 _i += 1
 
