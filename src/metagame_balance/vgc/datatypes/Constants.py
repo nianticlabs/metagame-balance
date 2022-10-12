@@ -74,6 +74,5 @@ MAX_PKM_HP = 500
 
 
 # Stage 2 STATE DIM
-# STAGE_2_STATE_DIM = TEAM_SIZE * (STATS_OPT_2_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_2_PER_MOVE)
 def get_state_size(team_size: int) -> int:
     return team_size * (STATS_OPT_2_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_2_PER_MOVE)

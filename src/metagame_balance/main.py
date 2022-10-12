@@ -12,11 +12,10 @@ from metagame_balance.vgc_scratch import VGCEnvironment, VGCStateDelta
 
 def init_rpsfw_domain(args: argparse.Namespace):
     return {
-        "balancer": CMAESBalancePolicyV2(init_var=0.7),
+        "balancer": CMAESBalancePolicyV2(init_var=args.cma_init_var),
         "env": RPSFWEnvironment(epochs=args.selection_epochs,
                                 reg_param=args.reg,
                                 alg_baseline=args.baseline),
-        # "parser": RPSFWParser(num_items=args.game_size)
         "state_delta_constructor": RPSFWStateDelta.decode,
         "name": "rpsfw"
     }
@@ -24,7 +23,7 @@ def init_rpsfw_domain(args: argparse.Namespace):
 
 def init_vgc_domain(args: argparse.Namespace):
     return {
-        "balancer": CMAESBalancePolicyV2(init_var=0.05),
+        "balancer": CMAESBalancePolicyV2(init_var=args.cma_init_var),
         "env": VGCEnvironment(roster_path=args.roster_path or None,
                               n_league_epochs=args.n_league_epochs,
                               n_battles_per_league=args.n_battles_per_league,
@@ -50,14 +49,17 @@ def setup_argparser():
 
     # rpsfw
     rpsfw_parser = subparsers.add_parser('rpsfw')
-    # TODO trickle config down
+    rpsfw_parser.add_argument("--cma_init_var", type=float, default=0.7)
     rpsfw_parser.add_argument('--game_size', type=int, default=5)
     rpsfw_parser.add_argument("--selection_epochs", type=int, default=10)
     rpsfw_parser.set_defaults(func=init_rpsfw_domain)
 
     # vgc
     vgc_parser = subparsers.add_parser("vgc")
+    vgc_parser.add_argument("--cma_init_var", type=float, default=0.05)
+    # stage2 iter
     vgc_parser.add_argument('--n_league_epochs', type=int, default=1)
+    # stage1 iter
     vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
     vgc_parser.add_argument('--roster_path', type=str)
     vgc_parser.add_argument('--num_pkm', type=int, default=30)
