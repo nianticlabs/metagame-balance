@@ -7,6 +7,7 @@ from typing import TypeVar, Generic, Callable, Optional
 
 import matplotlib
 import numpy as np
+import numpy.typing as npt
 from tqdm import tqdm
 import datetime
 
@@ -19,27 +20,17 @@ class EvaluationResult(Generic[G], metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def encode(self) -> float:
-        raise NotImplementedError
+        """
+        convert the internal representation of this game's evaluation result into a scalar.
 
-
-class EvaluationContext(Generic[G], metaclass=abc.ABCMeta):
-    pass
-
-
-class Evaluator(Generic[G], metaclass=abc.ABCMeta):
-    """Evaluates a gameplay policy on its environment. This will probably need a reference to the gameplay policy,
-    and receives updates on the historical performance"""
-    @abc.abstractmethod
-    def update(self, state_delta: "StateDelta[G]"):
-        raise NotImplementedError
-
-    def evaluate(self, state: "State[G]") -> EvaluationResult[G]:
+        This will be maximized by the balancer.
+        """
         raise NotImplementedError
 
 
 class State(Generic[G], metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def encode(self) -> np.array:
+    def encode(self) -> npt.NDArray:
         raise NotImplementedError
 
 
@@ -47,7 +38,11 @@ class StateDelta(Generic[G], metaclass=abc.ABCMeta):
     # the type bound is to encourage it to be compatible with state
     @classmethod
     @abc.abstractmethod
-    def decode(cls, encoded: np.ndarray, state: State[G]) -> "StateDelta[G]":
+    def decode(cls, encoded_next_state: npt.NDArray, current_state: State[G]) -> "StateDelta[G]":
+        """
+        Given an encoded state, create a statedelta. In a lot of cases, you can just wrap the new state in this class
+        and unwrap / apply it in downstream steps.
+        """
         raise NotImplementedError
 
 
@@ -74,7 +69,7 @@ class GameEnvironment(abc.ABC):
     @abc.abstractmethod
     def apply(self, state_delta: StateDelta[G]) -> \
             "State[G]":
-        """Convert an encoded state into a stateDelta, and apply it to the current game."""
+        """Convert an encoded state into a stateDelta, and apply it to the current game. Return the new state."""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -100,7 +95,7 @@ class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
     @abc.abstractmethod
     def get_suggestion(self, environment: G, state: State[G],
-                       state_delta_constructor: Callable[[np.array, State[G]], StateDelta[G]],
+                       state_delta_constructor: Callable[[npt.NDArray, State[G]], StateDelta[G]],
                        evaluation_result: EvaluationResult[G]) -> StateDelta[G]:
         raise NotImplementedError
 
@@ -112,11 +107,11 @@ class MetagameBalancePolicy(abc.ABC):
         raise NotImplementedError
 
 
-class Balancer:
+class Balancer(Generic[G]):
     def __init__(self,
                  balance_policy: MetagameBalancePolicy,
                  game_environment: G,
-                 state_delta_constructor: Callable[[np.array], StateDelta[G]],
+                 state_delta_constructor: Callable[[npt.NDArray, State[G]], StateDelta[G]],
                  snapshot_gameplay_policy_epochs: int,
                  snapshot_game_state_epochs: int,
                  experiment_dir: str
@@ -132,13 +127,11 @@ class Balancer:
         atexit.register(self.game_environment.plot_rewards, os.path.join(self.experiment_dir, "rewards.png"))
 
     def run(self, epochs: int):
-        state = self.game_environment.reset()
-        logging.info("Baseline evaluation")
-
+        self.game_environment.reset()
         logging.info("Starting balancer")
 
-        evaluation_result = None
-
+        evaluation_result: Optional[EvaluationResult[G]] = None
+        
         def epoch_counter():
             _i = 0
             while _i < epochs and not self.balance_policy.converged(evaluation_result):
@@ -157,7 +150,7 @@ class Balancer:
 
             # t + 1 step
             tick_bal = time.perf_counter()
-            state = self.game_environment.get_state()
+            state: State[G] = self.game_environment.get_state()
             suggestion = self.balance_policy.get_suggestion(self.game_environment, state, self.state_delta_constructor,
                                                             evaluation_result)
             self.game_environment.apply(suggestion)

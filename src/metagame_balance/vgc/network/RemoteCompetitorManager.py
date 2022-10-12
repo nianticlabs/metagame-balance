@@ -1,6 +1,6 @@
 from multiprocessing.connection import Listener
 
-from src.metagame_balance.vgc.competition import Competitor
+from metagame_balance.vgc.competition import Competitor
 
 
 class RemoteCompetitorManager:
