@@ -1,3 +1,5 @@
+
+
 import kfp
 import kfp.components as comp
 from kfp import dsl, LocalClient
@@ -23,6 +25,7 @@ def _run_vgc(
 ):
     from metagame_balance.main import main
     from kfp import components as comp
+    from io import TextIOWrapper
 
     # these need to be in the right order
     args = [
@@ -44,7 +47,11 @@ def _run_vgc(
              (o.last_policy_adversary, last_policy_adversary), (o.reward_plot, reward_plot)]
 
     for vgc_output, pipeline_output in pairs:
-        with vgc_output.open("r") as infile:
+        if isinstance(pipeline_output, TextIOWrapper):
+            read_options = "r"
+        else:
+            read_options = "rb"
+        with vgc_output.open(read_options) as infile:
             # outputs are textIOWrappers or ByteIOWrappers
             pipeline_output.write(infile.read())
 
