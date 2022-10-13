@@ -142,7 +142,8 @@ class VGCEnvironment(GameEnvironment):
         # this partially reimplements GameBalanceEcosystem
         self.rewards: List[float] = []
         self.entropy_vals: List[float] = []
-        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, strategy=Strategy.RANDOM_PAIRING)
+        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, strategy=Strategy.RANDOM_PAIRING,
+                                         team_size=team_size)
 
         for a in surrogate:
             self.vgc.register(a)

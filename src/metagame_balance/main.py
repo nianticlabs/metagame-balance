@@ -43,6 +43,7 @@ def init_vgc_domain(args: argparse.Namespace):
 
 def setup_argparser():
     parser = argparse.ArgumentParser()
+    # stage1 epochs
     parser.add_argument('--n_epochs', type=int, default=1)
     parser.add_argument("--snapshot_gameplay_policy_epochs", type=int, default=100)
     parser.add_argument("--snapshot_game_state_epochs", type=int, default=100)
@@ -60,9 +61,9 @@ def setup_argparser():
     # vgc
     vgc_parser = subparsers.add_parser("vgc")
     vgc_parser.add_argument("--cma_init_var", type=float, default=0.05)
-    # stage2 iter
+    # don't adjust this.
     vgc_parser.add_argument('--n_league_epochs', type=int, default=1)
-    # stage1 iter
+    # stage2 iter
     vgc_parser.add_argument('--n_battles_per_league', type=int, default=10)
     vgc_parser.add_argument('--roster_path', type=str)
     vgc_parser.add_argument('--num_pkm', type=int, default=30)
