@@ -36,9 +36,6 @@ def _run_vgc(
             '--n_battles_per_league', str(stage1_iter),
             '--num_pkm', str(num_pkm),
             '--team_size', str(team_size)]
-
-    print("pingy")
-
     o = main(args)
 
     pairs = [(o.log, logfile), (o.last_game_state, last_game_state),
@@ -79,23 +76,26 @@ run_vgc = create_component_from_func(
               description="metagame balance experiments pipeline",
               pipeline_root="gs://niantic-ml-data/ml-intern-rl/pipelines/experiment_v1")
 def pipeline(
-        # n_epochs: int,
-        # regularization: float,
-        # cma_init_var: float,
-        # stage2_iter: float
+        n_epochs: int,
+        regularization: float,
+        cma_init_var: float,
+        stage2_iter: int,
+        stage1_iter: int,
+        num_pkm: int,
+        team_size: int
 ):
     volume_name = "user-pypi-config"
     secret_name = "pypi-config"
     secret_mount_path = "/etc/xdg/pip"  # Pip global config path
 
     task = run_vgc(
-        n_epochs=1,
-        regularization=1,
-        cma_init_var=1,
-        stage2_iter=1,
-        stage1_iter=1,
-        num_pkm=10,
-        team_size=2)
+        n_epochs=n_epochs,
+        regularization=regularization,
+        cma_init_var=cma_init_var,
+        stage2_iter=stage2_iter,
+        stage1_iter=stage1_iter,
+        num_pkm=num_pkm,
+        team_size=team_size)
 
     task.add_volume(
         k8s_client.V1Volume(name=volume_name,
