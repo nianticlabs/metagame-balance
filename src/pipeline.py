@@ -66,7 +66,7 @@ run_vgc = create_component_from_func(
         "scipy>=1.5",
         "tqdm==4.64.1",
         "matplotlib==3.3.4",
-        "metagame-balance==0.1.1"
+        "metagame-balance==0.1.2"
     ]
 )
 
