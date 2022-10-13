@@ -128,12 +128,12 @@ class Balancer:
         self.experiment_dir = experiment_dir
         os.makedirs(experiment_dir, exist_ok=True)
         matplotlib.use("Agg")  # do not create a plot window when trying to exit
-        atexit.register(self.game_environment.plot_rewards, os.path.join(self.experiment_dir, "rewards.png"))
+        self.rewards_path = os.path.join(self.experiment_dir, "rewards.png")
+        atexit.register(self.game_environment.plot_rewards, self.rewards_path)
 
     def run(self, epochs: int):
         state = self.game_environment.reset()
         logging.info("Baseline evaluation")
-
         logging.info("Starting balancer")
 
         evaluation_result = None
@@ -174,3 +174,5 @@ class Balancer:
             if i % self.snapshot_game_state_epochs == 0:
                 logging.info(f"Saving game state to {iter_dir}")
                 self.game_environment.snapshot_game_state(iter_dir)
+
+        self.game_environment.plot_rewards(self.rewards_path)

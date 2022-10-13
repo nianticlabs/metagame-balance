@@ -24,7 +24,6 @@ def _run_vgc(
         reward_plot: comp.OutputBinaryFile(str)
 ):
     from metagame_balance.main import main
-    from kfp import components as comp
     from io import TextIOWrapper
 
     # these need to be in the right order

@@ -105,6 +105,7 @@ def main(args=None):
     prefix = Path(prefix)
     last_gamestate_iter = f"iter_{args.n_epochs // args.snapshot_game_state_epochs}"
     last_policy_iter = f"iter_{args.n_epochs // args.snapshot_gameplay_policy_epochs}"
+
     return Output(
         log=(prefix / "log.log"),
         last_game_state=(prefix / last_gamestate_iter / "game_state.json"),
