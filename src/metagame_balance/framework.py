@@ -93,24 +93,23 @@ class GameEnvironment(abc.ABC):
         """Plot the environment's reward history to a file at the given prefix. This will be called atexit by
         the balancer."""
         raise NotImplementedError
-
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def latest_gamestate_path(self) -> str:
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def latest_agent_policy_path(self) -> str:
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def latest_adversary_policy_path(self) -> str:
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def latest_entropy_path(self) -> str:
         pass
 
