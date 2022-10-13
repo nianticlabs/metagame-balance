@@ -5,22 +5,24 @@ from metagame_balance.agent.Example_Competitor import ExampleCompetitor
 from metagame_balance.agent.Fixed_Team_Competitor import FixedTeamCompetitor
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.competition import CompetitorManager, legal_team
-from metagame_balance.vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
+from metagame_balance.vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from metagame_balance.vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
 from metagame_balance.vgc.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
 from metagame_balance.vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
+from tqdm.auto import tqdm
 
 class ChampionshipEcosystem:
 
     def __init__(self, roster: PkmRoster, meta_data: MetaData, debug=False, render=False,
-                 n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING):
+                 n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING,
+                 team_size: int = DEFAULT_TEAM_SIZE):
         self.meta_data = meta_data
         self.roster = roster
         self.roster_view = get_pkm_roster_view(self.roster)
         self.rand_gen = RandomTeamFromRoster(self.roster)
         self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy,
-                                                       update_meta=True)
+                                                       update_meta=True, full_team_size=team_size)
         self.debug = debug
 
         self.test_rewards = []
@@ -45,7 +47,7 @@ class ChampionshipEcosystem:
         """
         For every epoch in n_epochs, simulate the whole league for n_league_epochs.
         """
-        for epoch in range(n_epochs):
+        for epoch in tqdm(range(n_epochs), desc="stage2_iter"):
             self.simulate_league(n_league_epochs)
 
             for cm in self.league.competitors:
@@ -55,6 +57,7 @@ class ChampionshipEcosystem:
             self.league.clear_wins()  # do we really need this?
             if epoch % 100 == 0:
                 # after every 100 matches check how good are we against random bot
+                logging.info("Testing agent vs random")
                 self.test_agent(n_league_epochs)
 
         # info for debugging and resetting test rewards

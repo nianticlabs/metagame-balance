@@ -94,6 +94,28 @@ class GameEnvironment(abc.ABC):
         the balancer."""
         raise NotImplementedError
 
+    @abc.abstractmethod
+    @property
+    def latest_gamestate_path(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    @property
+    def latest_agent_policy_path(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    @property
+    def latest_adversary_policy_path(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    @property
+    def latest_entropy_path(self) -> str:
+        pass
+
+
+
 
 class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy

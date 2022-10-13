@@ -9,7 +9,6 @@ from kubernetes import client as k8s_client
 
 
 def _run_vgc(
-        n_epochs: int,
         regularization: float,
         cma_init_var: float,
         stage2_iter: int,
@@ -28,12 +27,12 @@ def _run_vgc(
 
     # these need to be in the right order
     args = [
-            '--n_epochs', str(n_epochs),
+            '--n_epochs', str(stage1_iter),
             '--reg', str(regularization),
             'vgc',
             '--cma_init_var', str(cma_init_var),
-            '--n_league_epochs', str(stage2_iter),
-            '--n_battles_per_league', str(stage1_iter),
+            '--n_league_epochs', str(1),
+            '--n_battles_per_league', str(stage2_iter),
             '--num_pkm', str(num_pkm),
             '--team_size', str(team_size)]
     o = main(args)
@@ -67,7 +66,7 @@ run_vgc = create_component_from_func(
         "scipy>=1.5",
         "tqdm==4.64.1",
         "matplotlib==3.3.4",
-        "metagame-balance==0.1.0"
+        "metagame-balance==0.1.1"
     ]
 )
 
@@ -76,11 +75,10 @@ run_vgc = create_component_from_func(
               description="metagame balance experiments pipeline",
               pipeline_root="gs://niantic-ml-data/ml-intern-rl/pipelines/experiment_v1")
 def pipeline(
-        n_epochs: int,
+        stage1_iter: int,
         regularization: float,
         cma_init_var: float,
         stage2_iter: int,
-        stage1_iter: int,
         num_pkm: int,
         team_size: int
 ):
@@ -89,7 +87,6 @@ def pipeline(
     secret_mount_path = "/etc/xdg/pip"  # Pip global config path
 
     task = run_vgc(
-        n_epochs=n_epochs,
         regularization=regularization,
         cma_init_var=cma_init_var,
         stage2_iter=stage2_iter,

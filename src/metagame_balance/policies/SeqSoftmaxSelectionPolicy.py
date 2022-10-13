@@ -29,7 +29,6 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self.greedy = greedy
 
     def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRoster]) -> PkmFullTeam:
-
         team: List[Pkm] = []
         team_idxs: List[int] = []
         roster = list(d[2])

@@ -75,6 +75,22 @@ def _print_roster(roster: PkmRoster):
 
 
 class VGCEnvironment(GameEnvironment):
+    @property
+    def latest_gamestate_path(self):
+        return self._latest_gamestate_path
+
+    @property
+    def latest_agent_policy_path(self):
+        return self._latest_agent_policy_path
+
+    @property
+    def latest_adversary_policy_path(self):
+        return self._latest_adversary_policy_path
+
+    @property
+    def latest_entropy_path(self):
+        return self._latest_entropy_path
+
     def plot_rewards(self, path: str):
         logging.info(f"Saving rewards plot to {path}")
         logging.info(str(self.rewards))
@@ -86,22 +102,31 @@ class VGCEnvironment(GameEnvironment):
         state_dict = self.metadata.to_dict()
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, "game_state.json"), "w") as outfile:
+            self._latest_gamestate_path = os.path.join(path, "game_state.json")
             json.dump(state_dict, outfile)
         np.save(os.path.join(path, "entropies.npy"), np.array(self.entropy_vals))
+        self._latest_entropy_path = os.path.join(path, "entropies.npy")
 
     def snapshot_gameplay_policies(self, path: str):
         """Snapshot the teampickers - agent and adversary"""
         os.makedirs(path, exist_ok=True)
         torch.save(self.utility_fn_manager.agent_U_function().state_dict(),
                    os.path.join(path, "agent.pt"))
+        self._latest_agent_policy_path = os.path.join(path, "agent.pt")
         torch.save(self.utility_fn_manager.adversary_U_function().state_dict(),
                    os.path.join(path, "adversary.pt"))
+        self._latest_adversary_policy_path = os.path.join(path, "adversary.pt")
 
     def __init__(self,
                  roster_path: Optional[str] = None, verbose: bool = True,
                  n_league_epochs: int = 10, n_battles_per_league: int = 10,
                  reg_param: float = 0, alg_baseline: bool = False,
                  team_size: int = DEFAULT_TEAM_SIZE):
+        self._latest_gamestate_path = None
+        self._latest_agent_policy_path = None
+        self._latest_adversary_policy_path = None
+        self._latest_entropy_path = None
+
         n_vgc_epochs = n_battles_per_league
 
         # number of championships to run
@@ -183,6 +208,7 @@ class VGCEnvironment(GameEnvironment):
         return VGCEvaluationResult(reward)
 
     def sample_payoff(self):
+        logging.info("Simulating sample payoff")
         assert (DEFAULT_TEAM_SIZE == 2)  # add more support later on
         num_pkm = len(self.metadata._pkm)
         payoff = np.zeros(tuple([num_pkm] * 4))

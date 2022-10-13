@@ -104,15 +104,13 @@ def main(args=None):
     balancer.run(args.n_epochs)
 
     prefix = Path(prefix)
-    last_gamestate_iter = f"iter_{args.n_epochs // args.snapshot_game_state_epochs}"
-    last_policy_iter = f"iter_{args.n_epochs // args.snapshot_gameplay_policy_epochs}"
 
     return Output(
         log=(prefix / "log.log"),
-        last_game_state=(prefix / last_gamestate_iter / "game_state.json"),
-        entropy_values=(prefix / last_gamestate_iter / "entropies.npy"),
-        last_policy_adversary=(prefix / last_policy_iter / "adversary.pt"),
-        last_policy_agent=(prefix / last_policy_iter / "agent.pt"),
+        last_game_state=Path(balancer.game_environment.latest_gamestate_path),
+        entropy_values=Path(balancer.game_environment.latest_entropy_path),
+        last_policy_adversary=Path(balancer.game_environment.latest_adversary_policy_path),
+        last_policy_agent=Path(balancer.game_environment.latest_agent_policy_path),
         reward_plot=(prefix / "rewards.png")
     )
 

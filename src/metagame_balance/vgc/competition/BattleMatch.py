@@ -18,6 +18,7 @@ def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullT
         team_ids = list(c.team_selection_policy.get_action((my_team_view, opp_team_view)))
     except:
         team_ids = sample(range(full_team_size), DEFAULT_TEAM_SIZE)
+
     return full_team.get_battle_team(team_ids)
 
 
@@ -25,7 +26,8 @@ class BattleMatch:
 
     def __init__(self, competitor0: CompetitorManager, competitor1: CompetitorManager,
                  n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False, render: bool = False,
-                 meta_data: Optional[MetaData] = None, random_teams=False, update_meta=False):
+                 meta_data: Optional[MetaData] = None, random_teams=False, update_meta=False,
+                 full_team_size: int = DEFAULT_TEAM_SIZE):
         self.n_battles: int = n_battles
         self.cms: Tuple[CompetitorManager, CompetitorManager] = (competitor0, competitor1)
         self.wins: List[int] = [0, 0]
@@ -35,6 +37,7 @@ class BattleMatch:
         self.meta_data = meta_data
         self.random_teams = random_teams
         self.update_meta = update_meta
+        self.full_team_size = full_team_size
 
     def run(self):
         c0 = self.cms[0].competitor
@@ -53,8 +56,8 @@ class BattleMatch:
         a1 = c1.battle_policy
         battle = 0
         while battle < self.n_battles:
-            team0 = team_selection(c0, full_team0, team0_view0, team0_view1)
-            team1 = team_selection(c1, full_team1, team1_view1, team1_view0)
+            team0 = team_selection(c0, full_team0, team0_view0, team0_view1, full_team_size=self.full_team_size)
+            team1 = team_selection(c1, full_team1, team1_view1, team1_view0, full_team_size=self.full_team_size)
             battle += 1
             if self.debug:
                 print('BATTLE ' + str(battle) + '\n')
@@ -111,8 +114,9 @@ class RandomTeamsBattleMatch(BattleMatch):
 
     def __init__(self, gen: PkmTeamGenerator, competitor0: CompetitorManager, competitor1: CompetitorManager,
                  n_battles: int = DEFAULT_MATCH_N_BATTLES, debug: bool = False, render: bool = False,
-                 meta_data: Optional[MetaData] = None, random_teams=False):
-        super().__init__(competitor0, competitor1, n_battles, debug, render, meta_data, random_teams)
+                 meta_data: Optional[MetaData] = None, random_teams=False, full_team_size: int = DEFAULT_TEAM_SIZE):
+        super().__init__(competitor0, competitor1, n_battles, debug, render, meta_data, random_teams,
+                         full_team_size=full_team_size)
         self.gen: PkmTeamGenerator = gen
 
     def run(self):
