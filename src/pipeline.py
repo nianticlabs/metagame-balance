@@ -103,6 +103,10 @@ def pipeline(
     task.container.add_volume_mount(
         k8s_client.V1VolumeMount(name=volume_name, mount_path=secret_mount_path)
     )
+    (task.set_memory_request('4G')
+        .set_memory_limit('32G')
+        .set_cpu_request('2')
+        .set_cpu_limit('4'))
 
 
 if __name__ == "__main__":
