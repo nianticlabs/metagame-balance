@@ -5,6 +5,7 @@ from metagame_balance.agent.Example_Competitor import ExampleCompetitor
 from metagame_balance.agent.Fixed_Team_Competitor import FixedTeamCompetitor
 from metagame_balance.vgc.balance.meta import MetaData
 from metagame_balance.vgc.competition import CompetitorManager, legal_team
+from metagame_balance.vgc.competition.random_competitor import RandomTeamSelectionCompetitor
 from metagame_balance.vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from metagame_balance.vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
 from metagame_balance.vgc.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
@@ -24,6 +25,7 @@ class ChampionshipEcosystem:
         self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy,
                                                        update_meta=True, full_team_size=team_size)
         self.debug = debug
+        self.team_size = team_size
 
         self.test_rewards = []
 
@@ -90,7 +92,7 @@ class ChampionshipEcosystem:
         """
         TODO: Check for instabilities introduced by this!
         """
-        random_agent = CompetitorManager(ExampleCompetitor())
+        random_agent = CompetitorManager(RandomTeamSelectionCompetitor(self.team_size))
 
         learnt_cm = None
         adversary_cm = None

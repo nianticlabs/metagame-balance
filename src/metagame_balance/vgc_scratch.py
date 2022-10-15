@@ -118,10 +118,11 @@ class VGCEnvironment(GameEnvironment):
         self._latest_adversary_policy_path = os.path.join(path, "adversary.pt")
 
     def __init__(self,
+                 team_size: int,
                  roster_path: Optional[str] = None, verbose: bool = True,
                  n_league_epochs: int = 10, n_battles_per_league: int = 10,
                  reg_param: float = 0, alg_baseline: bool = False,
-                 team_size: int = DEFAULT_TEAM_SIZE):
+                 ):
         self._latest_gamestate_path = None
         self._latest_agent_policy_path = None
         self._latest_adversary_policy_path = None

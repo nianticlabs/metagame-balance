@@ -13,7 +13,7 @@ from metagame_balance.vgc.util.generator.PkmTeamGenerators import PkmTeamGenerat
 
 
 def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullTeamView,
-                   opp_team_view: PkmFullTeamView, full_team_size=DEFAULT_TEAM_SIZE) -> PkmTeam:
+                   opp_team_view: PkmFullTeamView, full_team_size) -> PkmTeam:
     try:
         team_ids = list(c.team_selection_policy.get_action((my_team_view, opp_team_view)))
     except:
