@@ -21,6 +21,7 @@ from metagame_balance.Tabular_Function import TabularFn
 from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.cool_game import BotType
 from metagame_balance.framework import GameEnvironment, StateDelta, EvaluationResult, State
+from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 
 # these aren't technically bounded in any way, but we'll practically bound them like this
 STATE_BOUNDS = [1, 1000]
@@ -193,8 +194,9 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info(f'params={self.current_state}')
 
 
-        #reward = self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail])
-        #TODO: reward = ERG
+        #if you can store the winrates (in fraction) in array(3) then just - 0.7 from each term and square and add
+        #TODO calculate ERG
+        reward = ERG
         """
         ERG will be (winrate saw_vs_nail - ideal)^2  + (win_rate torch_vs_nail)^2 + ...
         """
@@ -211,9 +213,11 @@ class CoolGameEnvironment(GameEnvironment):
     def evaluate_entropy(self, eval_only = False):
         mcts_budget = 5
         benchmarking_episodes = 10
+        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
+                       "selection_phase": "ucb1", "exploration_factor_ucb1": 4}
         for i in range(self.epochs):
-            item1, item2 = self.players[0].get_action(self.roster), \
-                           self.players[1].get_action(self.roster)
+            item1, item2 = self.players[0].get_action(self.item_map), \
+                           self.players[1].get_action(self.item_map)
             items = [item1, item2]
             env = _make_gym(botA_type=item1, botB_type=item2,
                                          **dataclasses.asdict(self.current_state))
@@ -223,12 +227,13 @@ class CoolGameEnvironment(GameEnvironment):
                                                     'Saw vs Torch', benchmarking_episodes,
                                                     mcts_budget)
 
-            lose = # 1 if item1 wins else -1
+            #TODO battle between item1 and item1.
+            reward = battle()# 1 if item1 wins else -1
 
             for i, player in enumerate(self.players):
                 player.update(items[i], reward)
 
-            u = self.players[0].get_u_fn()
+            u = self.players[0].get_u_fn().get_all_vals()
             P_A = softmax(u)
             entropy_loss = -entropy(P_A)
             self.entropy.append(entropy_loss)
@@ -262,8 +267,7 @@ class CoolGameEnvironment(GameEnvironment):
 
     def snapshot_game_state(self, path: str):
         logging.info("Objective: %s \n", str(self.rewards))
-        logging.info("Entropy_loss: %s \n", str(self.entropy_loss))
-        pass
+        logging.info("Entropy_loss: %s \n", str(self.entropy))
 
     def plot_rewards(self, path: str):
         plot_rewards(self.rewards)

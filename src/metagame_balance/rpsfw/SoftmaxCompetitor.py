@@ -19,7 +19,7 @@ class SoftmaxCompetitor:
     def set_greedy(self, greedy: bool):
         self.greedy = greedy
 
-    def get_action(self, roster: RPSFWRoster):
+    def get_action(self, roster):
         u = self.utility_fn
         values = u.get_all_vals()
         if self.greedy:
@@ -28,6 +28,10 @@ class SoftmaxCompetitor:
             selection_idx = np.random.choice(range(len(roster)), p=softmax(values))
 
         return selection_idx
+
+    def get_u_fn(self):
+        return self.utility_fn
+
     def _get_agent_reward(self, raw_reward:float) -> float:
         if self.name == "agent":
             return raw_reward
