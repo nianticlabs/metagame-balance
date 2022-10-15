@@ -16,6 +16,7 @@ def _run_vgc(
         num_pkm: int,
         team_size: int,
         baseline: bool,
+        update_after: int,
         logfile: comp.OutputTextFile(str),
         last_game_state: comp.OutputBinaryFile(str),
         entropy_values: comp.OutputBinaryFile(str),
@@ -32,6 +33,7 @@ def _run_vgc(
             '--reg', str(regularization),
             'vgc',
             '--cma_init_var', str(cma_init_var),
+            '--update_after', str(update_after),
             '--n_league_epochs', str(1),
             '--n_battles_per_league', str(stage2_iter),
             '--num_pkm', str(num_pkm),
@@ -86,7 +88,8 @@ def pipeline(
         stage2_iter: int,
         num_pkm: int,
         team_size: int,
-        baseline: bool
+        baseline: bool,
+        update_after: int
 ):
     volume_name = "user-pypi-config"
     secret_name = "pypi-config"
@@ -99,7 +102,8 @@ def pipeline(
         stage1_iter=stage1_iter,
         num_pkm=num_pkm,
         team_size=team_size,
-        baseline=baseline
+        baseline=baseline,
+        update_after=update_after
     )
 
     task.add_volume(
