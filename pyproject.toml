@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metagame_balance"
-version = "0.2.0"
+version = "0.3.0"
 description = "Fork of the pokemon vgc engine for a niantic-internal research project."
 authors = []
 license = "All rights reserved"

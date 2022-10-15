@@ -21,9 +21,8 @@ class SeqSoftmaxCompetitor(Competitor):
         self._team_build_policy = SeqSoftmaxSelectionPolicy(utility_manager, self.get_u_fn, update_policy, team_size) #create a policy based on U!
         self._battle_policy = BetterRandomBattlePolicy()
         # the ecosystem supports battle types where there's an additional unblinded team subselection phase after
-        # the initial team building, but we will simply select 2 pokemon randomly as our battle team
-        # (this was the default behavior)
-        self._team_selection_policy = RandomTeamSelectionPolicy(teams_size=team_size, selection_size=2)
+        # the initial team building, but we'll simply reselect the whole team for the fight
+        self._team_selection_policy = RandomTeamSelectionPolicy(teams_size=team_size, selection_size=team_size)
 
     @property
     def name(self):
