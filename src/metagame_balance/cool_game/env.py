@@ -134,17 +134,21 @@ def _make_gym(botA_type, botB_type, **kwargs):
 
 
 class CoolGameEnvironment(GameEnvironment):
-    def __init__(self, relearn_agents: bool = False):
+    def __init__(self, epochs: int, reg_param: int = 0,
+            alg_baseline: bool= False, relearn_agents: bool = False):
         """
 
         Parameters
         ----------
         relearn_agents: relearn the agents on every evaluation call or not.
         """
+        self.alg_baseline = alg_baseline
+        self.epochs = epochs
+        self.reg = reg_param
         self.current_state: CoolGameState = CoolGameState()
         self.rewards: typing.List[float] = []
 
-    def evaluate(self) -> CoolGameEvaluationResult:
+    def evaluate_ERG(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
         # 0 - sawbot, 1 - torchbot, 2 - nailbot
         # regym framework got mildly broken, so use my weird version
@@ -177,17 +181,17 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
         logging.info(f'params={self.current_state}')
 
+
         reward = self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail])
         self.rewards.append(reward)
         return CoolGameEvaluationResult(reward)
 
-    def entropy_from_winrates(self, winrates: typing.List[float]) -> float:
-        """compute pick entropy from winrates"""
-        # in rpsfw, we have to train two opposing softmax competitors to equilibrium to get the payoffs
-        # here, we will assume that the evaluator has gotten a really good sense of the payoff via
-        # the winrate benchmark
-        # then just directly take the entropy of the winrates
-        return entropy(winrates)
+    def evaluate(self) -> CoolGameEvaluationResult:
+        if self.alg_baseline:
+            return self.evaluate_ERG()
+        return self.evaluate_entropy()
+
+    def evaluate_entropy(self):
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
