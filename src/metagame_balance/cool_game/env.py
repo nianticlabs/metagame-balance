@@ -5,7 +5,7 @@ import typing
 
 import gym
 # this registers the gym on import, don't delete
-import gym_cool_game  # noqa
+#import gym_cool_game  # noqa
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt

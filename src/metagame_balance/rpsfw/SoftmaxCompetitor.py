@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.special import softmax
 
-from metagame_balance.rpsfw.Rosters import RPSFWRoster
-from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.utility import UtilityFunctionManager
 
 
@@ -40,7 +38,7 @@ class SoftmaxCompetitor:
         else:
             raise Exception("Unknown Player Name")
 
-    def update(self, selection: RPSFWItems, raw_reward: float):
+    def update(self, selection, raw_reward: float):
         u = self.utility_fn
         reward = self._get_agent_reward(raw_reward)
         #from scipy.special import softmax
