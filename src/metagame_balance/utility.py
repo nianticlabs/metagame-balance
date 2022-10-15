@@ -1,8 +1,7 @@
 from collections import deque
-from torch import nn
 from copy import deepcopy
-import numpy as np
 
+from torch import nn
 
 class UtilityFunctionManager:
     """

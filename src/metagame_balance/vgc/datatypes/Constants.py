@@ -33,7 +33,6 @@ STATE_DAMAGE = MAX_HIT_POINTS / 8.
 SPIKES_2 = MAX_HIT_POINTS / 6.
 SPIKES_3 = MAX_HIT_POINTS / 4.
 
-
 # Pkm type chart
 TYPE_CHART_MULTIPLIER = (
     (1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., .5, .0, 1., 1., .5, 1.),  # NORMAL
@@ -56,14 +55,14 @@ TYPE_CHART_MULTIPLIER = (
     (1., .5, 1., 1., 1., 1., 2., .5, 1., 1., 1., 1., 1., 1., 2., 2., .5, 1.)  # FAIRY
 )
 
-TYPES = ['NORMAL', 'FIRE', 'WATER', 'ELECTRIC', 'GRASS', 'ICE', 'FIGHTING', 'POISON', 'GROUND', 'FLYING', 'PSYCHIC', 'BUG', 'ROCK', 'GHOST', 'DRAGON', 'DARK', 'STEEL', 'FAIRY']
+TYPES = ['NORMAL', 'FIRE', 'WATER', 'ELECTRIC', 'GRASS', 'ICE', 'FIGHTING', 'POISON', 'GROUND', 'FLYING', 'PSYCHIC',
+         'BUG', 'ROCK', 'GHOST', 'DRAGON', 'DARK', 'STEEL', 'FAIRY']
 
 NUM_TYPES = len(TYPE_CHART_MULTIPLIER)
 
-#OPT parameters
+# OPT parameters
 STATS_OPT_2_PER_MOVE = 3 + NUM_TYPES
 STATS_OPT_2_PER_PKM = 1 + NUM_TYPES
-TEAM_SIZE = DEFAULT_TEAM_SIZE
 
 STATS_OPT_1_PER_MOVE = 3
 STATS_OPT_1_PER_PKM = 1
@@ -73,5 +72,7 @@ MAX_MOVE_ACC = 1.
 MAX_MOVE_MAX_PP = 20
 MAX_PKM_HP = 500
 
+
 # Stage 2 STATE DIM
-STAGE_2_STATE_DIM = TEAM_SIZE * (STATS_OPT_2_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_2_PER_MOVE) #seems like a wrong place
+def get_state_size(team_size: int) -> int:
+    return team_size * (STATS_OPT_2_PER_PKM + DEFAULT_N_MOVES_PKM * STATS_OPT_2_PER_MOVE)

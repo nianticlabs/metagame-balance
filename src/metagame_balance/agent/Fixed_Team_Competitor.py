@@ -1,8 +1,10 @@
+from typing import List
+
+from metagame_balance.policies.FixedTeamPolicy import FixedTeamPolicy
 from metagame_balance.vgc.behaviour import TeamBuildPolicy, BattlePolicy
 from metagame_balance.vgc.behaviour.BattlePolicies import BetterRandomBattlePolicy
 from metagame_balance.vgc.competition.Competitor import Competitor
-from metagame_balance.policies.FixedTeamPolicy import FixedTeamPolicy
-from typing import List, Optional
+
 
 class FixedTeamCompetitor(Competitor):
     def __init__(self, name:str, team: List, utility_manager = None):

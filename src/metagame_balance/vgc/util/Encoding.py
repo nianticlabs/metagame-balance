@@ -129,14 +129,21 @@ def encode_team(e, team: PkmTeam):
         encode_pkm(e, pkm)
 
 
+def _nonempty_team_pred(team_prediction: PkmTeamPrediction) -> bool:
+    """If this is an empty team prediction (i.e. the party list is empty), then return false"""
+    if not team_prediction or not team_prediction.party:
+        return False
+    return True
+
+
 def partial_encode_team(e, team: PkmTeam, team_prediction: Union[PkmTeamPrediction, None] = None):
     e += [team.confused]
     e += team.entry_hazard
     for stat in range(N_STATS):
         e += [team.stage[stat] / 5]
-    partial_encode_pkm(e, team.active, team_prediction.active if team_prediction is not None else None)
+    partial_encode_pkm(e, team.active, team_prediction.active if _nonempty_team_pred(team_prediction) else None)
     for i, pkm in enumerate(team.party):
-        partial_encode_pkm(e, pkm, team_prediction.party[i] if team_prediction is not None else None)
+        partial_encode_pkm(e, pkm, team_prediction.party[i] if _nonempty_team_pred(team_prediction) else None)
 
 
 def decode_team(e) -> PkmTeam:
