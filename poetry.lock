@@ -506,7 +506,7 @@ pygame = "*"
 
 [package.source]
 type = "git"
-url = "git@github.com:Danielhp95/GGJ-2020-cool-game.git"
+url = "https://github.com/Danielhp95/GGJ-2020-cool-game.git"
 reference = "HEAD"
 resolved_reference = "1673b9ec5de53bfe67d3c5514795666bca393960"
 
@@ -1594,7 +1594,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "1c234da6dea6712b5798cefe495e117a89e8a441f0347f269deb5ea20f515d41"
+content-hash = "316665b909d07c532dbc364e779fede8ac523cd1afbc11a85c4213a90e43f64d"
 
 [metadata.files]
 absl-py = [
