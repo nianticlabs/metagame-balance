@@ -26,7 +26,6 @@ def plot_rewards(loss: list, smoothing_steps: int = 10) -> None:
     plt.xlabel("Iterations")
     plt.ylabel("Reward")
     plt.title("Reward for Stage 1 per iteration")
-    plt.show()
 
 
 def run(args):

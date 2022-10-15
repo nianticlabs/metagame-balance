@@ -3,7 +3,6 @@ from copy import deepcopy
 
 from torch import nn
 
-
 class UtilityFunctionManager:
     """
     Responsible for maintaining the utility function
@@ -14,7 +13,7 @@ class UtilityFunctionManager:
     """
 
     def __init__(self, u, delay_by: int = 10):  # TODO: tune this delay_by
-        self.list_u_fn = deque([u], delay_by)  # Neural network!!
+        self.list_u_fn = deque([u], delay_by)
         self.list_u_fn.append(deepcopy(u))
 
     def add(self, u):

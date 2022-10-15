@@ -9,6 +9,7 @@ from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.util.Parsers import MetaRosterStateParser
 
 
+
 class ERGMetaData(MetaData):
 
     def __init__(self):
@@ -102,6 +103,7 @@ class ERGMetaData(MetaData):
         diff = self.parser.win_probs_to_state(init_win_probs - self.win_probs)
         return ((self.reg_weights * diff) ** 2).mean(axis=0) / 100  ##something reasonable
 
+
     def entropy(self, return_P:bool = False):
         u = self.current_policy.get_u_fn()
 
@@ -111,7 +113,6 @@ class ERGMetaData(MetaData):
 
 
     def evaluate(self) -> float:
-
         payoff = self.get_win_probs()
         expected_payoff = self.get_balanced_payoff()
         reward = np.sum((self.get_ERG(payoff) - self.get_ERG(expected_payoff)) ** 2)

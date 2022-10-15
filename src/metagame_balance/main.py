@@ -6,6 +6,7 @@ from collections import namedtuple
 from pathlib import Path
 from typing import NamedTuple
 
+from metagame_balance.cool_game.env import CoolGameEnvironment, CoolGameStateDelta, CoolGameState
 from metagame_balance.framework import Balancer
 from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
 from metagame_balance.rpsfw_scratch import RPSFWEnvironment, RPSFWStateDelta
@@ -42,6 +43,17 @@ def init_vgc_domain(args: argparse.Namespace):
     }
 
 
+def init_coolgame_domain(args: argparse.Namespace):
+    return {
+        "balancer": CMAESBalancePolicyV2(
+            init_var=args.cmaes_init_var
+        ),
+        "env": CoolGameEnvironment(),
+        "state_delta_constructor": CoolGameStateDelta.decode,
+        "name": "cool_game"
+    }
+
+
 def setup_argparser():
     parser = argparse.ArgumentParser()
     # stage1 epochs
@@ -72,6 +84,10 @@ def setup_argparser():
     vgc_parser.add_argument('--team_size', type=int, default=3)
     vgc_parser.add_argument("--update_after", type=int, default=100)
     vgc_parser.set_defaults(func=init_vgc_domain)
+
+    coolgame_parser = subparsers.add_parser("coolgame")
+    coolgame_parser.add_argument("--cmaes_init_var", type=float, default=0.05)
+    coolgame_parser.set_defaults(func=init_coolgame_domain)
 
     return parser
 

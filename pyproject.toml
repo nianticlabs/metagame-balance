@@ -13,13 +13,14 @@ PySimpleGUI = ">=4.20.0"
 elo = "~=0.1.1"
 arcade = "~=2.6.7"
 cma = "~=3.2.2"
-scipy = "^1.5"
-matplotlib = "^3.3.3"
+scipy = "^1.9.1"
+matplotlib = "^3.6.0"
 simple-plugin-loader = "^2.0"
 torch = "1.10.2"
 setuptools = "58"
 tqdm = "^4.64.1"
-kfp = "^1.8.14"
+gym-cool-game = {git = "git@github.com:Danielhp95/GGJ-2020-cool-game.git"}
+regym = {git = "https://github.com/Danielhp95/Regym.git", branch="develop-improving-play-match-utils"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -28,13 +29,21 @@ snakeviz = "^2.1.1"
 py-spy = "^0.3.14"
 mypy = "^0.981"
 kfp = {extras = ["all"], version = "^1.8.14"}
+ipython = "^8.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 
-
 [tool.poetry.scripts]
 main = "metagame_balance.main:main"
 BalanceMeta = "metagame_balance.BalanceMeta:main"
+
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib",
+    "tqdm",
+    "scipy.*"
+]
+ignore_missing_imports = true

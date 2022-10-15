@@ -7,12 +7,11 @@ from metagame_balance.utility import UtilityFunctionManager
 
 
 class SoftmaxCompetitor:
-    def __init__(self, name:str, utility_fn: UtilityFunctionManager,
-                get_u_fn, update_policy:bool, lr: float = 1e-2):
+    def __init__(self, name:str,
+                utility_fn, update_policy:bool, lr: float = 1e-2):
         self.name = name
-        self.utility_fn = utility_fn
 
-        self.get_u_fn = get_u_fn
+        self.utility_fn = utility_fn
         self.lr = lr
         self.greedy = False
         self._updatable = update_policy
@@ -21,7 +20,7 @@ class SoftmaxCompetitor:
         self.greedy = greedy
 
     def get_action(self, roster: RPSFWRoster):
-        u = self.get_u_fn()
+        u = self.utility_fn
         values = u.get_all_vals()
         if self.greedy:
             selection_idx = np.argmax(values)
@@ -35,10 +34,10 @@ class SoftmaxCompetitor:
         elif self.name == "adversary":
             return -raw_reward
         else:
-            raise Exception("Unkown Player Name")
+            raise Exception("Unknown Player Name")
 
     def update(self, selection: RPSFWItems, raw_reward: float):
-        u = self.get_u_fn()
+        u = self.utility_fn
         reward = self._get_agent_reward(raw_reward)
         #from scipy.special import softmax
         #print(self.name, reward, selection, list(softmax(u.get_all_vals())))

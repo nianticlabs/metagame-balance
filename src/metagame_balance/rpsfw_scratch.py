@@ -27,9 +27,9 @@ class RPSFWStateDelta(StateDelta["RSPFWEnvironment"]):
         self.delta_roster = delta_roster
 
     @classmethod
-    def decode(cls, encoded: np.ndarray, state: RPSFWState) -> "RPSFWStateDelta":
-        delta_roster = state.policy_entropy_metadata.parser \
-            .state_to_delta_roster(encoded, state.policy_entropy_metadata)
+    def decode(cls, encoded_next_state: np.ndarray, current_state: RPSFWState) -> "RPSFWStateDelta":
+        delta_roster = current_state.policy_entropy_metadata.parser \
+            .state_to_delta_roster(encoded_next_state, current_state.policy_entropy_metadata)
         return cls(delta_roster)
 
 
@@ -62,12 +62,9 @@ class RPSFWEnvironment(GameEnvironment):
         surrogate = []
         for a in agent_names:
             if a == "agent":
-                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.agent_U_function, True))
-
+                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
             else:
-                surrogate.append(SoftmaxCompetitor(a, self.utility_manager,
-                                                   self.utility_manager.adversary_U_function, True))
+                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
 
         base_roster = RPSFWRoster(self.metadata)
         if verbose:
@@ -127,5 +124,4 @@ class RPSFWEnvironment(GameEnvironment):
 
 
     def __str__(self) -> str:
-
         return "RPSFW"

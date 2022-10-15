@@ -24,7 +24,7 @@ class MetaRosterStateParser:
         """
         return (state_vec + 1) / 2
 
-    def unnormalize_state_vector(self, normed_state_vec:np.ndarray) -> np.ndarray:
+    def unnormalize_state_vector(self, normed_state_vec: np.ndarray) -> np.ndarray:
         return normed_state_vec * 2 - 1
 
     def get_state_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
