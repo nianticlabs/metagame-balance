@@ -13,7 +13,10 @@ from regym.environments import EnvType
 from regym.environments.gym_parser import parse_gym_environment
 from regym.evaluation import benchmark_agents_on_tasks
 from regym.rl_algorithms import build_MCTS_Agent
+from scipy.special import softmax
 from scipy.stats import entropy
+from metagame_balance.utility import UtilityFunctionManager
+from metagame_balance.Tabular_Function import TabularFn
 
 from metagame_balance.BalanceMeta import plot_rewards
 from metagame_balance.cool_game import BotType
@@ -145,8 +148,16 @@ class CoolGameEnvironment(GameEnvironment):
         self.alg_baseline = alg_baseline
         self.epochs = epochs
         self.reg = reg_param
+        fn_approx = TabularFn(3)  # rpsfw?
+        self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
         self.current_state: CoolGameState = CoolGameState()
+        self.item_reverse_map =  {'saw':0, 'torch':1, 'nail':2}
+        self.item_map =  ['saw','torch','nail']
         self.rewards: typing.List[float] = []
+        self.entropy: typing.List[float] = []
+        self.players = [SoftmaxCompetitor("agent", TabularFn(3), True),
+                        SoftmaxCompetitor("adversary", TabularFn(3), True)]
+
 
     def evaluate_ERG(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
@@ -182,8 +193,14 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info(f'params={self.current_state}')
 
 
-        reward = self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail])
+        #reward = self.entropy_from_winrates([saw_vs_torch, saw_vs_nail, torch_vs_nail])
+        #TODO: reward = ERG
+        """
+        ERG will be (winrate saw_vs_nail - ideal)^2  + (win_rate torch_vs_nail)^2 + ...
+        """
+        logging.info("ERG=%s", reward)
         self.rewards.append(reward)
+        self.evaluate_entropy(eval_only = True) ### Just for logging!
         return CoolGameEvaluationResult(reward)
 
     def evaluate(self) -> CoolGameEvaluationResult:
@@ -191,7 +208,37 @@ class CoolGameEnvironment(GameEnvironment):
             return self.evaluate_ERG()
         return self.evaluate_entropy()
 
-    def evaluate_entropy(self):
+    def evaluate_entropy(self, eval_only = False):
+        mcts_budget = 5
+        benchmarking_episodes = 10
+        for i in range(self.epochs):
+            item1, item2 = self.players[0].get_action(self.roster), \
+                           self.players[1].get_action(self.roster)
+            items = [item1, item2]
+            env = _make_gym(botA_type=item1, botB_type=item2,
+                                         **dataclasses.asdict(self.current_state))
+            mcts_agent = build_MCTS_Agent(env, mcts_config, "mcts agent")
+
+            smthing = compute_matchup_winrates(mcts_agent, env,
+                                                    'Saw vs Torch', benchmarking_episodes,
+                                                    mcts_budget)
+
+            lose = # 1 if item1 wins else -1
+
+            for i, player in enumerate(self.players):
+                player.update(items[i], reward)
+
+            u = self.players[0].get_u_fn()
+            P_A = softmax(u)
+            entropy_loss = -entropy(P_A)
+            self.entropy.append(entropy_loss)
+            logging.info("Entropy Loss=%s", entropy_loss)
+            if not eval_only:
+                self.rewards.append(reward)
+                return CoolGameEvaluationResult(entropy_loss)
+            else:
+                return entropy_loss
+            #item1, item2 = map(self.item_map, [item1, item2])
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
@@ -214,6 +261,8 @@ class CoolGameEnvironment(GameEnvironment):
         pass
 
     def snapshot_game_state(self, path: str):
+        logging.info("Objective: %s \n", str(self.rewards))
+        logging.info("Entropy_loss: %s \n", str(self.entropy_loss))
         pass
 
     def plot_rewards(self, path: str):
