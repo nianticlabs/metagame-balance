@@ -11,14 +11,16 @@ class SeqSoftmaxCompetitor(Competitor):
     Competitor that uses sequential softmax to determine how to form the team from the whole roster, and uses a random
     policy to determine what subteam to pick after being shown the opponent's full team.
     """
-    def __init__(self, name: str, utility_manager: UtilityFunctionManager, team_size: int):
+    def __init__(self, name: str, utility_manager: UtilityFunctionManager, team_size: int, update_after: int):
         self._name = name
         update_policy = True
         if name == 'adversary':
             self.get_u_fn = utility_manager.adversary_U_function
         else:
             self.get_u_fn = utility_manager.agent_U_function
-        self._team_build_policy = SeqSoftmaxSelectionPolicy(utility_manager, self.get_u_fn, update_policy, team_size) #create a policy based on U!
+        self._team_build_policy = SeqSoftmaxSelectionPolicy(utility_manager, self.get_u_fn, update_policy, team_size,
+                                                            update_after)
+        #create a policy based on U!
         self._battle_policy = BetterRandomBattlePolicy()
         # the ecosystem supports battle types where there's an additional unblinded team subselection phase after
         # the initial team building, but we'll simply reselect the whole team for the fight

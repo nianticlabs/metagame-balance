@@ -15,12 +15,13 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
     Ignore S_g as of now
     """
 
-    def __init__(self, utility_manager: UtilityFunctionManager, get_u_fn, update_policy: bool, team_size: int):
+    def __init__(self, utility_manager: UtilityFunctionManager, get_u_fn, update_policy: bool, team_size: int,
+                 update_after: int):
         self.team_size = team_size
         self.get_u_fn = get_u_fn  ### This should be function pointer
         self.utility_manager = utility_manager
         self._updatable = update_policy
-        self.update_after = 100  #### perform an update after completion of certain number of episode, hacks for on-policy learning
+        self.update_after = update_after  #### perform an update after completion of certain number of episode, hacks for on-policy learning
         self.buffer = {'x': [],
                        'y': []}  # NOT replay buffer, just because neural networks don't work well with small batch sizes
         self.greedy = False
