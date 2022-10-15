@@ -15,6 +15,8 @@ def _run_vgc(
         stage1_iter: int,
         num_pkm: int,
         team_size: int,
+        baseline: bool,
+        update_after: int,
         logfile: comp.OutputTextFile(str),
         last_game_state: comp.OutputBinaryFile(str),
         entropy_values: comp.OutputBinaryFile(str),
@@ -31,10 +33,15 @@ def _run_vgc(
             '--reg', str(regularization),
             'vgc',
             '--cma_init_var', str(cma_init_var),
+            '--update_after', str(update_after),
             '--n_league_epochs', str(1),
             '--n_battles_per_league', str(stage2_iter),
             '--num_pkm', str(num_pkm),
             '--team_size', str(team_size)]
+
+    if baseline:
+        args.insert(0, "--baseline")
+
     o = main(args)
 
     pairs = [(o.log, logfile), (o.last_game_state, last_game_state),
@@ -66,7 +73,7 @@ run_vgc = create_component_from_func(
         "scipy>=1.5",
         "tqdm==4.64.1",
         "matplotlib==3.3.4",
-        "metagame-balance==0.1.2"
+        "metagame-balance==0.4.0"
     ]
 )
 
@@ -80,7 +87,9 @@ def pipeline(
         cma_init_var: float,
         stage2_iter: int,
         num_pkm: int,
-        team_size: int
+        team_size: int,
+        baseline: bool,
+        update_after: int
 ):
     volume_name = "user-pypi-config"
     secret_name = "pypi-config"
@@ -92,7 +101,10 @@ def pipeline(
         stage2_iter=stage2_iter,
         stage1_iter=stage1_iter,
         num_pkm=num_pkm,
-        team_size=team_size)
+        team_size=team_size,
+        baseline=baseline,
+        update_after=update_after
+    )
 
     task.add_volume(
         k8s_client.V1Volume(name=volume_name,

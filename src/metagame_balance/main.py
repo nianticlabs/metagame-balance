@@ -32,7 +32,8 @@ def init_vgc_domain(args: argparse.Namespace):
                               n_battles_per_league=args.n_battles_per_league,
                               reg_param=args.reg,
                               alg_baseline=args.baseline,
-                              team_size=args.team_size
+                              team_size=args.team_size,
+                              update_after=args.update_after
                               ),
         "parser": VGCParser(num_pkm=args.num_pkm or None,
                             consider_hp=not args.ignore_hp),
@@ -69,6 +70,7 @@ def setup_argparser():
     vgc_parser.add_argument('--num_pkm', type=int, default=30)
     vgc_parser.add_argument('--ignore_hp', action='store_true')
     vgc_parser.add_argument('--team_size', type=int, default=3)
+    vgc_parser.add_argument("--update_after", type=int, default=100)
     vgc_parser.set_defaults(func=init_vgc_domain)
 
     return parser

@@ -119,6 +119,7 @@ class VGCEnvironment(GameEnvironment):
 
     def __init__(self,
                  team_size: int,
+                 update_after: int,
                  roster_path: Optional[str] = None, verbose: bool = True,
                  n_league_epochs: int = 10, n_battles_per_league: int = 10,
                  reg_param: float = 0, alg_baseline: bool = False,
@@ -149,7 +150,7 @@ class VGCEnvironment(GameEnvironment):
         init_nn.compile()  # consider using SGD over Adam
 
         self.utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
-        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager, team_size))
+        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager, team_size, update_after))
                      for a in agent_names]
 
         if not roster_path:
