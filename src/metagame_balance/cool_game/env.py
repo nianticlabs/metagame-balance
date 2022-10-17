@@ -5,7 +5,7 @@ import typing
 
 import gym
 # this registers the gym on import, don't delete
-#import gym_cool_game  # noqa
+# import gym_cool_game  # noqa
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -139,7 +139,7 @@ def _make_gym(botA_type, botB_type, **kwargs):
 
 class CoolGameEnvironment(GameEnvironment):
     def __init__(self, epochs: int, reg_param: int = 0,
-            alg_baseline: bool= False, relearn_agents: bool = False):
+                 alg_baseline: bool = False, relearn_agents: bool = False):
         """
 
         Parameters
@@ -152,13 +152,16 @@ class CoolGameEnvironment(GameEnvironment):
         fn_approx = TabularFn(3)  # rpsfw?
         self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
         self.current_state: CoolGameState = CoolGameState()
-        self.item_reverse_map =  {'saw':0, 'torch':1, 'nail':2}
-        self.item_map =  ['saw','torch','nail']
+        self.item_reverse_map = {'saw': 0, 'torch': 1, 'nail': 2}
+        self.item_map = ['saw', 'torch', 'nail']
         self.rewards: typing.List[float] = []
         self.entropy: typing.List[float] = []
         self.players = [SoftmaxCompetitor("agent", TabularFn(3), True),
                         SoftmaxCompetitor("adversary", TabularFn(3), True)]
-
+        # TODO maybe don't hardcode these
+        self.saw_vs_nail_tgt = 0.5
+        self.torch_vs_nail_tgt = 0.5
+        self.saw_vs_torch_tgt = 0.5
 
     def evaluate_ERG(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
@@ -171,7 +174,7 @@ class CoolGameEnvironment(GameEnvironment):
                                      **dataclasses.asdict(self.current_state))
         torch_vs_nail_task = _make_gym(botA_type=BotType.TORCH, botB_type=BotType.NAIL,
                                        **dataclasses.asdict(self.current_state))
-        # TODO don't hardcode
+        # TODO see if these constants are in the paper somewhere
         mcts_budget = 5
         benchmarking_episodes = 10
         mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
@@ -193,24 +196,28 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
         logging.info(f'params={self.current_state}')
 
-
-        #if you can store the winrates (in fraction) in array(3) then just - 0.7 from each term and square and add
-        #TODO calculate ERG
-        reward = ERG
+        # if you can store the winrates (in fraction) in array(3) then just - 0.7 from each term and square and add
+        winrates = np.array([saw_vs_nail, torch_vs_nail, saw_vs_torch])
+        reward = ((winrates - self.target_erg_arr()) ** 2).sum()
         """
         ERG will be (winrate saw_vs_nail - ideal)^2  + (win_rate torch_vs_nail)^2 + ...
         """
         logging.info("ERG=%s", reward)
         self.rewards.append(reward)
-        self.evaluate_entropy(eval_only = True) ### Just for logging!
+        self.evaluate_entropy(eval_only=True)  ### Just for logging!
         return CoolGameEvaluationResult(reward)
+
+    def target_erg_arr(self):
+        # saw, torch, nail
+        # flattened repr of erg for erg difference calculation
+        return np.array([self.saw_vs_nail_tgt, self.torch_vs_nail_tgt, self.saw_vs_torch_tgt])
 
     def evaluate(self) -> CoolGameEvaluationResult:
         if self.alg_baseline:
             return self.evaluate_ERG()
         return self.evaluate_entropy()
 
-    def evaluate_entropy(self, eval_only = False):
+    def evaluate_entropy(self, eval_only=False):
         mcts_budget = 5
         benchmarking_episodes = 10
         mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
@@ -220,17 +227,17 @@ class CoolGameEnvironment(GameEnvironment):
                            self.players[1].get_action(self.item_map)
             items = [item1, item2]
             env = _make_gym(botA_type=item1, botB_type=item2,
-                                         **dataclasses.asdict(self.current_state))
+                            **dataclasses.asdict(self.current_state))
             mcts_agent = build_MCTS_Agent(env, mcts_config, "mcts agent")
 
-            smthing = compute_matchup_winrates(mcts_agent, env,
-                                                    'Saw vs Torch', benchmarking_episodes,
-                                                    mcts_budget)
-
-            #TODO battle between item1 and item1.
-            reward = battle()# 1 if item1 wins else -1
+            # TODO rescale this -1 <> 1
+            reward = compute_matchup_winrates(
+                mcts_agent, env,
+                'Saw vs Torch', 1,
+                mcts_budget)
 
             for i, player in enumerate(self.players):
+                # player internally flips reward for opponent
                 player.update(items[i], reward)
 
             u = self.players[0].get_u_fn().get_all_vals()
@@ -243,7 +250,7 @@ class CoolGameEnvironment(GameEnvironment):
                 return CoolGameEvaluationResult(entropy_loss)
             else:
                 return entropy_loss
-            #item1, item2 = map(self.item_map, [item1, item2])
+            # item1, item2 = map(self.item_map, [item1, item2])
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
