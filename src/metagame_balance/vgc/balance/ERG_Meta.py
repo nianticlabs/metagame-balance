@@ -10,7 +10,7 @@ class ERGMetaData(PolicyEntropyMetaData):
         # index pay off as
         # payoff[t1p1, t1t2 .. t2p1...]
         assert(DEFAULT_TEAM_SIZE == 2) #add more support later on
-        payoff = np.ones(tuple([len(self._pkm)] * 4)) / 2
+        payoff = np.zeros(tuple([len(self._pkm)] * 4))
 
         for t1p1 in range(len(self._pkm)):
             for t1p2 in range(len(self._pkm)):
@@ -18,6 +18,15 @@ class ERGMetaData(PolicyEntropyMetaData):
                     for t2p2 in range(len(self._pkm)):
                         if t1p1 == t1p2 or t2p2 == t2p1:
                             payoff[t1p1][t1p2][t2p1][t2p2] = 0
+                        elif t1p1 == t2p1 or t1p2 == t2p2:
+                            payoff[t1p1][t1p2][t2p1][t2p2] = 0
+                        elif t1p1 == t2p2 or t1p2 == t2p1:
+                            payoff[t1p1][t1p2][t2p1][t2p2] = 0
+                        elif payoff[t1p1][t1p2][t2p1][t2p2] == 0:
+                            payoff[t1p1][t1p2][t2p1][t2p2] = 1
+                        else:
+                            payoff[t1p1][t1p2][t2p1][t2p2] = -1
+
 
         return payoff
 
