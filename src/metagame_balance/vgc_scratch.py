@@ -86,6 +86,10 @@ class VGCEnvironment(GameEnvironment):
     def latest_entropy_path(self):
         return self._latest_entropy_path
 
+    @property
+    def latest_theta_path(self):
+        return self._latest_theta_path
+
     def plot_rewards(self, path: str):
         logging.info(f"Saving rewards plot to {path}")
         logging.info(str(self.rewards))
@@ -101,6 +105,9 @@ class VGCEnvironment(GameEnvironment):
             json.dump(state_dict, outfile)
         np.save(os.path.join(path, "entropies.npy"), np.array(self.entropy_vals))
         self._latest_entropy_path = os.path.join(path, "entropies.npy")
+        state = self.metadata.parser.metadata_to_state(self.metadata)
+        np.save(os.path.join(path, "theta.npy"), np.array(state))
+        self._latest_theta_path = os.path.join(path, "theta.npy")
 
     def snapshot_gameplay_policies(self, path: str):
         """Snapshot the teampickers - agent and adversary"""
@@ -123,6 +130,7 @@ class VGCEnvironment(GameEnvironment):
         self._latest_agent_policy_path = None
         self._latest_adversary_policy_path = None
         self._latest_entropy_path = None
+        self._latest_theta_path = None
 
         n_vgc_epochs = n_battles_per_league
 
