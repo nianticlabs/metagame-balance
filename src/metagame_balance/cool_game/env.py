@@ -1,11 +1,11 @@
 import dataclasses
 import logging
-import time
 import typing
+from tqdm.auto import  tqdm
 
 import gym
-# this registers the gym on import, don't delete
-# import gym_cool_game  # noqa
+# this registers the gym on import, don't comment out this line
+import gym_cool_game  # noqa
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -15,38 +15,57 @@ from regym.evaluation import benchmark_agents_on_tasks
 from regym.rl_algorithms import build_MCTS_Agent
 from scipy.special import softmax
 from scipy.stats import entropy
-from metagame_balance.utility import UtilityFunctionManager
-from metagame_balance.Tabular_Function import TabularFn
 
 from metagame_balance.BalanceMeta import plot_rewards
+from metagame_balance.Tabular_Function import TabularFn
 from metagame_balance.cool_game import BotType
 from metagame_balance.framework import GameEnvironment, StateDelta, EvaluationResult, State
 from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
+from metagame_balance.utility import UtilityFunctionManager
 
 # these aren't technically bounded in any way, but we'll practically bound them like this
 STATE_BOUNDS = [1, 1000]
 
+MCTS_BUDGET = 625  # section 6.C
+BENCHMARKING_EPISODES = 50  # section 6.B
+ROLLOUT_BUDGET = 1000  # various places in GGJ repo
+
+DEFAULT_MCTS_CONFIG = {"budget": MCTS_BUDGET,
+                       'rollout_budget': ROLLOUT_BUDGET,
+                       # these two are in the GGJ-cool-game repo
+                       "selection_phase": "ucb1",
+                       "exploration_factor_ucb1": 4}
+
 
 @dataclasses.dataclass
 class CoolGameState(State["CoolGameEnvironment"]):
-    torch_health: int = 1
-    torch_dmg: int = 1
-    torch_torch_range: int = 1
-    torch_duration: int = 1
-    torch_cooldown: int = 1
-    torch_ticks_between_moves: int = 1
+    torch_health: int = 7
+    torch_dmg: int = 3
+    torch_torch_range: int = 3
+    torch_duration: int = 2
+    torch_cooldown: int = 5
+    torch_ticks_between_moves: int = 4
 
-    saw_health: int = 1
-    saw_dmg_min: int = 1
-    saw_dmg_max: int = 1
-    saw_duration: int = 1
-    saw_cooldown: int = 1
-    saw_ticks_between_moves: int = 1
+    saw_health: int = 4
+    saw_dmg_min: int = 6
+    saw_dmg_max: int = 8
+    saw_duration: int = 3
+    saw_cooldown: int = 3
+    saw_ticks_between_moves: int = 5
 
-    nail_health: int = 1
-    nail_dmg: int = 1
+    nail_health: int = 3
+    nail_dmg: int = 9
     nail_cooldown: int = 1
-    nail_ticks_between_moves: int = 1
+    nail_ticks_between_moves: int = 2
+
+    @classmethod
+    def random(cls):
+        """
+        Generate randomly initialized (random int in range) state vector.
+
+        In practice, it is bad to use this because it makes early episodes take a long time.
+        """
+        return cls(*np.random.randint(STATE_BOUNDS[0], STATE_BOUNDS[1], size=len(dataclasses.fields(cls))))
 
     def encode(self) -> npt.NDArray:
         # the optimizer wants all of these in [0, 1]
@@ -116,17 +135,13 @@ def compute_matchup_winrates(agent, task, matchup: str,
                              benchmarking_episodes: int, mcts_budget: int) -> float:
     logging.info(f'START: {matchup} for {benchmarking_episodes} episodes. Budget: {mcts_budget}')
     winrates = []
-    for i in range(benchmarking_episodes):
+    for i in tqdm(range(benchmarking_episodes), desc="erg benchmark"):
         logging.info(f'Budget: {mcts_budget}. {matchup} episode: {i + 1}/{benchmarking_episodes}')
-        start = time.perf_counter()
         winrates += benchmark_agents_on_tasks(tasks=[task],
                                               agents=[agent],
                                               populate_all_agents=True,
                                               num_episodes=1)
-        total = time.perf_counter() - start
-        # logging.info(f'{matchup} with Budget: {mcts_budget} took {total:.1f}s. Winner: {winrates[-1]}')
     winrate = sum(winrates) / len(winrates)
-    # logging.info(f'END: {matchup} for {benchmarking_episodes} episodes. winrate: {winrate}')
 
     return winrate
 
@@ -139,18 +154,14 @@ def _make_gym(botA_type, botB_type, **kwargs):
 
 class CoolGameEnvironment(GameEnvironment):
     def __init__(self, epochs: int, reg_param: int = 0,
-                 alg_baseline: bool = False, relearn_agents: bool = False):
-        """
-
-        Parameters
-        ----------
-        relearn_agents: relearn the agents on every evaluation call or not.
-        """
+                 alg_baseline: bool = False):
         self.alg_baseline = alg_baseline
         self.epochs = epochs
         self.reg = reg_param
-        fn_approx = TabularFn(3)  # rpsfw?
+        fn_approx = TabularFn(3)
         self.utility_manager = UtilityFunctionManager(fn_approx, delay_by=10)
+        # random initialization tends to create envs that are very slow to evaluate
+        # instead, use the defaults specified in the paper
         self.current_state: CoolGameState = CoolGameState()
         self.item_reverse_map = {'saw': 0, 'torch': 1, 'nail': 2}
         self.item_map = ['saw', 'torch', 'nail']
@@ -174,29 +185,25 @@ class CoolGameEnvironment(GameEnvironment):
                                      **dataclasses.asdict(self.current_state))
         torch_vs_nail_task = _make_gym(botA_type=BotType.TORCH, botB_type=BotType.NAIL,
                                        **dataclasses.asdict(self.current_state))
-        # TODO see if these constants are in the paper somewhere
-        mcts_budget = 5
-        benchmarking_episodes = 10
-        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
-                       "selection_phase": "ucb1", "exploration_factor_ucb1": 4}
+
+
         # we will learn the agent once and never update it, like how the other environments work
-        mcts_agent = build_MCTS_Agent(saw_vs_torch_task, mcts_config, "mcts agent")
+        mcts_agent = build_MCTS_Agent(saw_vs_torch_task, DEFAULT_MCTS_CONFIG, "mcts agent")
         saw_vs_torch = compute_matchup_winrates(mcts_agent, saw_vs_torch_task,
-                                                'Saw vs Torch', benchmarking_episodes,
-                                                mcts_budget)
+                                                'Saw vs Torch', BENCHMARKING_EPISODES,
+                                                MCTS_BUDGET)
 
         saw_vs_nail = compute_matchup_winrates(mcts_agent, saw_vs_nail_task,
-                                               'Saw vs Nail', benchmarking_episodes,
-                                               mcts_budget)
+                                               'Saw vs Nail', BENCHMARKING_EPISODES,
+                                               MCTS_BUDGET)
 
         torch_vs_nail = compute_matchup_winrates(mcts_agent, torch_vs_nail_task,
-                                                 'Torch vs Nail', benchmarking_episodes,
-                                                 mcts_budget)
-        logging.info(f"episodes={benchmarking_episodes} mcts_budget={mcts_budget}")
+                                                 'Torch vs Nail', BENCHMARKING_EPISODES,
+                                                 MCTS_BUDGET)
+        logging.info(f"episodes={BENCHMARKING_EPISODES} mcts_budget={MCTS_BUDGET}")
         logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
         logging.info(f'params={self.current_state}')
 
-        # if you can store the winrates (in fraction) in array(3) then just - 0.7 from each term and square and add
         winrates = np.array([saw_vs_nail, torch_vs_nail, saw_vs_torch])
         reward = ((winrates - self.target_erg_arr()) ** 2).sum()
         """
@@ -218,27 +225,25 @@ class CoolGameEnvironment(GameEnvironment):
         return self.evaluate_entropy()
 
     def evaluate_entropy(self, eval_only=False):
-        mcts_budget = 5
-        benchmarking_episodes = 10
-        mcts_config = {"budget": mcts_budget, 'rollout_budget': 10,
-                       "selection_phase": "ucb1", "exploration_factor_ucb1": 4}
+
         for i in range(self.epochs):
             item1, item2 = self.players[0].get_action(self.item_map), \
                            self.players[1].get_action(self.item_map)
             items = [item1, item2]
             env = _make_gym(botA_type=item1, botB_type=item2,
                             **dataclasses.asdict(self.current_state))
-            mcts_agent = build_MCTS_Agent(env, mcts_config, "mcts agent")
+            mcts_agent = build_MCTS_Agent(env, DEFAULT_MCTS_CONFIG, "mcts agent")
 
-            # TODO rescale this -1 <> 1
+            # reward is 1 if item1 wins, 0 if item2 wins
             reward = compute_matchup_winrates(
                 mcts_agent, env,
-                'Saw vs Torch', 1,
-                mcts_budget)
+                'botA_botB', 1,  # instead of benchmarking 1000 times, we sample once
+                MCTS_BUDGET)
+            reward = (reward * 2) - 1
 
-            for i, player in enumerate(self.players):
+            for player_i, player in enumerate(self.players):
                 # player internally flips reward for opponent
-                player.update(items[i], reward)
+                player.update(items[player_i], reward)
 
             u = self.players[0].get_u_fn().get_all_vals()
             P_A = softmax(u)
@@ -250,7 +255,6 @@ class CoolGameEnvironment(GameEnvironment):
                 return CoolGameEvaluationResult(entropy_loss)
             else:
                 return entropy_loss
-            # item1, item2 = map(self.item_map, [item1, item2])
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state

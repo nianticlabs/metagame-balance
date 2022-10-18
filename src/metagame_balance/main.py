@@ -92,6 +92,11 @@ def setup_argparser():
     return parser
 
 
+class IgnoreGymFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return not record.getMessage().startswith("gym")
+
+
 def main():
     parser = setup_argparser()
     args = parser.parse_args()
@@ -114,6 +119,9 @@ def main():
     logfile = os.path.join(prefix, "log.log")
     os.makedirs(prefix, exist_ok=True)
     logging.basicConfig(filename=logfile, level=logging.INFO, force=True)
+    logging.getLogger().addFilter(IgnoreGymFilter())
+    for h in logging.getLogger().handlers:
+        h.addFilter(IgnoreGymFilter())
 
     logging.info(f"Called with: {str(args)}")
     balancer = Balancer(domain['balancer'], domain['env'], domain['state_delta_constructor'],
