@@ -118,7 +118,7 @@ class ChampionshipEcosystem:
         """
         TODO: Check for instabilities introduced by this!
         """
-        NUM_SIM = 100
+        NUM_SIM = 10
         t1_agent = CompetitorManager(FixedTeamCompetitor("t1", t1))
         t2_agent = CompetitorManager(FixedTeamCompetitor("t2", t2))
 
@@ -141,4 +141,5 @@ class ChampionshipEcosystem:
         for cm in old_agents:
             self.league.register(cm)
         losses = (NUM_SIM) - wins
+        #print(wins, losses, (wins - losses) / NUM_SIM)
         return (wins - losses)  / NUM_SIM
