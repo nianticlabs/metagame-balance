@@ -123,7 +123,7 @@ class VGCEnvironment(GameEnvironment):
                  team_size: int,
                  update_after: int,
                  roster_path: Optional[str] = None, verbose: bool = True,
-                 n_league_epochs: int = 10, n_battles_per_league: int = 10,
+                 n_league_epochs: int = 1, n_battles_per_league: int = 10,
                  reg_param: float = 0, alg_baseline: bool = False,
                  ):
         self._latest_gamestate_path = None
@@ -212,23 +212,25 @@ class VGCEnvironment(GameEnvironment):
         return VGCEvaluationResult(reward)
 
     def sample_payoff(self):
+        from itertools import combinations
         logging.info("Simulating sample payoff")
-        assert (DEFAULT_TEAM_SIZE == 2)  # add more support later on
         num_pkm = len(self.metadata._pkm)
-        payoff = np.zeros(tuple([num_pkm] * 4))
+        possible_teams = list(combinations(range(num_pkm), 2))
+        payoff = np.zeros((len(possible_teams), len(possible_teams)))
         t1 = []
         t2 = []
-        for t1p1 in range(num_pkm):
-            for t1p2 in range(num_pkm):
-                for t2p1 in range(num_pkm):
-                    for t2p2 in range(num_pkm):
-                        if t1p1 == t1p2 or t2p2 == t2p1 or payoff[t1p1][t1p2][t2p1][t2p2] != 0:
-                            continue
-                        t1 = [t1p1, t1p2]
-                        t2 = [t2p1, t2p2]
-                        win_prob = self.vgc.simulate_n_battles(1, t1, t2)
-                        payoff[t1p1][t1p2][t2p1][t2p2] = win_prob
-                        payoff[t2p1][t2p2][t1p1][t1p2] = 1 - win_prob
+        for p1 in range(len(possible_teams)):
+            for p2 in range(len(possible_teams)):
+                if p1 == p2:
+                    payoff[p1][p2] = 0
+                elif payoff[p1][p2] == -1:
+                    pass
+                else:
+                    t1 = possible_teams[p1]
+                    t2 = possible_teams[p2]
+                    win_prob = self.vgc.simulate_n_battles(1, t1, t2)
+                    payoff[p1,p2] = win_prob
+                    payoff[p2,p1] = -win_prob
         return payoff
 
     def __str__(self) -> str:
