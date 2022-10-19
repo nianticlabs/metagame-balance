@@ -26,15 +26,6 @@ from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRos
 BASE_ROSTER_SIZE = 30
 
 
-# class VGCGameplayPolicy(GamePolicy["VGCEnvironment"]):
-#     def __init__(self, metadata: PolicyEntropyMetaData):
-#         self._metadata = metadata
-#
-#     def optimal_pick(self) -> np.ndarray:
-#         # self._metadata.
-#         raise NotImplementedError
-
-
 class VGCState(State["VGCEnvironment"]):
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
         self.policy_entropy_metadata = policy_entropy_metadata

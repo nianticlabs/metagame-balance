@@ -129,7 +129,8 @@ def main(args=None):
         entropy_values=Path(balancer.game_environment.latest_entropy_path),
         last_policy_adversary=Path(balancer.game_environment.latest_adversary_policy_path),
         last_policy_agent=Path(balancer.game_environment.latest_agent_policy_path),
-        reward_plot=(prefix / "rewards.png")
+        reward_plot=(prefix / "rewards.png"),
+        last_encoded_gamestate=Path(balancer.game_environment.last_encoded_gamestate_path)
     )
 
 
@@ -141,6 +142,7 @@ class Output(NamedTuple):
     last_policy_adversary: Path
     last_policy_agent: Path
     reward_plot: Path
+    last_encoded_gamestate: Path
 
 
 if __name__ == "__main__":
