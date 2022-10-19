@@ -46,12 +46,9 @@ def init_vgc_domain(args: argparse.Namespace):
 def init_coolgame_domain(args: argparse.Namespace):
     return {
         "balancer": CMAESBalancePolicyV2(
-            init_var=args.cmaes_init_var,
+            init_var=args.cmaes_init_var
         ),
-        "env": CoolGameEnvironment(epochs=args.selection_epochs,
-            reg_param = args.reg,
-            alg_baseline = args.baseline
-            ),
+        "env": CoolGameEnvironment(),
         "state_delta_constructor": CoolGameStateDelta.decode,
         "name": "cool_game"
     }
@@ -90,22 +87,12 @@ def setup_argparser():
 
     coolgame_parser = subparsers.add_parser("coolgame")
     coolgame_parser.add_argument("--cmaes_init_var", type=float, default=0.05)
-    coolgame_parser.add_argument('--baseline', action='store_true')
-    coolgame_parser.add_argument("--selection_epochs", type=int, default=10)
-    coolgame_parser.add_argument('--reg', type=float, default=0)
     coolgame_parser.set_defaults(func=init_coolgame_domain)
 
     return parser
 
 
-
-class IgnoreGymFilter(logging.Filter):
-    def filter(self, record: logging.LogRecord) -> bool:
-        return not record.getMessage().startswith("gym")
-
-
-def main():
-
+def main(args=None):
     parser = setup_argparser()
     args = parser.parse_args(args)
 
@@ -127,9 +114,6 @@ def main():
     logfile = os.path.join(prefix, "log.log")
     os.makedirs(prefix, exist_ok=True)
     logging.basicConfig(filename=logfile, level=logging.INFO, force=True)
-    logging.getLogger().addFilter(IgnoreGymFilter())
-    for h in logging.getLogger().handlers:
-        h.addFilter(IgnoreGymFilter())
 
     logging.info(f"Called with: {str(args)}")
     balancer = Balancer(domain['balancer'], domain['env'], domain['state_delta_constructor'],
