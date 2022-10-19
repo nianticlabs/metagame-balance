@@ -1,47 +1,32 @@
 import json
 import logging
 import os.path
-from typing import Optional, Callable, List
+from typing import Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
 from metagame_balance.BalanceMeta import plot_rewards
-from metagame_balance.utility import UtilityFunctionManager
+from metagame_balance.FCNN import FCNN
 from metagame_balance.agent.Seq_Softmax_Competitor import SeqSoftmaxCompetitor
-from metagame_balance.framework import Balancer, GameEnvironment, EvaluationResult, StateDelta, \
+from metagame_balance.framework import GameEnvironment, EvaluationResult, StateDelta, \
     G, State
-from metagame_balance.policies.CMAESBalancePolicy import CMAESBalancePolicyV2
+from metagame_balance.utility import UtilityFunctionManager
 from metagame_balance.vgc.balance import DeltaRoster
-from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.balance.ERG_Meta import ERGMetaData
-from metagame_balance.vgc.balance.restriction import VGCDesignConstraints
+from metagame_balance.vgc.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
 from metagame_balance.vgc.competition import CompetitorManager
+from metagame_balance.vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, get_state_size
 from metagame_balance.vgc.datatypes.Objects import PkmRoster
 from metagame_balance.vgc.ecosystem.BattleEcosystem import Strategy
 from metagame_balance.vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from metagame_balance.vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from metagame_balance.FCNN import FCNN
-from metagame_balance.vgc.datatypes.Constants import STAGE_2_STATE_DIM, DEFAULT_TEAM_SIZE
 
 BASE_ROSTER_SIZE = 30
 
 
-# class VGCGameplayPolicy(GamePolicy["VGCEnvironment"]):
-#     def __init__(self, metadata: PolicyEntropyMetaData):
-#         self._metadata = metadata
-#
-#     def optimal_pick(self) -> np.ndarray:
-#         # self._metadata.
-#         raise NotImplementedError
-
-
 class VGCState(State["VGCEnvironment"]):
-    # @property
-    # def policy(self) -> GamePolicy[G]:
-    #     self.policy_entropy_metadata.current_policy
-
     def __init__(self, policy_entropy_metadata: PolicyEntropyMetaData):
         self.policy_entropy_metadata = policy_entropy_metadata
 
@@ -76,6 +61,26 @@ def _print_roster(roster: PkmRoster):
 
 
 class VGCEnvironment(GameEnvironment):
+    @property
+    def latest_gamestate_path(self):
+        return self._latest_gamestate_path
+
+    @property
+    def latest_agent_policy_path(self):
+        return self._latest_agent_policy_path
+
+    @property
+    def latest_adversary_policy_path(self):
+        return self._latest_adversary_policy_path
+
+    @property
+    def latest_entropy_path(self):
+        return self._latest_entropy_path
+
+    @property
+    def latest_theta_path(self):
+        return self._latest_theta_path
+
     def plot_rewards(self, path: str):
         logging.info(f"Saving rewards plot to {path}")
         logging.info(str(self.rewards))
@@ -83,24 +88,41 @@ class VGCEnvironment(GameEnvironment):
         plt.savefig(path)
 
     def snapshot_game_state(self, path: str):
+        """Save the game state into """
         state_dict = self.metadata.to_dict()
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, "game_state.json"), "w") as outfile:
+            self._latest_gamestate_path = os.path.join(path, "game_state.json")
             json.dump(state_dict, outfile)
-        np.save(path, np.array(self.entropy_vals))
+        np.save(os.path.join(path, "entropies.npy"), np.array(self.entropy_vals))
+        self._latest_entropy_path = os.path.join(path, "entropies.npy")
+        state = self.metadata.parser.metadata_to_state(self.metadata)
+        np.save(os.path.join(path, "theta.npy"), np.array(state))
+        self._latest_theta_path = os.path.join(path, "theta.npy")
 
     def snapshot_gameplay_policies(self, path: str):
         """Snapshot the teampickers - agent and adversary"""
         os.makedirs(path, exist_ok=True)
         torch.save(self.utility_fn_manager.agent_U_function().state_dict(),
                    os.path.join(path, "agent.pt"))
+        self._latest_agent_policy_path = os.path.join(path, "agent.pt")
         torch.save(self.utility_fn_manager.adversary_U_function().state_dict(),
                    os.path.join(path, "adversary.pt"))
+        self._latest_adversary_policy_path = os.path.join(path, "adversary.pt")
 
-    def __init__(self, roster_path: Optional[str] = None, verbose: bool = True,
-            n_league_epochs: int = 10, n_battles_per_league: int = 10,
-            reg_param: float = 0, alg_baseline = False):
-        # todo stupid config stuff
+    def __init__(self,
+                 team_size: int,
+                 update_after: int,
+                 roster_path: Optional[str] = None, verbose: bool = True,
+                 n_league_epochs: int = 1, n_battles_per_league: int = 10,
+                 reg_param: float = 0, alg_baseline: bool = False,
+                 ):
+        self._latest_gamestate_path = None
+        self._latest_agent_policy_path = None
+        self._latest_adversary_policy_path = None
+        self._latest_entropy_path = None
+        self._latest_theta_path = None
+
         n_vgc_epochs = n_battles_per_league
 
         # number of championships to run
@@ -114,15 +136,16 @@ class VGCEnvironment(GameEnvironment):
 
         self.alg_baseline = alg_baseline
         if alg_baseline:
-            self.metadata = ERGMetaData()
+            self.metadata = ERGMetaData(team_size)
         else:
-            self.metadata = PolicyEntropyMetaData()
-        input_dim = STAGE_2_STATE_DIM
-        init_nn = FCNN([input_dim, 128, 64, 1])
+            self.metadata = PolicyEntropyMetaData(team_size)
+        self.team_size = team_size
+        init_nn = FCNN([get_state_size(team_size), 128, 64, 1])
         init_nn.compile()  # consider using SGD over Adam
 
         self.utility_fn_manager = UtilityFunctionManager(init_nn, delay_by=10)
-        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager)) for a in agent_names]
+        surrogate = [CompetitorManager(SeqSoftmaxCompetitor(a, self.utility_fn_manager, team_size, update_after))
+                     for a in agent_names]
 
         if not roster_path:
             base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=BASE_ROSTER_SIZE).gen_roster()
@@ -140,7 +163,8 @@ class VGCEnvironment(GameEnvironment):
         # this partially reimplements GameBalanceEcosystem
         self.rewards: List[float] = []
         self.entropy_vals: List[float] = []
-        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False,                                          strategy=Strategy.RANDOM_PAIRING)
+        self.vgc = ChampionshipEcosystem(base_roster, self.metadata, False, False, strategy=Strategy.RANDOM_PAIRING,
+                                         team_size=team_size)
 
         for a in surrogate:
             self.vgc.register(a)
@@ -162,8 +186,7 @@ class VGCEnvironment(GameEnvironment):
 
     def evaluate(self) -> VGCEvaluationResult:
         # train evaluator agents to convergence
-        if not self.alg_baseline:
-            self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs)
+        self.vgc.run(self.n_vgc_epochs, n_league_epochs=self.n_league_epochs) #required to calculate entropy
         agent = next(filter(lambda a: a.competitor.name == "agent", self.vgc.league.competitors))
         self.metadata.update_metadata(policy=agent.competitor.team_build_policy)
 
@@ -180,23 +203,25 @@ class VGCEnvironment(GameEnvironment):
         return VGCEvaluationResult(reward)
 
     def sample_payoff(self):
-
-        assert(DEFAULT_TEAM_SIZE == 2) #add more support later on
+        from itertools import combinations
+        logging.info("Simulating sample payoff")
         num_pkm = len(self.metadata._pkm)
-        payoff = np.zeros(tuple([num_pkm] * 4))
+        possible_teams = list(combinations(range(num_pkm), 2))
+        payoff = np.zeros((len(possible_teams), len(possible_teams)))
         t1 = []
         t2 = []
-        for t1p1 in range(num_pkm):
-            for t1p2 in range(num_pkm):
-                for t2p1 in range(num_pkm):
-                    for t2p2 in range(num_pkm):
-                        if t1p1 == t1p2 or t2p2 == t2p1 or payoff[t1p1][t1p2][t2p1][t2p2] != 0:
-                            continue
-                        t1 = [t1p1, t1p2]
-                        t2 = [t2p1, t2p2]
-                        win_prob = self.vgc.simulate_n_battles(1, t1, t2)
-                        payoff[t1p1][t1p2][t2p1][t2p2] = win_prob
-                        payoff[t2p1][t2p2][t1p1][t1p2] = 1 - win_prob
+        for p1 in range(len(possible_teams)):
+            for p2 in range(len(possible_teams)):
+                if p1 == p2:
+                    payoff[p1][p2] = 0
+                elif payoff[p1][p2] == -1:
+                    pass
+                else:
+                    t1 = possible_teams[p1]
+                    t2 = possible_teams[p2]
+                    win_prob = self.vgc.simulate_n_battles(1, t1, t2)
+                    payoff[p1,p2] = win_prob
+                    payoff[p2,p1] = -win_prob
         return payoff
 
     def __str__(self) -> str:

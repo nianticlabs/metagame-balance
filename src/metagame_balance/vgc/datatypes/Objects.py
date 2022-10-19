@@ -873,7 +873,7 @@ class PkmTeamPrediction:
     def __init__(self, team_view: PkmTeamView = None):
         self.team_view = team_view
         self.active: Union[Pkm, None] = None
-        self.party: List[Union[Pkm, None]] = [None, None]
+        self.party: List[Union[Pkm, None]] = []
 
 
 def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, partial: bool = False) -> PkmTeamView:

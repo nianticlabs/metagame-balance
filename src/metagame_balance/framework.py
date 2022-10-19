@@ -90,6 +90,34 @@ class GameEnvironment(abc.ABC):
         the balancer."""
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def last_encoded_gamestate_path(self) -> str:
+        pass
+
+
+    @property
+    @abc.abstractmethod
+    def latest_gamestate_path(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def latest_agent_policy_path(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def latest_adversary_policy_path(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def latest_entropy_path(self) -> str:
+        pass
+
+
+
 
 class MetagameBalancePolicy(abc.ABC):
     # should be implemented by e.g. the cma-es balance policy
@@ -124,7 +152,8 @@ class Balancer(Generic[G]):
         self.experiment_dir = experiment_dir
         os.makedirs(experiment_dir, exist_ok=True)
         matplotlib.use("Agg")  # do not create a plot window when trying to exit
-        atexit.register(self.game_environment.plot_rewards, os.path.join(self.experiment_dir, "rewards.png"))
+        self.rewards_path = os.path.join(self.experiment_dir, "rewards.png")
+        atexit.register(self.game_environment.plot_rewards, self.rewards_path)
 
     def run(self, epochs: int):
         self.game_environment.reset()
@@ -134,7 +163,7 @@ class Balancer(Generic[G]):
         
         def epoch_counter():
             _i = 0
-            while _i < epochs and not self.balance_policy.converged(evaluation_result):
+            while _i <= epochs and not self.balance_policy.converged(evaluation_result):
                 yield _i
                 _i += 1
 
@@ -168,3 +197,5 @@ class Balancer(Generic[G]):
             if i % self.snapshot_game_state_epochs == 0:
                 logging.info(f"Saving game state to {iter_dir}")
                 self.game_environment.snapshot_game_state(iter_dir)
+
+        self.game_environment.plot_rewards(self.rewards_path)

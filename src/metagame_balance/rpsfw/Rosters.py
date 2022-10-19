@@ -1,6 +1,6 @@
 from typing import Sized
 
-from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import MetaData
+from metagame_balance.rpsfw.util import MetaData
 
 
 class RPSFWRoster(Sized):

@@ -1,7 +1,6 @@
-import numpy as np
-
-from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.rpsfw.balance.Policy_Entropy_Meta import PolicyEntropyMetaData
+from metagame_balance.rpsfw.util.Constants import RPSFWItems
+
 
 class RPSFWBattle():
 
