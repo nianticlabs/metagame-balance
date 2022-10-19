@@ -9,5 +9,9 @@ cma==3.2.2
 torch==1.10.2
 scipy>=1.5
 tqdm==4.64.1
-matplotlib==3.6.0
+matplotlib==3.6.1
 gym_cool_game @ git+https://github.com/Danielhp95/GGJ-2020-cool-game.git
+kfp~=1.8.14
+kubernetes~=18.20.0
+regym~=0.0.1
+gcsfs~=2022.8.2

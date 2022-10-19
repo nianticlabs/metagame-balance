@@ -78,7 +78,7 @@ class VGCEnvironment(GameEnvironment):
         return self._latest_entropy_path
 
     @property
-    def latest_theta_path(self):
+    def last_encoded_gamestate_path(self):
         return self._latest_theta_path
 
     def plot_rewards(self, path: str):
