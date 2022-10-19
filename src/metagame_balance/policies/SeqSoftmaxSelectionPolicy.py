@@ -122,7 +122,7 @@ class SeqSoftmaxSelectionPolicy(TeamBuildPolicy):
         self.buffer['y'] += targets
         if len(self.buffer['x']) > self.update_after:
             u = self.get_u_fn()
-            u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']))
+            u.run_epoch(np.array(self.buffer['x']), np.array(self.buffer['y']), verbose=0)
             self.buffer = {'x': [], 'y': []}
         return
 

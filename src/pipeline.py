@@ -22,7 +22,8 @@ def _run_vgc(
         entropy_values: comp.OutputBinaryFile(str),
         last_policy_adversary: comp.OutputBinaryFile(str),
         last_policy_agent: comp.OutputBinaryFile(str),
-        reward_plot: comp.OutputBinaryFile(str)
+        reward_plot: comp.OutputBinaryFile(str),
+        last_encoded_gamestate: comp.OutputBinaryFile(str)
 ):
     from metagame_balance.main import main
     from io import TextIOWrapper
@@ -46,7 +47,8 @@ def _run_vgc(
 
     pairs = [(o.log, logfile), (o.last_game_state, last_game_state),
              (o.entropy_values, entropy_values), (o.last_policy_agent, last_policy_agent),
-             (o.last_policy_adversary, last_policy_adversary), (o.reward_plot, reward_plot)]
+             (o.last_policy_adversary, last_policy_adversary), (o.reward_plot, reward_plot),
+             (o.last_encoded_gamestate, last_encoded_gamestate)]
 
     for vgc_output, pipeline_output in pairs:
         if isinstance(pipeline_output, TextIOWrapper):
@@ -73,7 +75,7 @@ run_vgc = create_component_from_func(
         "scipy>=1.5",
         "tqdm==4.64.1",
         "matplotlib==3.3.4",
-        "metagame-balance==0.4.2"
+        "metagame-balance==0.4.4"
     ]
 )
 

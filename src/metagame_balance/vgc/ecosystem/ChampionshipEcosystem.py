@@ -134,10 +134,12 @@ class ChampionshipEcosystem:
         win_probs = 0
         for i in range(NUM_SIM):
             self.simulate_league(n_league_epochs)
-        win_probs = self.league.get_team_wins(t1_agent)
+        wins = self.league.get_team_wins(t1_agent)
         self.league.clear_wins()  # do we really need this?
         self.league.unregister(t1_agent)
         self.league.unregister(t2_agent)
         for cm in old_agents:
             self.league.register(cm)
-        return win_probs  / NUM_SIM
+        losses = (NUM_SIM) - wins
+        #print(wins, losses, (wins - losses) / NUM_SIM)
+        return (wins - losses)  / NUM_SIM
