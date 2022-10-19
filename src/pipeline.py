@@ -1,11 +1,27 @@
-
-
 import kfp
 import kfp.components as comp
 from kfp import dsl, LocalClient
 from kfp.components import create_component_from_func
 
 from kubernetes import client as k8s_client
+
+
+def _download_gcs(gcs_uri: str,
+                  downloaded: comp.OutputBinaryFile(str)):
+    from gcsfs import GCSFileSystem
+    fs = GCSFileSystem()
+
+    with fs.open(gcs_uri, "rb") as infile:
+        downloaded.write(infile.read())
+
+
+download_gcs = create_component_from_func(
+    _download_gcs,
+    base_image="python:3.8",
+    packages_to_install=[
+        "gcsfs~=2022.8.2"
+    ]
+)
 
 
 def _run_vgc(
@@ -17,6 +33,7 @@ def _run_vgc(
         team_size: int,
         baseline: bool,
         update_after: int,
+        roster: comp.InputPath(str),
         logfile: comp.OutputTextFile(str),
         last_game_state: comp.OutputBinaryFile(str),
         entropy_values: comp.OutputBinaryFile(str),
@@ -28,6 +45,7 @@ def _run_vgc(
     from metagame_balance.main import main
     from io import TextIOWrapper
 
+
     # these need to be in the right order
     args = [
             '--n_epochs', str(stage1_iter),
@@ -38,7 +56,9 @@ def _run_vgc(
             '--n_league_epochs', str(1),
             '--n_battles_per_league', str(stage2_iter),
             '--num_pkm', str(num_pkm),
-            '--team_size', str(team_size)]
+            '--team_size', str(team_size),
+            '--roster_path', roster
+    ]
 
     if baseline:
         args.insert(0, "--baseline")
@@ -56,7 +76,7 @@ def _run_vgc(
         else:
             read_options = "rb"
         with vgc_output.open(read_options) as infile:
-            # outputs are textIOWrappers or ByteIOWrappers
+            # outputs are textIOWrappers or BytesIO
             pipeline_output.write(infile.read())
 
 
@@ -74,8 +94,8 @@ run_vgc = create_component_from_func(
         "torch==1.10.2",
         "scipy>=1.5",
         "tqdm==4.64.1",
-        "matplotlib==3.3.4",
-        "metagame-balance==0.4.4"
+        "matplotlib==3.6.1",
+        "metagame-balance==0.5.1"
     ]
 )
 
@@ -91,11 +111,16 @@ def pipeline(
         num_pkm: int,
         team_size: int,
         baseline: bool,
-        update_after: int
+        update_after: int,
+        roster_gcs_uri: str
 ):
     volume_name = "user-pypi-config"
     secret_name = "pypi-config"
     secret_mount_path = "/etc/xdg/pip"  # Pip global config path
+
+    download_roster = download_gcs(
+        gcs_uri=roster_gcs_uri
+    )
 
     task = run_vgc(
         regularization=regularization,
@@ -105,7 +130,8 @@ def pipeline(
         num_pkm=num_pkm,
         team_size=team_size,
         baseline=baseline,
-        update_after=update_after
+        update_after=update_after,
+        roster=download_roster.output
     )
 
     task.add_volume(
@@ -120,7 +146,9 @@ def pipeline(
     (task.set_memory_request('4G')
         .set_memory_limit('32G')
         .set_cpu_request('2')
-        .set_cpu_limit('4'))
+        .set_cpu_limit('4')
+        .add_node_selector_constraint('cloud.google.com/gke-nodepool', "cpu-worker-pool-highcpu")
+     )
 
 
 if __name__ == "__main__":
