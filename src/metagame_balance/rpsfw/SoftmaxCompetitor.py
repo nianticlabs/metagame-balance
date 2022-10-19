@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.special import softmax
 
-from metagame_balance.rpsfw.Rosters import RPSFWRoster
-from metagame_balance.rpsfw.util.Constants import RPSFWItems
 from metagame_balance.utility import UtilityFunctionManager
 
 
@@ -19,7 +17,7 @@ class SoftmaxCompetitor:
     def set_greedy(self, greedy: bool):
         self.greedy = greedy
 
-    def get_action(self, roster: RPSFWRoster):
+    def get_action(self, roster):
         u = self.utility_fn
         values = u.get_all_vals()
         if self.greedy:
@@ -28,6 +26,10 @@ class SoftmaxCompetitor:
             selection_idx = np.random.choice(range(len(roster)), p=softmax(values))
 
         return selection_idx
+
+    def get_u_fn(self):
+        return self.utility_fn
+
     def _get_agent_reward(self, raw_reward:float) -> float:
         if self.name == "agent":
             return raw_reward
@@ -36,7 +38,7 @@ class SoftmaxCompetitor:
         else:
             raise Exception("Unknown Player Name")
 
-    def update(self, selection: RPSFWItems, raw_reward: float):
+    def update(self, selection, raw_reward: float):
         u = self.utility_fn
         reward = self._get_agent_reward(raw_reward)
         #from scipy.special import softmax
