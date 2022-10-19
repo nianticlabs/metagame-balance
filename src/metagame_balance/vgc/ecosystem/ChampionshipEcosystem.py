@@ -118,7 +118,7 @@ class ChampionshipEcosystem:
         """
         TODO: Check for instabilities introduced by this!
         """
-        NUM_SIM = 100
+        NUM_SIM = 10
         t1_agent = CompetitorManager(FixedTeamCompetitor("t1", t1))
         t2_agent = CompetitorManager(FixedTeamCompetitor("t2", t2))
 
