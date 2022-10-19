@@ -48,10 +48,11 @@ def init_coolgame_domain(args: argparse.Namespace):
         "balancer": CMAESBalancePolicyV2(
             init_var=args.cmaes_init_var,
         ),
-        "env": CoolGameEnvironment(epochs=args.selection_epochs,
-            reg_param = args.reg,
-            alg_baseline = args.baseline
-            ),
+        "env": CoolGameEnvironment(
+            epochs=args.entropy_eval_epochs,
+            reg_param=args.reg,
+            alg_baseline=args.baseline
+        ),
         "state_delta_constructor": CoolGameStateDelta.decode,
         "name": "cool_game"
     }
@@ -63,8 +64,8 @@ def setup_argparser():
     parser.add_argument('--n_epochs', type=int, default=1)
     parser.add_argument("--snapshot_gameplay_policy_epochs", type=int, default=100)
     parser.add_argument("--snapshot_game_state_epochs", type=int, default=100)
-    parser.add_argument('--baseline', action='store_true')
     parser.add_argument('--reg', type=float, default=0)
+    parser.add_argument("--baseline", action="store_true")
     subparsers = parser.add_subparsers(help="domain")
 
     # rpsfw
@@ -90,13 +91,10 @@ def setup_argparser():
 
     coolgame_parser = subparsers.add_parser("coolgame")
     coolgame_parser.add_argument("--cmaes_init_var", type=float, default=0.05)
-    coolgame_parser.add_argument('--baseline', action='store_true')
-    coolgame_parser.add_argument("--selection_epochs", type=int, default=10)
-    coolgame_parser.add_argument('--reg', type=float, default=0)
+    coolgame_parser.add_argument("--entropy_eval_epochs", type=int, default=10)
     coolgame_parser.set_defaults(func=init_coolgame_domain)
 
     return parser
-
 
 
 class IgnoreGymFilter(logging.Filter):
@@ -104,8 +102,7 @@ class IgnoreGymFilter(logging.Filter):
         return not record.getMessage().startswith("gym")
 
 
-def main():
-
+def main(args=None):
     parser = setup_argparser()
     args = parser.parse_args(args)
 

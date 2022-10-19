@@ -153,6 +153,26 @@ def _make_gym(botA_type, botB_type, **kwargs):
 
 
 class CoolGameEnvironment(GameEnvironment):
+    @property
+    def last_encoded_gamestate_path(self) -> str:
+        pass
+
+    @property
+    def latest_gamestate_path(self) -> str:
+        pass
+
+    @property
+    def latest_agent_policy_path(self) -> str:
+        pass
+
+    @property
+    def latest_adversary_policy_path(self) -> str:
+        pass
+
+    @property
+    def latest_entropy_path(self) -> str:
+        pass
+
     def __init__(self, epochs: int, reg_param: int = 0,
                  alg_baseline: bool = False):
         self.alg_baseline = alg_baseline
@@ -225,7 +245,6 @@ class CoolGameEnvironment(GameEnvironment):
         return self.evaluate_entropy()
 
     def evaluate_entropy(self, eval_only=False):
-
         for i in range(self.epochs):
             item1, item2 = self.players[0].get_action(self.item_map), \
                            self.players[1].get_action(self.item_map)
