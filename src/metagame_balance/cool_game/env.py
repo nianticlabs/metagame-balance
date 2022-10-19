@@ -1,6 +1,9 @@
 import dataclasses
+import json
 import logging
 import typing
+from pathlib import Path
+
 from tqdm.auto import  tqdm
 
 import gym
@@ -155,23 +158,23 @@ def _make_gym(botA_type, botB_type, **kwargs):
 class CoolGameEnvironment(GameEnvironment):
     @property
     def last_encoded_gamestate_path(self) -> str:
-        pass
+        return ""
 
     @property
     def latest_gamestate_path(self) -> str:
-        pass
+        return str(self._latest_gamestate_path)
 
     @property
     def latest_agent_policy_path(self) -> str:
-        pass
+        return ""
 
     @property
     def latest_adversary_policy_path(self) -> str:
-        pass
+        return ""
 
     @property
     def latest_entropy_path(self) -> str:
-        pass
+        return ""
 
     def __init__(self, epochs: int, reg_param: int = 0,
                  alg_baseline: bool = False):
@@ -193,6 +196,8 @@ class CoolGameEnvironment(GameEnvironment):
         self.saw_vs_nail_tgt = 0.5
         self.torch_vs_nail_tgt = 0.5
         self.saw_vs_torch_tgt = 0.5
+
+        self._latest_gamestate_path: typing.Optional[Path] = None
 
     def evaluate_ERG(self) -> CoolGameEvaluationResult:
         # from https://github.com/Danielhp95/GGJ-2020-cool-game/blob/master/hyperopt_mongo/cool_game_regym_hyperopt.py
@@ -298,6 +303,11 @@ class CoolGameEnvironment(GameEnvironment):
     def snapshot_game_state(self, path: str):
         logging.info("Objective: %s \n", str(self.rewards))
         logging.info("Entropy_loss: %s \n", str(self.entropy))
+        gamestate_path = Path(path) / "game_state.json"
+        with gamestate_path.open("w") as outfile:
+            json.dump(self.current_state, outfile)
+
+        self._latest_gamestate_path = gamestate_path
 
     def plot_rewards(self, path: str):
         plot_rewards(self.rewards)
