@@ -97,22 +97,22 @@ class CoolGameState(State["CoolGameEnvironment"]):
     def decode(cls, encoded: npt.NDArray) -> State["CoolGameEnvironment"]:
         encoded = (encoded * (STATE_BOUNDS[1] - STATE_BOUNDS[0]) + STATE_BOUNDS[0]).round().astype(int)
         return cls(
-            encoded[0],
-            encoded[1],
-            encoded[2],
-            encoded[3],
-            encoded[4],
-            encoded[5],
-            encoded[6],
-            encoded[7],
-            encoded[8],
-            encoded[9],
-            encoded[10],
-            encoded[11],
-            encoded[12],
-            encoded[13],
-            encoded[14],
-            encoded[15]
+            int(encoded[0]),
+            int(encoded[1]),
+            int(encoded[2]),
+            int(encoded[3]),
+            int(encoded[4]),
+            int(encoded[5]),
+            int(encoded[6]),
+            int(encoded[7]),
+            int(encoded[8]),
+            int(encoded[9]),
+            int(encoded[10]),
+            int(encoded[11]),
+            int(encoded[12]),
+            int(encoded[13]),
+            int(encoded[14]),
+            int(encoded[15])
         )
 
 
