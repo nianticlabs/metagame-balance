@@ -192,10 +192,12 @@ class Balancer(Generic[G]):
 
             if i % self.snapshot_gameplay_policy_epochs == 0:
                 logging.info(f"Saving gameplay policies to {iter_dir}")
+                os.makedirs(iter_dir, exist_ok=True)
                 self.game_environment.snapshot_gameplay_policies(iter_dir)
 
             if i % self.snapshot_game_state_epochs == 0:
                 logging.info(f"Saving game state to {iter_dir}")
+                os.makedirs(iter_dir, exist_ok=True)
                 self.game_environment.snapshot_game_state(iter_dir)
 
         self.game_environment.plot_rewards(self.rewards_path)
