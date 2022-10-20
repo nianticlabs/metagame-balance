@@ -13,5 +13,5 @@ matplotlib==3.6.1
 gym_cool_game @ git+https://github.com/Danielhp95/GGJ-2020-cool-game.git
 kfp~=1.8.14
 kubernetes~=18.20.0
-regym~=0.0.1
+regym @ git+https://github.com/Danielhp95/Regym.git@develop-improving-play-match-utils
 gcsfs~=2022.8.2
