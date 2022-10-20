@@ -305,7 +305,7 @@ class CoolGameEnvironment(GameEnvironment):
         logging.info("Entropy_loss: %s \n", str(self.entropy))
         gamestate_path = Path(path) / "game_state.json"
         with gamestate_path.open("w") as outfile:
-            json.dump(self.current_state, outfile)
+            json.dump(dataclasses.asdict(self.current_state), outfile)
 
         self._latest_gamestate_path = gamestate_path
 
