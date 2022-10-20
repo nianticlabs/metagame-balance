@@ -112,6 +112,27 @@ class RPSFWEnvironment(GameEnvironment):
         "Don't have to do anything because this should be quick enough"
         np.save(path, np.array(self.entropy_vals))
 
+    @property
+    def last_encoded_gamestate_path(self) -> str:
+        return ''
+
+    @property
+    def latest_gamestate_path(self) -> str:
+        return ''
+
+    @property
+    def latest_agent_policy_path(self) -> str:
+        return ''
+
+    @property
+    def latest_adversary_policy_path(self) -> str:
+        return ''
+
+    @property
+    def latest_entropy_path(self) -> str:
+        return ''
+
+
     def snapshot_gameplay_policies(self, path:str):
         "Don't have to do anything because this should be quick enough"
         pass
