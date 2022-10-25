@@ -30,7 +30,7 @@ from metagame_balance.utility import UtilityFunctionManager
 STATE_BOUNDS = [1, 10]
 
 MCTS_BUDGET = 625  # section 6.C
-MCTS_BUDGET = 200  # section 6.C
+MCTS_BUDGET = 5  # section 6.C
 BENCHMARKING_EPISODES = 50  # section 6.B
 ROLLOUT_BUDGET = 100 # various places in GGJ repo
 
@@ -43,6 +43,26 @@ DEFAULT_MCTS_CONFIG = {"budget": MCTS_BUDGET,
 
 @dataclasses.dataclass
 class CoolGameState(State["CoolGameEnvironment"]):
+
+    torch_health: int = 7
+    torch_dmg: int = 3
+    torch_torch_range: int = 3
+    torch_duration: int = 2
+    torch_cooldown: int = 5
+    torch_ticks_between_moves: int = 4
+
+    saw_health: int = 4
+    saw_dmg_min: int = 6
+    saw_dmg_max: int = 8
+    saw_duration: int = 3
+    saw_cooldown: int = 3
+    saw_ticks_between_moves: int = 5
+
+    nail_health: int = 3
+    nail_dmg: int = 9
+    nail_cooldown: int = 1
+    nail_ticks_between_moves: int = 2
+    """
     torch_health: int = 1
     torch_dmg: int = 1
     torch_torch_range: int = 1
@@ -61,6 +81,7 @@ class CoolGameState(State["CoolGameEnvironment"]):
     nail_dmg: int = 6
     nail_cooldown: int = 6
     nail_ticks_between_moves: int = 6
+    """
 
     @classmethod
     def random(cls):
