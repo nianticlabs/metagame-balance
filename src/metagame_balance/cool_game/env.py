@@ -198,6 +198,7 @@ class CoolGameEnvironment(GameEnvironment):
         self.torch_vs_nail_tgt = 0.5
         self.saw_vs_torch_tgt = 0.5
 
+        self.num_samples = 0
         self._latest_gamestate_path: typing.Optional[Path] = None
 
     def evaluate_ERG(self) -> CoolGameEvaluationResult:
@@ -254,17 +255,21 @@ class CoolGameEnvironment(GameEnvironment):
         for i in range(self.epochs):
             item1, item2 = self.players[0].get_action(self.item_map), \
                            self.players[1].get_action(self.item_map)
-            items = [item1, item2]
-            env = _make_gym(botA_type=item1, botB_type=item2,
-                            **dataclasses.asdict(self.current_state))
-            mcts_agent = build_MCTS_Agent(env, DEFAULT_MCTS_CONFIG, "mcts agent")
+            if item1 == item2:
+                reward = 0
+            else:
+                items = [item1, item2]
+                env = _make_gym(botA_type=item1, botB_type=item2,
+                                **dataclasses.asdict(self.current_state))
+                mcts_agent = build_MCTS_Agent(env, DEFAULT_MCTS_CONFIG, "mcts agent")
 
-            # reward is 1 if item1 wins, 0 if item2 wins
-            reward = compute_matchup_winrates(
-                mcts_agent, env,
-                'botA_botB', 1,  # instead of benchmarking 1000 times, we sample once
-                MCTS_BUDGET)
-            reward = (reward * 2) - 1
+                # reward is 1 if item1 wins, 0 if item2 wins
+                reward = compute_matchup_winrates(
+                    mcts_agent, env,
+                    'botA_botB', 1,  # instead of benchmarking 1000 times, we sample once
+                    MCTS_BUDGET)
+                reward = (reward * 2) - 1
+                self.num_samples+=1
             logging.info("P1: %s: P2: %s won:%s", item1, item2, reward)
             for player_i, player in enumerate(self.players):
                 # player internally flips reward for opponent
@@ -306,6 +311,7 @@ class CoolGameEnvironment(GameEnvironment):
         import os
         logging.info("Objective: %s \n", str(self.rewards))
         logging.info("Entropy_loss: %s \n", str(self.entropy))
+        logging.info("Num Samples: %s \n", str(self.num_samples))
         gamestate_path = Path(path) / "game_state.json"
         with gamestate_path.open("w") as outfile:
             json.dump(dataclasses.asdict(self.current_state), outfile)
