@@ -46,7 +46,7 @@ def init_vgc_domain(args: argparse.Namespace):
 def init_coolgame_domain(args: argparse.Namespace):
     return {
         "balancer": CMAESBalancePolicyV2(
-            init_var=args.cmaes_init_var,
+            init_var=args.cma_init_var,
         ),
         "env": CoolGameEnvironment(
             epochs=args.entropy_eval_epochs,
@@ -90,7 +90,7 @@ def setup_argparser():
     vgc_parser.set_defaults(func=init_vgc_domain)
 
     coolgame_parser = subparsers.add_parser("coolgame")
-    coolgame_parser.add_argument("--cmaes_init_var", type=float, default=0.05)
+    coolgame_parser.add_argument("--cma_init_var", type=float, default=0.05)
     coolgame_parser.add_argument("--entropy_eval_epochs", type=int, default=10)
     coolgame_parser.set_defaults(func=init_coolgame_domain)
 

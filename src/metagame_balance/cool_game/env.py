@@ -27,11 +27,12 @@ from metagame_balance.rpsfw.SoftmaxCompetitor import SoftmaxCompetitor
 from metagame_balance.utility import UtilityFunctionManager
 
 # these aren't technically bounded in any way, but we'll practically bound them like this
-STATE_BOUNDS = [1, 1000]
+STATE_BOUNDS = [1, 10]
 
 MCTS_BUDGET = 625  # section 6.C
+MCTS_BUDGET = 200  # section 6.C
 BENCHMARKING_EPISODES = 50  # section 6.B
-ROLLOUT_BUDGET = 1000  # various places in GGJ repo
+ROLLOUT_BUDGET = 100 # various places in GGJ repo
 
 DEFAULT_MCTS_CONFIG = {"budget": MCTS_BUDGET,
                        'rollout_budget': ROLLOUT_BUDGET,
@@ -42,24 +43,24 @@ DEFAULT_MCTS_CONFIG = {"budget": MCTS_BUDGET,
 
 @dataclasses.dataclass
 class CoolGameState(State["CoolGameEnvironment"]):
-    torch_health: int = 7
-    torch_dmg: int = 3
-    torch_torch_range: int = 3
-    torch_duration: int = 2
-    torch_cooldown: int = 5
-    torch_ticks_between_moves: int = 4
+    torch_health: int = 1
+    torch_dmg: int = 1
+    torch_torch_range: int = 1
+    torch_duration: int = 1
+    torch_cooldown: int = 1
+    torch_ticks_between_moves: int = 1
 
-    saw_health: int = 4
-    saw_dmg_min: int = 6
-    saw_dmg_max: int = 8
-    saw_duration: int = 3
-    saw_cooldown: int = 3
-    saw_ticks_between_moves: int = 5
+    saw_health: int = 1
+    saw_dmg_min: int = 1
+    saw_dmg_max: int = 1
+    saw_duration: int = 1
+    saw_cooldown: int = 1
+    saw_ticks_between_moves: int = 1
 
-    nail_health: int = 3
-    nail_dmg: int = 9
-    nail_cooldown: int = 1
-    nail_ticks_between_moves: int = 2
+    nail_health: int = 6
+    nail_dmg: int = 6
+    nail_cooldown: int = 6
+    nail_ticks_between_moves: int = 6
 
     @classmethod
     def random(cls):
@@ -226,7 +227,7 @@ class CoolGameEnvironment(GameEnvironment):
                                                  'Torch vs Nail', BENCHMARKING_EPISODES,
                                                  MCTS_BUDGET)
         logging.info(f"episodes={BENCHMARKING_EPISODES} mcts_budget={MCTS_BUDGET}")
-        logging.info(f'winrates=saw:[{saw_vs_torch}, {saw_vs_nail}] torch:[{torch_vs_nail}]')
+        logging.info(f'winrates=saw vs torch:{saw_vs_torch} saw vs nail {saw_vs_nail} torch:[{torch_vs_nail}]')
         logging.info(f'params={self.current_state}')
 
         winrates = np.array([saw_vs_nail, torch_vs_nail, saw_vs_torch])
@@ -264,21 +265,22 @@ class CoolGameEnvironment(GameEnvironment):
                 'botA_botB', 1,  # instead of benchmarking 1000 times, we sample once
                 MCTS_BUDGET)
             reward = (reward * 2) - 1
-
+            logging.info("P1: %s: P2: %s won:%s", item1, item2, reward)
             for player_i, player in enumerate(self.players):
                 # player internally flips reward for opponent
                 player.update(items[player_i], reward)
 
-            u = self.players[0].get_u_fn().get_all_vals()
-            P_A = softmax(u)
-            entropy_loss = -entropy(P_A)
-            self.entropy.append(entropy_loss)
-            logging.info("Entropy Loss=%s", entropy_loss)
-            if not eval_only:
-                self.rewards.append(reward)
-                return CoolGameEvaluationResult(entropy_loss)
-            else:
-                return entropy_loss
+        u = self.players[0].get_u_fn().get_all_vals()
+        P_A = softmax(u)
+        logging.info("P_A = %s", str(P_A))
+        entropy_loss = -entropy(P_A)
+        self.entropy.append(entropy_loss)
+        logging.info("Entropy Loss=%s", entropy_loss)
+        if not eval_only:
+            self.rewards.append(entropy_loss)
+            return CoolGameEvaluationResult(entropy_loss)
+        else:
+            return entropy_loss
 
     def get_state(self) -> State["CoolGameEnvironment"]:
         return self.current_state
@@ -301,14 +303,16 @@ class CoolGameEnvironment(GameEnvironment):
         pass
 
     def snapshot_game_state(self, path: str):
+        import os
         logging.info("Objective: %s \n", str(self.rewards))
         logging.info("Entropy_loss: %s \n", str(self.entropy))
         gamestate_path = Path(path) / "game_state.json"
         with gamestate_path.open("w") as outfile:
             json.dump(dataclasses.asdict(self.current_state), outfile)
-
+        np.save(os.path.join(path, "entropies.npy"), np.array(self.entropy))
         self._latest_gamestate_path = gamestate_path
 
     def plot_rewards(self, path: str):
+        print(self.rewards)
         plot_rewards(self.rewards)
         plt.savefig(path)

@@ -6,7 +6,7 @@ from metagame_balance.utility import UtilityFunctionManager
 
 class SoftmaxCompetitor:
     def __init__(self, name:str,
-                utility_fn, update_policy:bool, lr: float = 1e-2):
+                utility_fn, update_policy:bool, lr: float = 1e-1):
         self.name = name
 
         self.utility_fn = utility_fn

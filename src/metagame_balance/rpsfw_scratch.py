@@ -62,7 +62,7 @@ class RPSFWEnvironment(GameEnvironment):
         surrogate = []
         for a in agent_names:
             if a == "agent":
-                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
+                surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True, 1e-2))
             else:
                 surrogate.append(SoftmaxCompetitor(a, TabularFn(5), True))
 
