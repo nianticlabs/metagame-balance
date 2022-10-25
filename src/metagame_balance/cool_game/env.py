@@ -276,10 +276,10 @@ class CoolGameEnvironment(GameEnvironment):
         for i in range(self.epochs):
             item1, item2 = self.players[0].get_action(self.item_map), \
                            self.players[1].get_action(self.item_map)
+            items = [item1, item2]
             if item1 == item2:
                 reward = 0
             else:
-                items = [item1, item2]
                 env = _make_gym(botA_type=item1, botB_type=item2,
                                 **dataclasses.asdict(self.current_state))
                 mcts_agent = build_MCTS_Agent(env, DEFAULT_MCTS_CONFIG, "mcts agent")
@@ -299,6 +299,7 @@ class CoolGameEnvironment(GameEnvironment):
         u = self.players[0].get_u_fn().get_all_vals()
         P_A = softmax(u)
         logging.info("P_A = %s", str(P_A))
+        print(P_A)
         entropy_loss = -entropy(P_A)
         self.entropy.append(entropy_loss)
         logging.info("Entropy Loss=%s", entropy_loss)
