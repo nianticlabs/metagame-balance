@@ -5,7 +5,7 @@ from metagame_balance.vgc.competition.Competitor import Competitor
 
 
 class ProposedCompetitor(Competitor):
-    def __init__(self, num_pkm, name: str = "Niantic Policy"):
+    def __init__(self, num_pkm, name: str = "Policy"):
         self._name = name
         self.num_pkm = num_pkm
         self._balance_policy = CMAESBalancePolicy(num_pkm)
