@@ -1,3 +1,7 @@
+"""
+This module contains a kubeflow pipeline used for running copies of the experiment in parallel.
+"""
+
 import kfp
 import kfp.components as comp
 from kfp import dsl, LocalClient
@@ -101,8 +105,7 @@ run_vgc = create_component_from_func(
 
 
 @dsl.pipeline("vgc_experiment",
-              description="metagame balance experiments pipeline",
-              pipeline_root="gs://niantic-ml-data/ml-intern-rl/pipelines/experiment_v1")
+              description="metagame balance experiments pipeline")
 def pipeline(
         stage1_iter: int,
         regularization: float,
