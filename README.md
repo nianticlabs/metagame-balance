@@ -1,6 +1,6 @@
 # Game Meta Balance
 
-This repository is the official implementation of the paper titled "Bilevel Entropy based Mechanism Design for Balancing Meta in Video Games".
+This repository is the official implementation of the paper titled ["Bilevel Entropy based Mechanism Design for Balancing Meta in Video Games"](https://people.engr.tamu.edu/guni/pistar/Papers/AAMAS23-meta.pdf).
 
 Brief Description: Our paper formulates the game meta balance problem as mechanism design problem. We set the objective of the designer as maximizing the entropy of a (given) player's mixed strategy (over the strategy space) at nash equilibrium. Such a formulation, paired with state-of-the-art solvers leads to a scalable algorithm as shown in our paper. The repository provides an official implementation of our problem formulation. The respository also serves as a benchmark for game balance on three domains (source code adapted from respective gits)
 1. [Rock Paper Scissor Fire Water (RPSFW)](https://en.wikipedia.org/wiki/Rock_paper_scissors#:~:text=Rock%20beats%20scissors%2C%20paper%20beats,time%20for%20fire%20and%20water)
